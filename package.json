@@ -1,0 +1,13 @@
+{
+  "name": "cms-root",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "admin-ui"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev -w backend",
+    "dev:admin": "npm run dev -w admin-ui",
+    "db:setup": "npm run db:setup -w backend"
+  }
+}

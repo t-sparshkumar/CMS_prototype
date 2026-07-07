@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: cms-backend
+    runtime: node
+    rootDir: backend
+    plan: starter
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /server/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_CLIENT
+        value: pg
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_UI_URL
+        sync: false
+      - key: UPLOAD_DIR
+        value: /var/data/uploads
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cms-db
+          property: connectionString
+    disk:
+      name: cms-uploads
+      mountPath: /var/data
+      sizeGB: 1
+
+databases:
+  - name: cms-db
+    plan: basic-256mb
+    databaseName: cms
+    user: cms
