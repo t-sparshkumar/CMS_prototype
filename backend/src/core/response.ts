@@ -1,6 +1,9 @@
 export interface ApiMeta {
   total_count?: number;
   filter_count?: number;
+  source?: string;
+  warnings?: string[];
+  stats?: Record<string, number>;
 }
 
 export interface SuccessResponse<T> {

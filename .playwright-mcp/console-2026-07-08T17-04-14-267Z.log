@@ -1,0 +1,31 @@
+[    3398ms] [LOG] TrafficAgent: Initializing storage protection for internal items. @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    3398ms] [LOG] Client code is required to start Traffic Agent. Please provide it in the script tag or as a query param. @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    3399ms] [LOG] Force removing localStorage item with key: katalon_traffic_agent_pending_related_tab, bypassing protection. @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    3399ms] [WARNING] Client code is required to start Traffic Agent @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:2
+[    4610ms] [LOG] address=null @ kameleoonGlobalScript.js:1
+[    4610ms] [LOG] mobilefijo=null @ kameleoonGlobalScript.js:1
+[   19277ms] [LOG] %c[IND]%c You are running %c MacOS %c Operating system, %c Chrome %c browser, version: %c 149 color: White; background: #17384c; font-weight: bold; padding: 3px; border-radius:3px 0 0 3px; color: Black; background: #50e590; font-weight: bold; padding: 3px color: White; background: #17384c; font-weight: bold; padding: 3px; color: Black; background: #50e590; font-weight: bold; padding: 3px color: White; background: #17384c; font-weight: bold; padding: 3px; color: Black; background: #50e590; font-weight: bold; padding: 3px color: White; background: #17384c; font-weight: bold; padding: 3px; border-radius:0 3px 3px 0 @ https://cdn.equalweb.com/core/4.5.12/accessibility.js:0
+[   19277ms] [LOG] %c[IND]%c Version %c4.5.12%c color: White; background: #17384c; font-weight: bold; padding: 3px; border-radius:3px 0 0 3px; color: Black; background: #50e590; font-weight: bold; padding: 3px color: White; background: #17384c; font-weight: bold; padding: 3px; border-radius:0 3px 3px 0  @ https://cdn.equalweb.com/core/4.5.12/accessibility.js:0
+[   19896ms] [LOG] GTM Perf Tracker: Page Load Time captured 0 @ :2
+[   23227ms] [LOG] Clearing localStorage, preserving items: {katalon_traffic_agent_device: 4c0b9863-d9d3-4eba-b60b-580382441eb4} @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[   23227ms] [LOG] Restoring localStorage items: {katalon_traffic_agent_device: 4c0b9863-d9d3-4eba-b60b-580382441eb4} @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[   23227ms] [LOG] storedParams null URLSearchParams @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   23228ms] [LOG] [APP] ngOnInit - User data: null @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   23229ms] [LOG] storedParams null URLSearchParams @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   23335ms] [LOG] inside initKameleeon @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   23348ms] [LOG] Clearing localStorage, preserving items: {katalon_traffic_agent_device: 4c0b9863-d9d3-4eba-b60b-580382441eb4} @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[   23349ms] [LOG] Restoring localStorage items: {katalon_traffic_agent_device: 4c0b9863-d9d3-4eba-b60b-580382441eb4} @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[   23821ms] [LOG] address=0 @ kameleoonGlobalScript.js:1
+[   23822ms] [LOG] mobilefijo=0 @ kameleoonGlobalScript.js:1
+[   24759ms] [LOG] Inside Cookie Consent Script @ https://www.libertypr.com/:260
+[   26103ms] [LOG] [InjectScriptsService] Injecting 0 src scripts @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   26103ms] [LOG] [InjectScriptsService] Injecting 0 code scripts @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   26797ms] [LOG] Los mejores servicios de internet, móvil, TV y teléfono | Liberty PR @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   26797ms] [LOG] pr @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   26799ms] [LOG]  @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   26800ms] [LOG]  @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   26800ms] [LOG] [MetaService] Setting page title to: Los mejores servicios de internet, móvil, TV y teléfono | Liberty PR @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   26801ms] [LOG] [MetaService] Document title after setting: Los mejores servicios de internet, móvil, TV y teléfono | Liberty PR @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   37584ms] [LOG] [Object, Object] es-ES @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   37584ms] [LOG] [Object, Object] es-ES @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[   37584ms] [LOG] {body_size: b3-regular, moduleTitle: null, title_size: H6, columns: Array(5), id: 169} @ https://www.libertypr.com/main.e29d4ec980065f41.js:0

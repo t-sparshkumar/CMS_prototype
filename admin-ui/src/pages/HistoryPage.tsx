@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import AppLayout from '../components/AppLayout';
+import ConfirmDialog from '../components/data-model/ConfirmDialog';
 import Icon, { type IconName } from '../components/Icon';
 import { clearActivity, fetchActivity, type ActivityEntry } from '../lib/api';
 import { useAuthStore } from '../stores/authStore';
@@ -37,6 +38,7 @@ export default function HistoryPage() {
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -61,7 +63,6 @@ export default function HistoryPage() {
   }, [loadData]);
 
   async function handleClear() {
-    if (!window.confirm('Clear all history records? This cannot be undone.')) return;
     try {
       await clearActivity();
       void loadData();
@@ -76,7 +77,7 @@ export default function HistoryPage() {
       subtitle="Track all changes, deletions, and uploads across the CMS"
       actions={
         isAdmin ? (
-          <button type="button" onClick={() => void handleClear()} className="btn-danger">
+          <button type="button" onClick={() => setClearConfirmOpen(true)} className="btn-danger">
             <Icon name="trash" className="h-4 w-4" />
             Clear History
           </button>
@@ -201,6 +202,18 @@ export default function HistoryPage() {
           </p>
         )}
       </div>
+
+      <ConfirmDialog
+        open={clearConfirmOpen}
+        title="Clear history"
+        message="Clear all history records? This cannot be undone."
+        confirmLabel="Clear"
+        destructive
+        onConfirm={() => {
+          void handleClear().finally(() => setClearConfirmOpen(false));
+        }}
+        onCancel={() => setClearConfirmOpen(false)}
+      />
     </AppLayout>
   );
 }

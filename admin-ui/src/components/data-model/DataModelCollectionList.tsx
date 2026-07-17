@@ -1,9 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
-import Icon, { type IconName } from '../Icon';
+import Icon from '../Icon';
+import CollectionMaterialIcon from '../CollectionMaterialIcon';
 import { isSubCollection } from '../SubCollectionHighlight';
+import {
+  addCollectionLabel,
+  addFolderLabel,
+  collectionTypeLabel,
+  folderBadgeLabel,
+  openCollectionLabel,
+  openFolderLabel,
+} from '../../lib/collectionLabels';
 import { reorderCollections, type CollectionMeta } from '../../lib/api';
+import { getCollectionDisplayName } from '../../lib/collectionDisplay';
 
 interface DataModelCollectionListProps {
   collections: CollectionMeta[];
@@ -11,7 +21,8 @@ interface DataModelCollectionListProps {
   search: string;
   onDelete?: (name: string) => void;
   onDuplicate?: (name: string) => void;
-  onAddSubCollection?: (collection: CollectionMeta) => void;
+  onAddFolder?: (collection: CollectionMeta) => void;
+  onAddCollection?: (collection: CollectionMeta) => void;
   onRefresh?: () => void;
 }
 
@@ -34,40 +45,15 @@ function sortCollections(collections: CollectionMeta[]): CollectionMeta[] {
   );
 }
 
-function mapCollectionIcon(icon: string | null, isGroup: boolean, hidden: boolean): IconName {
-  if (hidden) return 'close';
-  if (isGroup) return 'folder';
-  const map: Record<string, IconName> = {
-    article: 'content',
-    book: 'content',
-    folder: 'folder',
-    image: 'image',
-    person: 'users',
-    settings: 'settings',
-    store: 'component',
-    tag: 'component',
-    widgets: 'component',
-    description: 'pages',
-    inventory: 'database',
-    category: 'group',
-    link: 'external',
-    language: 'content',
-    public: 'external',
-    database: 'database',
-    web: 'layout',
-  };
-  return map[icon ?? ''] ?? 'database';
-}
-
 function GripIcon() {
   return (
-    <svg viewBox="0 0 16 16" className="h-4 w-4" aria-hidden="true">
-      <circle cx="5" cy="4" r="1.2" fill="currentColor" />
-      <circle cx="11" cy="4" r="1.2" fill="currentColor" />
-      <circle cx="5" cy="8" r="1.2" fill="currentColor" />
-      <circle cx="11" cy="8" r="1.2" fill="currentColor" />
-      <circle cx="5" cy="12" r="1.2" fill="currentColor" />
-      <circle cx="11" cy="12" r="1.2" fill="currentColor" />
+    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden="true">
+      <circle cx="5" cy="4" r="1.1" fill="currentColor" />
+      <circle cx="11" cy="4" r="1.1" fill="currentColor" />
+      <circle cx="5" cy="8" r="1.1" fill="currentColor" />
+      <circle cx="11" cy="8" r="1.1" fill="currentColor" />
+      <circle cx="5" cy="12" r="1.1" fill="currentColor" />
+      <circle cx="11" cy="12" r="1.1" fill="currentColor" />
     </svg>
   );
 }
@@ -91,6 +77,7 @@ function collectionMatchesSearch(col: CollectionMeta, query: string): boolean {
   const q = query.toLowerCase();
   return (
     col.collection.toLowerCase().includes(q) ||
+    getCollectionDisplayName(col).toLowerCase().includes(q) ||
     (col.note?.toLowerCase().includes(q) ?? false)
   );
 }
@@ -110,15 +97,19 @@ function DataModelActionsMenu({
   onClose,
   onDelete,
   onDuplicate,
-  onAddSubCollection,
+  onAddFolder,
+  onAddCollection,
 }: {
   collection: CollectionMeta;
   anchor: MenuState;
   onClose: () => void;
   onDelete?: (name: string) => void;
   onDuplicate?: (name: string) => void;
-  onAddSubCollection?: (collection: CollectionMeta) => void;
+  onAddFolder?: (collection: CollectionMeta) => void;
+  onAddCollection?: (collection: CollectionMeta) => void;
 }) {
+  const canAddChildren = collection.is_group && !collection.system;
+
   return createPortal(
     <>
       <button
@@ -138,7 +129,7 @@ function DataModelActionsMenu({
           onClick={onClose}
           role="menuitem"
         >
-          {collection.is_group ? 'Open folder' : 'Open collection'}
+          {collection.is_group ? openFolderLabel() : openCollectionLabel()}
         </Link>
         <Link
           to={`/settings/data-model/${collection.collection}/setup`}
@@ -148,17 +139,30 @@ function DataModelActionsMenu({
         >
           Collection setup
         </Link>
-        {onAddSubCollection && !collection.system && (
+        {canAddChildren && onAddFolder && (
           <button
             type="button"
             className="menu-dropdown-item w-full text-left"
             onClick={() => {
-              onAddSubCollection(collection);
+              onAddFolder(collection);
               onClose();
             }}
             role="menuitem"
           >
-            Add sub-collection
+            {addFolderLabel()}
+          </button>
+        )}
+        {canAddChildren && onAddCollection && (
+          <button
+            type="button"
+            className="menu-dropdown-item w-full text-left"
+            onClick={() => {
+              onAddCollection(collection);
+              onClose();
+            }}
+            role="menuitem"
+          >
+            {addCollectionLabel()}
           </button>
         )}
         {onDuplicate && !collection.system && (
@@ -216,7 +220,8 @@ export default function DataModelCollectionList({
   search,
   onDelete,
   onDuplicate,
-  onAddSubCollection,
+  onAddFolder,
+  onAddCollection,
   onRefresh,
 }: DataModelCollectionListProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -381,21 +386,21 @@ export default function DataModelCollectionList({
 
   if (isLoading) {
     return (
-      <div className="dm-collection-shell">
-        <div className="px-6 py-12 text-center text-sm text-slate-400">Loading collections...</div>
+      <div className="dm-shell">
+        <div className="dm-empty text-sm">Loading collections...</div>
       </div>
     );
   }
 
   if (visibleRows.length === 0) {
     return (
-      <div className="dm-collection-shell">
-        <div className="px-6 py-12 text-center">
-          <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-            <Icon name="database" className="h-6 w-6" />
+      <div className="dm-shell">
+        <div className="dm-empty">
+          <span className="dm-empty-icon">
+            <Icon name="database" className="h-5 w-5" />
           </span>
-          <p className="text-sm font-medium text-slate-700">No collections found</p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="text-sm font-medium text-[var(--app-text)]">No collections found</p>
+          <p className="mt-1 text-xs">
             {search ? 'Try a different search term.' : 'Create your first collection to get started.'}
           </p>
         </div>
@@ -404,29 +409,28 @@ export default function DataModelCollectionList({
   }
 
   return (
-    <div className="dm-collection-shell">
-      <div className="dm-collection-shell-header">
-        <span className="text-xs font-medium text-slate-500">
+    <div className="dm-shell">
+      <div className="dm-shell-header">
+        <span>
           {visibleRows.length} item{visibleRows.length === 1 ? '' : 's'}
         </span>
         {expandableParents.length > 0 && (
           <button
             type="button"
             onClick={() => (expanded.size > 0 ? collapseAll() : expandAll())}
-            className="text-xs font-semibold text-brand-600 hover:text-brand-700"
           >
-            {expanded.size > 0 ? 'Collapse All' : 'Expand All'}
+            {expanded.size > 0 ? 'Collapse all' : 'Expand all'}
           </button>
         )}
       </div>
 
-      <ul className="divide-y divide-slate-100">
+      <ul>
         {visibleRows.map((row) => {
           const { collection: col, depth, hasChildren, isExpanded: rowExpanded } = row;
           const isSub = isSubCollection(col);
           const isDragging = dragKey === col.collection;
-          const color = col.color ?? (isSub ? '#8b5cf6' : '#6366f1');
-          const iconName = mapCollectionIcon(col.icon, col.is_group, col.hidden);
+          const displayName = getCollectionDisplayName(col);
+          const color = col.color ?? 'var(--app-accent)';
           const siblings = sortCollections(
             collections.filter((c) => (c.parent ?? null) === (col.parent ?? null)),
           );
@@ -437,10 +441,8 @@ export default function DataModelCollectionList({
           return (
             <li
               key={col.collection}
-              className={`dm-collection-row group ${isSub ? 'dm-collection-row-sub' : ''} ${
-                isDragging ? 'dm-collection-row-dragging' : ''
-              }`}
-              style={{ paddingLeft: `${16 + depth * 28}px` }}
+              className={`dm-row group ${isSub ? 'is-nested' : ''} ${isDragging ? 'is-dragging' : ''}`}
+              style={{ paddingLeft: `${12 + depth * 20}px` }}
               onDragOver={(e) => {
                 if (canReorder) e.preventDefault();
               }}
@@ -452,7 +454,7 @@ export default function DataModelCollectionList({
               <button
                 type="button"
                 draggable={canReorder}
-                aria-label={`Reorder ${col.collection}`}
+                aria-label={`Reorder ${displayName}`}
                 onDragStart={(e) => {
                   if (!canReorder) {
                     e.preventDefault();
@@ -462,7 +464,8 @@ export default function DataModelCollectionList({
                   e.dataTransfer.effectAllowed = 'move';
                 }}
                 onDragEnd={() => setDragKey(null)}
-                className={`dm-collection-grip ${canReorder ? '' : 'dm-collection-grip-disabled'}`}
+                className="dm-grip"
+                disabled={!canReorder}
               >
                 <GripIcon />
               </button>
@@ -472,11 +475,11 @@ export default function DataModelCollectionList({
                   type="button"
                   aria-label={rowExpanded ? 'Collapse' : 'Expand'}
                   onClick={() => toggleExpanded(col.collection)}
-                  className="dm-collection-expand"
+                  className="dm-expand-btn"
                 >
                   <Icon
                     name="chevron-right"
-                    className={`h-4 w-4 transition-transform ${rowExpanded ? 'rotate-90' : ''}`}
+                    className={`h-3.5 w-3.5 transition-transform ${rowExpanded ? 'rotate-90' : ''}`}
                   />
                 </button>
               ) : (
@@ -485,27 +488,28 @@ export default function DataModelCollectionList({
 
               <Link
                 to={`/settings/data-model/${col.collection}`}
-                className="flex min-w-0 flex-1 items-center gap-3"
+                className="dm-row-link"
               >
                 <span
-                  className="dm-collection-icon"
-                  style={{ backgroundColor: color }}
+                  className="dm-row-icon"
+                  style={{
+                    backgroundColor: `color-mix(in srgb, ${color} 14%, var(--app-surface))`,
+                    color,
+                  }}
                 >
-                  <Icon name={iconName} className="h-[18px] w-[18px] text-white" />
+                  <CollectionMaterialIcon
+                    icon={col.icon}
+                    isGroup={col.is_group}
+                    size={16}
+                  />
                 </span>
-                <span className="truncate font-mono text-sm font-medium text-slate-800 group-hover:text-brand-700">
-                  {col.collection}
-                </span>
-                {col.hidden && (
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                    Hidden
-                  </span>
+                <span className="dm-row-title truncate">{displayName}</span>
+                {col.is_group && <span className="dm-row-tag">{folderBadgeLabel()}</span>}
+                {!col.is_group && col.parent && (
+                  <span className="dm-row-tag">{collectionTypeLabel(col)}</span>
                 )}
-                {col.system && (
-                  <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                    System
-                  </span>
-                )}
+                {col.hidden && <span className="dm-row-tag">Hidden</span>}
+                {col.system && <span className="dm-row-tag">System</span>}
               </Link>
 
               <div className="flex shrink-0 items-center gap-0.5">
@@ -514,7 +518,7 @@ export default function DataModelCollectionList({
                   aria-label="Move up"
                   disabled={!canMoveUp}
                   onClick={() => moveSibling(col.collection, -1)}
-                  className="dm-collection-sort"
+                  className="dm-sort-btn"
                 >
                   <Icon name="arrow-up" className="h-3.5 w-3.5" />
                 </button>
@@ -523,19 +527,20 @@ export default function DataModelCollectionList({
                   aria-label="Move down"
                   disabled={!canMoveDown}
                   onClick={() => moveSibling(col.collection, 1)}
-                  className="dm-collection-sort"
+                  className="dm-sort-btn"
                 >
                   <Icon name="arrow-down" className="h-3.5 w-3.5" />
                 </button>
                 <button
                   type="button"
-                  aria-label={`Actions for ${col.collection}`}
+                  aria-label={`Actions for ${displayName}`}
+                  aria-expanded={openMenu?.collection === col.collection}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     openMenuAtButton(e.currentTarget, col.collection, setOpenMenu, openMenu);
                   }}
-                  className={`dm-collection-menu ${openMenu?.collection === col.collection ? 'dm-collection-menu-active' : ''}`}
+                  className="dm-menu-btn"
                 >
                   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
                     <circle cx="12" cy="5" r="2" />
@@ -556,7 +561,8 @@ export default function DataModelCollectionList({
           onClose={() => setOpenMenu(null)}
           onDelete={onDelete}
           onDuplicate={onDuplicate}
-          onAddSubCollection={onAddSubCollection}
+          onAddFolder={onAddFolder}
+          onAddCollection={onAddCollection}
         />
       )}
     </div>

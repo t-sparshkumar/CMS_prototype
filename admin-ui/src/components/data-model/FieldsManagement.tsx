@@ -79,50 +79,50 @@ export default function FieldsManagement({ collection }: FieldsManagementProps) 
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[200px] max-w-xs">
-          <Icon name="search" className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+    <div className="space-y-3">
+      <div className="dm-field-toolbar">
+        <div className="collection-list-search max-w-xs">
+          <Icon name="search" className="collection-list-search-icon h-3.5 w-3.5" />
           <input
             type="search"
             placeholder="Search fields..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input pl-9"
+            className="collection-list-search-input"
           />
         </div>
-        <label className="flex items-center gap-2 text-sm font-medium text-slate-600 cursor-pointer">
+        <label>
           <input
             type="checkbox"
             checked={showSystem}
             onChange={(e) => setShowSystem(e.target.checked)}
-            className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+            className="h-3.5 w-3.5 rounded border-[var(--app-border)] text-[var(--app-accent)] focus:ring-[var(--app-accent)]"
           />
           System fields
         </label>
-        <Link to={`/settings/data-model/${collection}/fields/new`} className="btn-primary ml-auto">
+        <Link to={`/settings/data-model/${collection}/fields/new`} className="btn-primary text-sm ml-auto">
           <Icon name="plus" className="h-4 w-4" />
           Create Field
         </Link>
       </div>
 
       {error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
       )}
 
       {topLevelFields.length === 0 ? (
-        <div className="card p-12 text-center">
-          <span className="h-12 w-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
-            <Icon name="database" className="h-6 w-6" />
+        <div className="dm-empty">
+          <span className="dm-empty-icon">
+            <Icon name="database" className="h-5 w-5" />
           </span>
-          <p className="text-sm text-slate-500 mb-3">No fields yet.</p>
-          <Link to={`/settings/data-model/${collection}/fields/new`} className="btn-primary">
+          <p className="text-sm mb-3">No fields yet.</p>
+          <Link to={`/settings/data-model/${collection}/fields/new`} className="btn-primary text-sm">
             <Icon name="plus" className="h-4 w-4" />
             Add your first field
           </Link>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {topLevelFields.map((field, index) => (
             <div key={field.id}>
               <FieldCard
@@ -138,7 +138,7 @@ export default function FieldsManagement({ collection }: FieldsManagementProps) 
                 onDelete={() => setDeleteTarget(field.field)}
               />
               {childrenByGroup.get(field.field)?.map((child) => (
-                <div key={child.id} className="ml-8 mt-2">
+                <div key={child.id} className="ml-6 mt-1.5">
                   <FieldCard
                     collection={collection}
                     field={child}

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import Icon from '../components/Icon';
+import { parsePageSections } from '../components/PageSectionsBuilder';
 import { fetchItems, type ItemRecord } from '../lib/api';
 
 interface PageRow {
@@ -9,23 +10,18 @@ interface PageRow {
   title: string;
   slug: string;
   page_group_title: string;
-  component_count: number;
+  section_count: number;
   active: boolean;
   status: string;
 }
 
-function parseComponents(value: unknown): number {
-  if (Array.isArray(value)) return value.length;
-  if (typeof value === 'string') {
-    try {
-      const parsed = JSON.parse(value) as unknown;
-      return Array.isArray(parsed) ? parsed.length : 0;
-    } catch {
-      return 0;
-    }
-  }
-  return 0;
-}
+const PAGE_ICON_GRADIENTS = [
+  'from-brand-500 to-indigo-600',
+  'from-emerald-500 to-teal-600',
+  'from-amber-500 to-orange-600',
+  'from-rose-500 to-pink-600',
+  'from-violet-500 to-purple-600',
+];
 
 function statusBadge(status: string): string {
   if (status === 'published') return 'badge-green';
@@ -33,8 +29,14 @@ function statusBadge(status: string): string {
   return 'badge-amber';
 }
 
+function pageInitial(title: string): string {
+  const trimmed = title.trim();
+  return trimmed.charAt(0).toUpperCase() || 'P';
+}
+
 export default function PagesDashboardPage() {
   const [pages, setPages] = useState<PageRow[]>([]);
+  const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +56,7 @@ export default function PagesDashboardPage() {
             title: String(item.title ?? 'Untitled'),
             slug: String(item.slug ?? ''),
             page_group_title: groupTitle,
-            component_count: parseComponents(item.components),
+            section_count: parsePageSections(item.sections).length,
             active: Boolean(item.active),
             status: String(item.status ?? 'draft'),
           };
@@ -69,10 +71,27 @@ export default function PagesDashboardPage() {
     void load();
   }, []);
 
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return pages;
+    return pages.filter((page) => {
+      const title = page.title.toLowerCase();
+      const slug = page.slug.toLowerCase();
+      const group = page.page_group_title.toLowerCase();
+      return title.includes(query) || slug.includes(query) || group.includes(query);
+    });
+  }, [pages, search]);
+
+  const hasSearchQuery = search.trim().length > 0;
+
   return (
     <AppLayout
       title="Website Pages"
       subtitle="Manage website pages, slugs, and component layouts"
+      breadcrumbs={[
+        { label: 'Content', to: '/content' },
+        { label: 'Pages' },
+      ]}
       actions={
         <Link to="/pages/new" className="btn-primary">
           <Icon name="plus" className="h-4 w-4" />
@@ -80,14 +99,31 @@ export default function PagesDashboardPage() {
         </Link>
       }
     >
-      <div className="max-w-6xl space-y-5">
-        {error && <div className="alert-info">{error}</div>}
-
+      <div className="max-w-5xl space-y-5">
         <div className="page-toolbar">
+          <div className="relative min-w-[220px] flex-1 max-w-md">
+            <Icon
+              name="search"
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by title, slug, or page group..."
+              className="input pl-9"
+            />
+          </div>
+          <span className="toolbar-divider" />
           <span className="toolbar-count">
-            {pages.length} page{pages.length === 1 ? '' : 's'}
+            {filtered.length} page{filtered.length === 1 ? '' : 's'}
+            {hasSearchQuery && pages.length !== filtered.length ? (
+              <span className="text-slate-400"> of {pages.length}</span>
+            ) : null}
           </span>
         </div>
+
+        {error && <div className="alert-info">{error}</div>}
 
         <div className="table-shell">
           <table className="w-full text-sm">
@@ -96,10 +132,10 @@ export default function PagesDashboardPage() {
                 <th className="table-th">Page</th>
                 <th className="table-th">Page Group</th>
                 <th className="table-th">Slug</th>
-                <th className="table-th">Components</th>
+                <th className="table-th">Sections</th>
                 <th className="table-th">Active</th>
                 <th className="table-th">Status</th>
-                <th className="table-th" />
+                <th className="table-th text-right w-24">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -109,33 +145,75 @@ export default function PagesDashboardPage() {
                     Loading pages...
                   </td>
                 </tr>
-              ) : pages.length === 0 ? (
+              ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-5 py-16 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <span className="h-12 w-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center">
-                        <Icon name="pages" className="h-6 w-6" />
+                  <td colSpan={7}>
+                    <div className="empty-state py-12">
+                      <span className="empty-state-icon">
+                        <Icon name="pages" className="h-7 w-7" />
                       </span>
-                      <p className="text-slate-500">No pages yet.</p>
-                      <Link to="/pages/new" className="btn-primary">
-                        <Icon name="plus" className="h-4 w-4" />
-                        Create your first page
-                      </Link>
+                      {hasSearchQuery ? (
+                        <>
+                          <p className="font-medium text-slate-700">No matching pages</p>
+                          <p className="mt-1 text-sm text-slate-500">
+                            Try a different search term or clear the filter.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setSearch('')}
+                            className="btn-secondary mt-4"
+                          >
+                            Clear search
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <p className="font-medium text-slate-700">No pages yet</p>
+                          <p className="mt-1 text-sm text-slate-500">
+                            Create your first page to start building your website.
+                          </p>
+                          <Link to="/pages/new" className="btn-primary mt-4">
+                            <Icon name="plus" className="h-4 w-4" />
+                            Create your first page
+                          </Link>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
               ) : (
-                pages.map((page) => (
+                filtered.map((page, index) => (
                   <tr key={page.id} className="table-row-hover">
-                    <td className="table-td font-semibold text-slate-900">{page.title}</td>
-                    <td className="table-td">{page.page_group_title}</td>
                     <td className="table-td">
-                      <code className="text-xs text-slate-500 bg-slate-100 rounded px-1.5 py-0.5">
-                        /{page.slug}
-                      </code>
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${
+                            PAGE_ICON_GRADIENTS[index % PAGE_ICON_GRADIENTS.length]
+                          } text-white text-xs font-bold shadow-sm`}
+                        >
+                          {pageInitial(page.title)}
+                        </span>
+                        <span className="font-semibold text-slate-900">{page.title}</span>
+                      </div>
                     </td>
                     <td className="table-td">
-                      <span className="badge-blue">{page.component_count}</span>
+                      {page.page_group_title === '—' ? (
+                        <span className="text-slate-400">—</span>
+                      ) : (
+                        <span className="text-slate-600">{page.page_group_title}</span>
+                      )}
+                    </td>
+                    <td className="table-td">
+                      {page.slug ? (
+                        <code className="rounded-md bg-slate-50 px-2 py-0.5 text-xs font-mono text-slate-600 ring-1 ring-inset ring-slate-200">
+                          /{page.slug}
+                        </code>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
+                    <td className="table-td">
+                      <span className="badge-blue">{page.section_count}</span>
                     </td>
                     <td className="table-td">
                       <span className={page.active ? 'badge-green' : 'badge-gray'}>
@@ -145,14 +223,23 @@ export default function PagesDashboardPage() {
                     <td className="table-td">
                       <span className={statusBadge(page.status)}>{page.status}</span>
                     </td>
-                    <td className="table-td text-right">
-                      <Link
-                        to={`/pages/${page.id}/edit`}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700"
-                      >
-                        <Icon name="edit" className="h-4 w-4" />
-                        Edit
-                      </Link>
+                    <td className="table-td">
+                      <div className="flex items-center justify-end gap-1">
+                        <Link
+                          to={`/pages/${page.id}/preview`}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50"
+                          aria-label={`Preview ${page.title}`}
+                        >
+                          <Icon name="external" className="h-4 w-4" />
+                        </Link>
+                        <Link
+                          to={`/pages/${page.id}/edit`}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-brand-600 hover:bg-brand-50"
+                          aria-label={`Edit ${page.title}`}
+                        >
+                          <Icon name="edit" className="h-4 w-4" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -161,7 +248,7 @@ export default function PagesDashboardPage() {
           </table>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Link
             to="/content/page_groups"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-600"
@@ -170,11 +257,11 @@ export default function PagesDashboardPage() {
             Manage Page Groups
           </Link>
           <Link
-            to="/components"
+            to="/content"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-600"
           >
             <Icon name="component" className="h-4 w-4" />
-            Manage Components
+            Browse Block Collections
           </Link>
         </div>
       </div>

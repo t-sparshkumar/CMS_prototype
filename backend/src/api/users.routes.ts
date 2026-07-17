@@ -6,7 +6,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 import { getCurrentUserProfile } from '../services/auth.service.js';
 import { logActivity } from '../services/activity.service.js';
-import { createUser, listUsers, updateUser } from '../services/users.service.js';
+import { createUser, deleteUser, listUsers, updateUser } from '../services/users.service.js';
 
 export const usersRouter = Router();
 
@@ -80,6 +80,24 @@ usersRouter.patch('/:id', requireAuth, requireAdmin, async (req: Request, res: R
       comment: `Updated user ${user.email}`,
     });
     res.json(success(user));
+  } catch (err) {
+    next(err);
+  }
+});
+
+usersRouter.delete('/:id', requireAuth, requireAdmin, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const db = getDb();
+    const userId = String(req.params.id);
+    await deleteUser(db, userId, req.user!.id);
+    await logActivity(db, {
+      action: 'delete',
+      user: req.user?.id ?? null,
+      collection: 'cms_users',
+      item: userId,
+      comment: `Deleted user ${userId}`,
+    });
+    res.json(success({ deleted: true }));
   } catch (err) {
     next(err);
   }

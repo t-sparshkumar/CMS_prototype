@@ -1,19 +1,20 @@
+import { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import AuthBootstrapGate from './components/AuthBootstrapGate';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardPage from './pages/DashboardPage';
 import AssetGalleryPage from './pages/AssetGalleryPage';
 import HistoryPage from './pages/HistoryPage';
 import UsersPage from './pages/UsersPage';
-import UserCreatePage from './pages/UserCreatePage';
 import PagesDashboardPage from './pages/PagesDashboardPage';
 import PageEditPage from './pages/PageEditPage';
-import ComponentsLibraryPage from './pages/ComponentsLibraryPage';
-import GlobalLayoutPage from './pages/GlobalLayoutPage';
+import PagePreviewPage from './pages/PagePreviewPage';
 import ContentItemPage from './pages/ContentItemPage';
 import ContentListPage from './pages/ContentListPage';
 import AccessControlPage from './pages/AccessControlPage';
 import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
+import NotFoundPage from './pages/NotFoundPage';
 import CollectionsListPage from './pages/data-model/CollectionsListPage';
 import NewCollectionPage from './pages/data-model/NewCollectionPage';
 import DataModelLayout from './pages/data-model/DataModelLayout';
@@ -22,10 +23,22 @@ import CollectionSetupPage from './pages/data-model/CollectionSetupPage';
 import CollectionRelationsPage from './pages/data-model/CollectionRelationsPage';
 import FieldDetailPage from './pages/data-model/FieldDetailPage';
 import NewFieldPage from './pages/data-model/NewFieldPage';
+import TriggersPage from './pages/TriggersPage';
+import TranslationsPage from './pages/TranslationsPage';
 import { useAuthStore } from './stores/authStore';
 
 export default function App() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isBootstrapping = useAuthStore((s) => s.isBootstrapping);
+  const bootstrapAuth = useAuthStore((s) => s.bootstrapAuth);
+
+  useEffect(() => {
+    void bootstrapAuth();
+  }, [bootstrapAuth]);
+
+  if (isBootstrapping) {
+    return <AuthBootstrapGate>{null}</AuthBootstrapGate>;
+  }
 
   return (
     <Routes>
@@ -74,6 +87,14 @@ export default function App() {
         }
       />
       <Route
+        path="/pages/:id/preview"
+        element={
+          <ProtectedRoute>
+            <PagePreviewPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/pages/:id/edit"
         element={
           <ProtectedRoute>
@@ -82,18 +103,18 @@ export default function App() {
         }
       />
       <Route
-        path="/components"
+        path="/pages/:id/preview"
         element={
           <ProtectedRoute>
-            <ComponentsLibraryPage />
+            <PagePreviewPage />
           </ProtectedRoute>
         }
       />
       <Route
-        path="/settings/global-layout"
+        path="/components"
         element={
           <ProtectedRoute>
-            <GlobalLayoutPage />
+            <Navigate to="/content" replace />
           </ProtectedRoute>
         }
       />
@@ -106,10 +127,18 @@ export default function App() {
         }
       />
       <Route
-        path="/settings/users/new"
+        path="/settings/triggers"
         element={
           <ProtectedRoute>
-            <UserCreatePage />
+            <TriggersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/translations"
+        element={
+          <ProtectedRoute>
+            <TranslationsPage />
           </ProtectedRoute>
         }
       />
@@ -183,7 +212,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

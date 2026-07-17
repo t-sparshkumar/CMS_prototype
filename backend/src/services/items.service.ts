@@ -18,11 +18,35 @@ import {
   enrichItemWithRelations,
   syncManyToManyRelations,
 } from './relation-resolver.service.js';
+import { findConfiguredTranslationsField, syncTranslationRows } from './translations.service.js';
 import type { AccessContext } from '../types/permission.js';
 import { getCollection } from './collections.service.js';
 import { filterReadableFields, filterWritableInput } from './permissions.service.js';
 import { logActivity } from './activity.service.js';
 import { syncM2aRelations } from './m2a.service.js';
+
+async function runItemEventFlows(
+  db: Knex,
+  context: {
+    collection: string;
+    event: 'create' | 'update' | 'delete';
+    hook: 'filter' | 'action';
+    keys?: string[];
+    payload?: Record<string, unknown>;
+    userId: string | null;
+  },
+): Promise<Record<string, unknown> | undefined> {
+  const { runEventFlows } = await import('./flows/trigger.service.js');
+  const result = await runEventFlows(db, {
+    collection: context.collection,
+    event: context.event,
+    hook: context.hook,
+    keys: context.keys,
+    payload: context.payload,
+    accountability: { user: context.userId, role: null },
+  });
+  return result.payload;
+}
 
 const SYSTEM_AUTO_FIELDS = new Set(['id', 'date_created', 'date_updated', 'user_created', 'user_updated']);
 
@@ -144,7 +168,7 @@ export async function getItem(
   const enriched = await enrichItemWithRelations(
     db,
     collectionName,
-    normalizeItemRow(item),
+    normalizeBooleanFields(normalizeItemRow(item), fieldMeta),
     fieldsRaw ?? fields,
   );
   return filterReadableFields(enriched, access);
@@ -166,6 +190,15 @@ export async function createItem(
   validateItemInput(fields, sanitizedInput, true);
   await validateFileFields(db, fields, sanitizedInput);
 
+  const filteredPayload = await runItemEventFlows(db, {
+    collection: collectionName,
+    event: 'create',
+    hook: 'filter',
+    payload: sanitizedInput as Record<string, unknown>,
+    userId,
+  });
+  const flowInput = (filteredPayload ?? sanitizedInput) as CreateItemInput;
+
   if (collection.singleton) {
     const existing = await db(collectionName).first();
     if (existing) {
@@ -173,10 +206,11 @@ export async function createItem(
     }
   }
 
-  const payload = buildItemPayload(sanitizedInput, fields, userId, true);
+  const payload = buildItemPayload(flowInput, fields, userId, true);
   await db(collectionName).insert(payload);
-  await syncManyToManyRelations(db, collectionName, payload.id as string, sanitizedInput, fields);
-  await syncM2aFieldInputs(db, collectionName, payload.id as string, sanitizedInput, fields);
+  await syncManyToManyRelations(db, collectionName, payload.id as string, flowInput, fields);
+  await syncM2aFieldInputs(db, collectionName, payload.id as string, flowInput, fields);
+  await syncTranslationRows(db, collectionName, payload.id as string, flowInput, fields, userId);
 
   const created = await db(collectionName).where({ id: payload.id as string }).first<ItemRecord>();
   if (!created) {
@@ -193,7 +227,18 @@ export async function createItem(
   });
 
   const enriched = await enrichItemWithRelations(db, collectionName, normalized, null);
-  return filterReadableFields(enriched, access);
+  const result = filterReadableFields(enriched, access);
+
+  void runItemEventFlows(db, {
+    collection: collectionName,
+    event: 'create',
+    hook: 'action',
+    keys: [payload.id as string],
+    payload: normalized,
+    userId,
+  });
+
+  return result;
 }
 
 /**
@@ -223,19 +268,34 @@ export async function updateItem(
     throw new AppError(`Item "${itemId}" not found in "${collectionName}"`, 404, 'NOT_FOUND');
   }
 
-  const payload = buildItemPayload(sanitizedInput, fields, userId, false);
-  const hasM2m = fields.some((f) => isManyToManyInterface(f.interface) && f.field in sanitizedInput);
-  const hasM2a = fields.some((f) => f.interface === 'many-to-any' && f.field in sanitizedInput);
+  const filteredPayload = await runItemEventFlows(db, {
+    collection: collectionName,
+    event: 'update',
+    hook: 'filter',
+    keys: [itemId],
+    payload: sanitizedInput as Record<string, unknown>,
+    userId,
+  });
+  const flowInput = (filteredPayload ?? sanitizedInput) as UpdateItemInput;
 
-  if (Object.keys(payload).length === 0 && !hasM2m && !hasM2a) {
+  const payload = buildItemPayload(flowInput, fields, userId, false);
+  const hasM2m = fields.some((f) => isManyToManyInterface(f.interface) && f.field in flowInput);
+  const hasM2a = fields.some((f) => f.interface === 'many-to-any' && f.field in flowInput);
+  const configuredTranslationsField = findConfiguredTranslationsField(fields);
+  const hasTranslations = configuredTranslationsField
+    ? configuredTranslationsField.field in flowInput
+    : false;
+
+  if (Object.keys(payload).length === 0 && !hasM2m && !hasM2a && !hasTranslations) {
     throw new AppError('No valid fields to update', 400, 'VALIDATION_ERROR');
   }
 
   if (Object.keys(payload).length > 0) {
     await db(collectionName).where({ id: itemId }).update(payload);
   }
-  await syncManyToManyRelations(db, collectionName, itemId, sanitizedInput, fields);
-  await syncM2aFieldInputs(db, collectionName, itemId, sanitizedInput, fields);
+  await syncManyToManyRelations(db, collectionName, itemId, flowInput, fields);
+  await syncM2aFieldInputs(db, collectionName, itemId, flowInput, fields);
+  await syncTranslationRows(db, collectionName, itemId, flowInput, fields, userId);
 
   const updated = await db(collectionName).where({ id: itemId }).first<ItemRecord>();
   if (!updated) {
@@ -249,11 +309,22 @@ export async function updateItem(
     collection: collectionName,
     item: itemId,
     data: normalized,
-    delta: sanitizedInput as Record<string, unknown>,
+    delta: flowInput as Record<string, unknown>,
   });
 
   const enriched = await enrichItemWithRelations(db, collectionName, normalized, null);
-  return filterReadableFields(enriched, access);
+  const result = filterReadableFields(enriched, access);
+
+  void runItemEventFlows(db, {
+    collection: collectionName,
+    event: 'update',
+    hook: 'action',
+    keys: [itemId],
+    payload: normalized,
+    userId,
+  });
+
+  return result;
 }
 
 /**
@@ -280,6 +351,15 @@ export async function deleteItem(
     throw new AppError(`Item "${itemId}" not found in "${collectionName}"`, 404, 'NOT_FOUND');
   }
 
+  await runItemEventFlows(db, {
+    collection: collectionName,
+    event: 'delete',
+    hook: 'filter',
+    keys: [itemId],
+    payload: normalizeItemRow(existing as ItemRecord),
+    userId,
+  });
+
   await enforceSchemaOnDelete(db, collectionName, itemId);
   await logActivity(db, {
     action: 'delete',
@@ -290,6 +370,15 @@ export async function deleteItem(
   });
 
   await db(collectionName).where({ id: itemId }).delete();
+
+  void runItemEventFlows(db, {
+    collection: collectionName,
+    event: 'delete',
+    hook: 'action',
+    keys: [itemId],
+    payload: normalizeItemRow(existing as ItemRecord),
+    userId,
+  });
 }
 
 /**
@@ -373,8 +462,16 @@ async function enrichRows(
   fieldsRaw: string[] | null,
   access: AccessContext,
 ): Promise<ItemRecord[]> {
+  const fieldMeta = await listFields(db, collectionName);
   const enriched = await Promise.all(
-    rows.map((row) => enrichItemWithRelations(db, collectionName, normalizeItemRow(row), fieldsRaw)),
+    rows.map((row) =>
+      enrichItemWithRelations(
+        db,
+        collectionName,
+        normalizeBooleanFields(normalizeItemRow(row), fieldMeta),
+        fieldsRaw,
+      ),
+    ),
   );
   return enriched.map((item) => filterReadableFields(item, access));
 }
@@ -426,8 +523,24 @@ function normalizeInputValue(value: unknown, field: FieldMeta | undefined): unkn
     return value;
   }
 
-  if (field?.type === 'json' && typeof value === 'string') {
-    return JSON.parse(value) as unknown;
+  if (field?.type === 'json') {
+    if (value === null || value === '') {
+      return null;
+    }
+    if (typeof value === 'string') {
+      if (!value.trim()) {
+        return null;
+      }
+      try {
+        JSON.parse(value);
+        return value;
+      } catch {
+        throw new AppError(`Field "${field.field}" contains invalid JSON`, 400, 'VALIDATION_ERROR');
+      }
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
   }
 
   if (field?.type === 'boolean') {
@@ -436,6 +549,26 @@ function normalizeInputValue(value: unknown, field: FieldMeta | undefined): unkn
   }
 
   return value;
+}
+
+function coerceBoolean(value: unknown): boolean {
+  if (value === true || value === 1 || value === '1' || value === 'true') {
+    return true;
+  }
+  if (value === false || value === 0 || value === '0' || value === 'false') {
+    return false;
+  }
+  return Boolean(value);
+}
+
+function normalizeBooleanFields(item: ItemRecord, fields: FieldMeta[]): ItemRecord {
+  const normalized = { ...item };
+  for (const field of fields) {
+    if (field.type === 'boolean' && field.field in normalized) {
+      normalized[field.field] = coerceBoolean(normalized[field.field]);
+    }
+  }
+  return normalized;
 }
 
 function normalizeItemRow(row: ItemRecord): ItemRecord {
@@ -455,13 +588,34 @@ function normalizeItemRow(row: ItemRecord): ItemRecord {
   return normalized;
 }
 
+function isFileField(field: FieldMeta): boolean {
+  return (
+    field.special === 'file' ||
+    field.interface === 'file' ||
+    field.interface === 'file-image' ||
+    field.interface === 'files' ||
+    field.interface.startsWith('file-')
+  );
+}
+
+async function assertFileExists(
+  db: Knex,
+  fileId: string,
+  fieldName: string,
+): Promise<void> {
+  const file = await db('cms_files').where({ id: fileId }).first();
+  if (!file) {
+    throw new AppError(`File "${fileId}" not found for field "${fieldName}"`, 404, 'NOT_FOUND');
+  }
+}
+
 async function validateFileFields(
   db: Knex,
   fields: FieldMeta[],
   input: Record<string, unknown>,
 ): Promise<void> {
   for (const field of fields) {
-    if (field.special !== 'file' && field.interface !== 'file' && field.interface !== 'file-image') {
+    if (!isFileField(field)) {
       continue;
     }
     if (!(field.field in input)) {
@@ -471,13 +625,24 @@ async function validateFileFields(
     if (value === null || value === undefined || value === '') {
       continue;
     }
+
+    if (field.interface === 'files') {
+      if (!Array.isArray(value)) {
+        throw new AppError(`Field "${field.field}" must be an array of file IDs`, 400, 'VALIDATION_ERROR');
+      }
+      for (const entry of value) {
+        if (typeof entry !== 'string' || !entry) {
+          throw new AppError(`Field "${field.field}" must contain file ID strings`, 400, 'VALIDATION_ERROR');
+        }
+        await assertFileExists(db, entry, field.field);
+      }
+      continue;
+    }
+
     if (typeof value !== 'string') {
       throw new AppError(`Field "${field.field}" must be a file ID`, 400, 'VALIDATION_ERROR');
     }
-    const file = await db('cms_files').where({ id: value }).first();
-    if (!file) {
-      throw new AppError(`File "${value}" not found for field "${field.field}"`, 404, 'NOT_FOUND');
-    }
+    await assertFileExists(db, value, field.field);
   }
 }
 

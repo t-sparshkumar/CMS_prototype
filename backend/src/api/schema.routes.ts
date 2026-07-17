@@ -5,12 +5,16 @@ import { getDb } from '../db/knex.js';
 import { requireAuth } from '../middleware/auth.js';
 import { requireAdmin } from '../middleware/requireAdmin.js';
 import {
+  convertDirectusSnapshot,
+  isDirectusSnapshot,
+  normalizeIncomingSnapshot,
+} from '../services/directus-snapshot.adapter.js';
+import {
   applySnapshot,
   captureSchemaSnapshot,
   diffAgainstSnapshot,
   importIntrospectedTables,
   introspectSchema,
-  type SchemaSnapshot,
 } from '../services/schema.service.js';
 
 export const schemaRouter = Router();
@@ -28,12 +32,46 @@ schemaRouter.get('/snapshot', async (_req: Request, res: Response, next: NextFun
   }
 });
 
+schemaRouter.post('/convert', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!isDirectusSnapshot(req.body)) {
+      res.status(400).json({
+        success: false,
+        error: {
+          message: 'Request body is not a supported schema snapshot format',
+          code: 'VALIDATION_ERROR',
+        },
+      });
+      return;
+    }
+
+    const converted = convertDirectusSnapshot(req.body);
+    res.json(success(converted));
+  } catch (err) {
+    next(err);
+  }
+});
+
 schemaRouter.post('/diff', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const target = req.body as SchemaSnapshot;
+    const directus = isDirectusSnapshot(req.body);
+    const target = normalizeIncomingSnapshot(req.body);
     const db = getDb();
     const diff = await diffAgainstSnapshot(db, target);
-    res.json(success(diff));
+
+    if (directus) {
+      const converted = convertDirectusSnapshot(req.body);
+      res.json(
+        success(diff, {
+          source: 'directus',
+          warnings: converted.warnings,
+          stats: converted.stats,
+        }),
+      );
+      return;
+    }
+
+    res.json(success(diff, { source: 'cms' }));
   } catch (err) {
     next(err);
   }
@@ -41,10 +79,24 @@ schemaRouter.post('/diff', async (req: Request, res: Response, next: NextFunctio
 
 schemaRouter.post('/apply', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const target = req.body as SchemaSnapshot;
+    const directus = isDirectusSnapshot(req.body);
+    const target = normalizeIncomingSnapshot(req.body);
     const db = getDb();
     const diff = await applySnapshot(db, target);
-    res.json(success(diff));
+
+    if (directus) {
+      const converted = convertDirectusSnapshot(req.body);
+      res.json(
+        success(diff, {
+          source: 'directus',
+          warnings: converted.warnings,
+          stats: converted.stats,
+        }),
+      );
+      return;
+    }
+
+    res.json(success(diff, { source: 'cms' }));
   } catch (err) {
     next(err);
   }

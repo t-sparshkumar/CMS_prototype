@@ -25,6 +25,22 @@ export function getSelectChoices(field: FieldMeta): SelectChoice[] {
   });
 }
 
+export function humanizeFieldName(fieldName: string): string {
+  return fieldName
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+export function getFieldDisplayLabel(field: Pick<FieldMeta, 'field' | 'note'>): string {
+  if (field.note) {
+    const firstSentence = field.note.split('.')[0]?.trim();
+    if (firstSentence && firstSentence.length <= 48) {
+      return firstSentence;
+    }
+  }
+  return humanizeFieldName(field.field);
+}
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -43,6 +59,116 @@ export function parseJsonValue(value: unknown): unknown {
     }
   }
   return value;
+}
+
+export interface InferredRepeaterSubField {
+  field: string;
+  type?: string;
+  interface?: string;
+  note?: string;
+  options?: Record<string, unknown>;
+}
+
+export function isFlatObjectArray(value: unknown): value is Record<string, unknown>[] {
+  const parsed = parseJsonValue(value);
+  if (!Array.isArray(parsed)) {
+    return false;
+  }
+  if (parsed.length === 0) {
+    return false;
+  }
+  return parsed.every(
+    (row) =>
+      typeof row === 'object' &&
+      row !== null &&
+      !Array.isArray(row) &&
+      Object.values(row).every(
+        (cell) =>
+          cell === null ||
+          cell === undefined ||
+          typeof cell === 'string' ||
+          typeof cell === 'number' ||
+          typeof cell === 'boolean',
+      ),
+  );
+}
+
+export function parseRepeaterFieldsFromNote(note: string | null | undefined): InferredRepeaterSubField[] | null {
+  if (!note) {
+    return null;
+  }
+  const match = note.match(/\{\s*([^}]+)\s*\}/);
+  if (!match?.[1]) {
+    return null;
+  }
+  const keys = match[1]
+    .split(',')
+    .map((part) => part.trim().split(':')[0]?.trim() ?? '')
+    .filter(Boolean);
+  if (keys.length === 0) {
+    return null;
+  }
+  return keys.map((field) => ({
+    field,
+    type: 'string',
+    interface: 'input',
+    note: humanizeFieldName(field),
+  }));
+}
+
+export function inferRepeaterSubFields(
+  field: Pick<FieldMeta, 'options' | 'note'>,
+  value: unknown,
+): InferredRepeaterSubField[] | null {
+  const configured = field.options?.fields ?? field.options?.template;
+  if (Array.isArray(configured) && configured.length > 0) {
+    return configured.map((item) => {
+      if (typeof item === 'object' && item !== null) {
+        const record = item as Record<string, unknown>;
+        return {
+          field: String(record.field ?? record.name ?? 'value'),
+          type: record.type ? String(record.type) : 'string',
+          interface: record.interface ? String(record.interface) : 'input',
+          note: record.note ? String(record.note) : humanizeFieldName(String(record.field ?? 'value')),
+          options:
+            typeof record.options === 'object' && record.options !== null
+              ? (record.options as Record<string, unknown>)
+              : undefined,
+        };
+      }
+      return { field: String(item), type: 'string', interface: 'input', note: humanizeFieldName(String(item)) };
+    });
+  }
+
+  const fromNote = parseRepeaterFieldsFromNote(field.note);
+  if (fromNote) {
+    return fromNote;
+  }
+
+  const parsed = parseJsonValue(value);
+  if (isFlatObjectArray(parsed)) {
+    const keys = [...new Set(parsed.flatMap((row) => Object.keys(row)))];
+    if (keys.length > 0) {
+      return keys.map((key) => ({
+        field: key,
+        type: 'string',
+        interface: 'input',
+        note: humanizeFieldName(key),
+      }));
+    }
+  }
+
+  return null;
+}
+
+export function shouldUseStructuredJsonEditor(
+  field: Pick<FieldMeta, 'interface' | 'type' | 'options' | 'note'>,
+  value: unknown,
+): boolean {
+  if (field.interface === 'repeater') {
+    return true;
+  }
+  return inferRepeaterSubFields(field, value) !== null;
 }
 
 export function stringifyJsonValue(value: unknown): string {
@@ -73,7 +199,13 @@ export function isPresentationalField(field: FieldMeta): boolean {
   );
 }
 
-export function colSpanClass(width?: number | null): string {
+export function colSpanClass(width?: number | null, field?: Pick<FieldMeta, 'field' | 'interface'>): string {
+  if (field?.field === 'status' && field.interface === 'select-dropdown') {
+    return 'col-span-12 sm:col-span-3';
+  }
+  if (field?.field === 'sort') {
+    return 'col-span-12 sm:col-span-3';
+  }
   if (width === 4) return 'col-span-12 sm:col-span-4';
   if (width === 6) return 'col-span-12 sm:col-span-6';
   return 'col-span-12';

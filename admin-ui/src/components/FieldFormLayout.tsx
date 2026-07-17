@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import InterfaceRenderer from './InterfaceRenderer';
 import GroupFieldShell from './fields/GroupFieldShell';
+import ResponsiveImageGroupField from './fields/ResponsiveImageGroupField';
+import { buildFormFieldItems } from '../lib/responsiveImageFields';
 import { colSpanClass, isGroupContainer, isPresentationalField } from '../lib/fieldUtils';
 import type { FieldMeta, ItemRecord } from '../lib/api';
 
@@ -86,9 +88,31 @@ export default function FieldFormLayout({
     .filter((f) => (groupFilter ? f.group === groupFilter : !f.group))
     .sort((a, b) => a.sort - b.sort);
 
+  if (groupFilter && visibleFields.length === 0) {
+    return (
+      <p className="col-span-12 text-sm text-slate-400 italic">
+        No fields in this tab yet.
+      </p>
+    );
+  }
+
+  const formItems = buildFormFieldItems(visibleFields);
+
   return (
     <div className="grid grid-cols-12 gap-4">
-      {visibleFields.map((field) => {
+      {formItems.map((item) => {
+        if (item.type === 'responsive-images') {
+          return (
+            <div key="responsive-images" className="col-span-12 flex flex-col">
+              <ResponsiveImageGroupField
+                values={formData}
+                onChange={onChange}
+              />
+            </div>
+          );
+        }
+
+        const field = item.field;
         if (isGroupContainer(field)) {
           return (
             <GroupFieldShell key={field.id} field={field}>
@@ -118,10 +142,17 @@ export default function FieldFormLayout({
         const spanClass =
           isPresentationalField(field) || field.interface === 'divider'
             ? 'col-span-12'
-            : colSpanClass(field.width);
+            : field.interface === 'repeater' ||
+                field.type === 'json' ||
+                field.interface === 'input-code' ||
+                field.interface === 'block-editor' ||
+                field.interface === 'wysiwyg' ||
+                field.type === 'text'
+              ? 'col-span-12'
+              : colSpanClass(field.width, field);
 
         return (
-          <div key={field.id} className={spanClass}>
+          <div key={field.id} className={`${spanClass} flex flex-col`}>
             <InterfaceRenderer
               field={field}
               value={formData[field.field]}

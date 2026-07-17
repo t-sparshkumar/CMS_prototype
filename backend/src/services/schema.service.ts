@@ -1,4 +1,5 @@
 import type { Knex } from 'knex';
+import { isSystemField } from '../core/field.js';
 import { introspectUnregisteredTables, type IntrospectedTable } from '../db/introspect.js';
 import { AppError } from '../middleware/errorHandler.js';
 import type { CmsCollectionRow } from '../types/collection.js';
@@ -21,6 +22,67 @@ export interface SchemaDiff {
   fields_to_delete: Array<{ collection: string; field: string }>;
   relations_to_create: CmsRelationRow[];
   relations_to_delete: number[];
+}
+
+function relationKey(relation: Pick<CmsRelationRow, 'many_collection' | 'many_field'>): string {
+  return `${relation.many_collection}.${relation.many_field}`;
+}
+
+function sortCollectionsForCreate(names: string[], collections: CmsCollectionRow[]): string[] {
+  const metaByName = new Map(collections.map((collection) => [collection.collection, collection]));
+
+  const depth = (name: string): number => {
+    let level = 0;
+    let current = metaByName.get(name);
+    const visited = new Set<string>();
+    while (current?.parent && !visited.has(current.parent)) {
+      visited.add(current.parent);
+      level += 1;
+      current = metaByName.get(current.parent);
+    }
+    return level;
+  };
+
+  return [...names].sort((left, right) => {
+    const depthDiff = depth(left) - depth(right);
+    if (depthDiff !== 0) {
+      return depthDiff;
+    }
+
+    const leftGroup = metaByName.get(left)?.is_group ? 0 : 1;
+    const rightGroup = metaByName.get(right)?.is_group ? 0 : 1;
+    if (leftGroup !== rightGroup) {
+      return leftGroup - rightGroup;
+    }
+
+    return left.localeCompare(right);
+  });
+}
+
+function inferPrimaryKeyType(target: SchemaSnapshot, collectionName: string): 'uuid' | 'integer' {
+  const idField = target.fields.find((field) => field.collection === collectionName && field.field === 'id');
+  return idField?.type === 'integer' ? 'integer' : 'uuid';
+}
+
+function inferOptionalSystemFields(target: SchemaSnapshot, collectionName: string) {
+  const fieldNames = new Set(
+    target.fields.filter((field) => field.collection === collectionName).map((field) => field.field),
+  );
+
+  return {
+    status: fieldNames.has('status'),
+    sort: fieldNames.has('sort'),
+    accountability: true,
+  };
+}
+
+function isImportableField(field: CmsFieldRow, collections: CmsCollectionRow[]): boolean {
+  if (isSystemField(field.field)) {
+    return false;
+  }
+
+  const collection = collections.find((entry) => entry.collection === field.collection);
+  return !collection?.is_group;
 }
 
 /**
@@ -51,20 +113,23 @@ export function diffSchemaSnapshots(current: SchemaSnapshot, target: SchemaSnaps
   const currentFieldKeys = new Set(current.fields.map((f) => `${f.collection}.${f.field}`));
   const targetFieldKeys = new Set(target.fields.map((f) => `${f.collection}.${f.field}`));
 
-  const currentRelationIds = new Set(current.relations.map((r) => r.id));
-  const targetRelationIds = new Set(target.relations.map((r) => r.id));
+  const currentRelationKeys = new Set(current.relations.map((relation) => relationKey(relation)));
+  const targetRelationKeys = new Set(target.relations.map((relation) => relationKey(relation)));
 
   return {
     collections_to_create: [...targetCollections].filter((name) => !currentCollections.has(name)),
     collections_to_delete: [...currentCollections].filter((name) => !targetCollections.has(name)),
     fields_to_create: target.fields
-      .filter((f) => !currentFieldKeys.has(`${f.collection}.${f.field}`))
-      .map((f) => ({ collection: f.collection, field: f.field })),
+      .filter((field) => isImportableField(field, target.collections))
+      .filter((field) => !currentFieldKeys.has(`${field.collection}.${field.field}`))
+      .map((field) => ({ collection: field.collection, field: field.field })),
     fields_to_delete: current.fields
-      .filter((f) => !targetFieldKeys.has(`${f.collection}.${f.field}`))
-      .map((f) => ({ collection: f.collection, field: f.field })),
-    relations_to_create: target.relations.filter((r) => !currentRelationIds.has(r.id)),
-    relations_to_delete: current.relations.filter((r) => !targetRelationIds.has(r.id)).map((r) => r.id),
+      .filter((field) => !targetFieldKeys.has(`${field.collection}.${field.field}`))
+      .map((field) => ({ collection: field.collection, field: field.field })),
+    relations_to_create: target.relations.filter((relation) => !currentRelationKeys.has(relationKey(relation))),
+    relations_to_delete: current.relations
+      .filter((relation) => !targetRelationKeys.has(relationKey(relation)))
+      .map((relation) => relation.id),
   };
 }
 
@@ -72,8 +137,10 @@ export function diffSchemaSnapshots(current: SchemaSnapshot, target: SchemaSnaps
  * Apply a schema diff by creating missing collections and fields.
  */
 export async function applySchemaDiff(db: Knex, diff: SchemaDiff, target: SchemaSnapshot): Promise<void> {
-  for (const collectionName of diff.collections_to_create) {
-    const meta = target.collections.find((c) => c.collection === collectionName);
+  const orderedCollections = sortCollectionsForCreate(diff.collections_to_create, target.collections);
+
+  for (const collectionName of orderedCollections) {
+    const meta = target.collections.find((collection) => collection.collection === collectionName);
     if (!meta) {
       continue;
     }
@@ -81,9 +148,14 @@ export async function applySchemaDiff(db: Knex, diff: SchemaDiff, target: Schema
     if (exists) {
       continue;
     }
+
+    const optionalSystemFields = meta.is_group ? undefined : inferOptionalSystemFields(target, collectionName);
+
     await createCollection(db, {
       collection: collectionName,
       icon: meta.icon,
+      color: meta.color,
+      display_template: meta.display_template,
       note: meta.note,
       singleton: meta.singleton,
       sort_field: meta.sort_field,
@@ -92,11 +164,16 @@ export async function applySchemaDiff(db: Knex, diff: SchemaDiff, target: Schema
       unarchive_value: meta.unarchive_value,
       hidden: meta.hidden,
       system: meta.system,
+      parent: meta.parent,
+      is_group: meta.is_group,
+      sort: meta.sort,
+      primary_key_type: meta.is_group ? undefined : inferPrimaryKeyType(target, collectionName),
+      optional_system_fields: optionalSystemFields,
     });
   }
 
   for (const { collection, field } of diff.fields_to_create) {
-    const fieldMeta = target.fields.find((f) => f.collection === collection && f.field === field);
+    const fieldMeta = target.fields.find((entry) => entry.collection === collection && entry.field === field);
     if (!fieldMeta) {
       continue;
     }
@@ -107,8 +184,9 @@ export async function applySchemaDiff(db: Knex, diff: SchemaDiff, target: Schema
     }
 
     if (fieldMeta.type === 'alias') {
+      const { id: _id, ...fieldRow } = fieldMeta;
       await db('cms_fields').insert({
-        ...fieldMeta,
+        ...fieldRow,
         options: fieldMeta.options ? JSON.stringify(fieldMeta.options) : null,
         display_options: fieldMeta.display_options ? JSON.stringify(fieldMeta.display_options) : null,
         conditions: fieldMeta.conditions ? JSON.stringify(fieldMeta.conditions) : null,
@@ -129,6 +207,7 @@ export async function applySchemaDiff(db: Knex, diff: SchemaDiff, target: Schema
       sort: fieldMeta.sort,
       width: fieldMeta.width,
       required: fieldMeta.required,
+      group: fieldMeta.group,
       nullable: fieldMeta.nullable,
       unique: fieldMeta.unique,
       is_indexed: fieldMeta.is_indexed,
@@ -140,7 +219,13 @@ export async function applySchemaDiff(db: Knex, diff: SchemaDiff, target: Schema
   }
 
   for (const relation of diff.relations_to_create) {
-    const exists = await db('cms_relations').where({ id: relation.id }).first();
+    const exists = await db('cms_relations')
+      .where({
+        many_collection: relation.many_collection,
+        many_field: relation.many_field,
+      })
+      .first();
+
     if (!exists) {
       const { id: _id, ...data } = relation;
       await db('cms_relations').insert(data);

@@ -5,7 +5,13 @@ import type { BreadcrumbItem } from '../../components/Breadcrumbs';
 import DataModelSubCollectionsSection from '../../components/data-model/DataModelSubCollectionsSection';
 import { buildBreadcrumbs } from '../../components/ContentCollectionList';
 import Icon from '../../components/Icon';
-import { SubCollectionBadge, SubCollectionParentLink } from '../../components/SubCollectionHighlight';
+import CollectionMaterialIcon from '../../components/CollectionMaterialIcon';
+import {
+  childCollectionsLabel,
+  folderBadgeLabel,
+  manageFolderSubtitle,
+  nestedCollectionBadgeLabel,
+} from '../../lib/collectionLabels';
 import { fetchCollection, fetchCollections, type CollectionMeta } from '../../lib/api';
 
 const tabs = [
@@ -81,7 +87,7 @@ export default function DataModelLayout() {
   );
 
   const pageTitle = collection || 'Data Model';
-  const pageSubtitle = meta?.note ?? (isGroup ? 'Manage sub-collections in this group' : 'Manage fields, setup, and relations');
+  const pageSubtitle = meta?.note ?? (isGroup ? manageFolderSubtitle() : 'Manage fields, setup, and relations');
 
   if (isGroup && isCollectionIndex) {
     return (
@@ -94,8 +100,8 @@ export default function DataModelLayout() {
         />
 
         {meta && (
-          <div className="flex justify-end">
-            <Link to={`${collectionBasePath}/setup`} className="btn-secondary">
+          <div className="flex justify-end mt-4">
+            <Link to={`${collectionBasePath}/setup`} className="btn-secondary text-sm">
               <Icon name="settings" className="h-4 w-4" />
               Collection setup
             </Link>
@@ -105,9 +111,11 @@ export default function DataModelLayout() {
     );
   }
 
+  const iconColor = meta?.color ?? 'var(--app-accent)';
+
   return (
     <AppLayout title={pageTitle} subtitle={pageSubtitle} breadcrumbs={layoutBreadcrumbs}>
-      <div className="max-w-5xl">
+      <div className="max-w-5xl space-y-4">
         {meta && (
           <DataModelSubCollectionsSection
             collections={subCollections}
@@ -118,44 +126,47 @@ export default function DataModelLayout() {
         )}
 
         {meta && (
-          <div className={`collection-card ${meta.parent ? 'collection-card-sub' : ''}`}>
-            <div
-              className="collection-card-accent"
-              style={{ backgroundColor: meta.parent ? '#8b5cf6' : meta.color ?? '#6366f1' }}
-            />
-            <div className="px-5 py-4 flex items-center gap-3.5 border-b border-slate-100">
+          <div className="dm-panel">
+            <div className="dm-panel-header">
               <span
-                className="collection-card-avatar text-base"
-                style={{ backgroundColor: meta.parent ? '#7c3aed' : meta.color ?? '#6366f1' }}
+                className="dm-row-icon"
+                style={{
+                  backgroundColor: `color-mix(in srgb, ${iconColor} 14%, var(--app-surface))`,
+                  color: iconColor,
+                }}
               >
-                {meta.collection.slice(0, 2).toUpperCase()}
+                <CollectionMaterialIcon
+                  icon={meta.icon}
+                  isGroup={meta.is_group}
+                  size={18}
+                />
               </span>
               <div>
-                <h1 className="text-lg font-bold text-slate-900">{meta.collection}</h1>
+                <h1 className="dm-panel-title">{meta.collection}</h1>
                 {meta.parent && (
-                  <SubCollectionParentLink parent={meta.parent} basePath="/settings/data-model" className="mt-0.5" />
+                  <p className="collection-list-note">Under {meta.parent}</p>
                 )}
-                <div className="flex flex-wrap items-center gap-2 mt-1">
-                  {meta.parent && <SubCollectionBadge />}
-                  {meta.is_group && <span className="badge-tag-brand">Group</span>}
-                  {meta.singleton && <span className="badge-tag-brand">Singleton</span>}
-                  {meta.hidden && <span className="badge-gray">Hidden</span>}
-                  {meta.activity_tracking === false && <span className="badge-amber">No activity log</span>}
-                  {!meta.is_group && (
-                    <span className="text-xs text-slate-400">{meta.field_count} fields</span>
-                  )}
-                  {meta.child_count > 0 && (
-                    <span className="text-xs text-slate-400">
-                      {meta.child_count} sub-collection{meta.child_count === 1 ? '' : 's'}
+                <div className="dm-panel-meta">
+                  {meta.parent && (
+                    <span className="dm-badge-neutral dm-badge">
+                      {nestedCollectionBadgeLabel()}
                     </span>
                   )}
+                  {meta.is_group && <span className="dm-badge">{folderBadgeLabel()}</span>}
+                  {meta.singleton && <span className="dm-badge">Singleton</span>}
+                  {meta.hidden && <span className="dm-badge-neutral dm-badge">Hidden</span>}
+                  {meta.activity_tracking === false && (
+                    <span className="dm-badge-neutral dm-badge">No activity log</span>
+                  )}
+                  {!meta.is_group && <span>{meta.field_count} fields</span>}
+                  {meta.child_count > 0 && <span>{childCollectionsLabel(meta.child_count)}</span>}
                 </div>
               </div>
             </div>
 
             {!isFieldEditor && (
-              <nav className="px-4 py-3 border-b border-surface-border bg-slate-50/40">
-                <div className="tab-bar">
+              <nav className="dm-tab-nav">
+                <div className="dm-tab-bar">
                   {visibleTabs.map((tab) => {
                     const path = `${collectionBasePath}${tab.suffix}`;
                     const active = location.pathname === path;
@@ -163,7 +174,7 @@ export default function DataModelLayout() {
                       <Link
                         key={tab.suffix}
                         to={path}
-                        className={`inline-flex items-center gap-2 ${active ? 'tab-item-active' : 'tab-item'}`}
+                        className={active ? 'dm-tab-item-active dm-tab-item' : 'dm-tab-item'}
                       >
                         <Icon name={tab.icon} className="h-4 w-4" />
                         {tab.label}
@@ -174,17 +185,17 @@ export default function DataModelLayout() {
               </nav>
             )}
 
-            <div className="p-5 sm:p-6">
+            <div className="dm-panel-content">
               <Outlet />
             </div>
           </div>
         )}
 
         {!meta && (
-          <div className="card">
-            <div className="empty-state py-12">
-              <div className="loading-shimmer h-12 w-12 mb-4" />
-              <p className="text-sm text-slate-400">Loading collection...</p>
+          <div className="dm-shell">
+            <div className="dm-empty">
+              <div className="loading-shimmer h-10 w-10 mb-3 rounded-lg" />
+              <p className="text-sm">Loading collection...</p>
             </div>
           </div>
         )}

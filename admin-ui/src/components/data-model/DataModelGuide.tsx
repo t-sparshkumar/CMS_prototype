@@ -2,11 +2,12 @@ import Icon from '../Icon';
 
 const CASES = [
   {
-    title: 'Creating a collection',
+    title: 'Creating folders and collections',
     steps: [
-      'Open Data Model → New Collection and set the table name (e.g. posts).',
+      'Open Data Model and use Create Folder or Create Collection from the toolbar.',
+      'Folders (is_group) organize other collections; collections hold items.',
       'Choose primary key type (UUID or integer) and optional system fields: status, sort, accountability.',
-      'Use group collections for folders; create sub-collections nested under a parent.',
+      'Pick an icon from categorized Material symbols and a brand color on the create modal.',
       'Configure icon, color, note, singleton, hidden, sort field, and archive on the Setup tab.',
     ],
   },
@@ -51,16 +52,7 @@ export default function DataModelGuide() {
           <div>
             <p className="text-sm font-bold text-slate-900">Data model guide</p>
             <p className="text-xs text-slate-500 mt-0.5">
-              Covers collection, field, and relationship workflows inspired by{' '}
-              <a
-                href="https://directus.com/docs/getting-started/data-model"
-                target="_blank"
-                rel="noreferrer"
-                className="text-brand-600 hover:underline"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Directus
-              </a>
+              Covers collection, field, and relationship workflows for this CMS.
             </p>
           </div>
         </div>

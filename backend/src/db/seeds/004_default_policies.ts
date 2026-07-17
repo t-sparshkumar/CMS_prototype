@@ -9,7 +9,21 @@ import { PUBLIC_ROLE_ID } from '../../constants/roles.js';
 import type { PolicyRule } from '../../types/policy.js';
 import { syncRolePermissionsFromPolicies } from '../../services/policies.service.js';
 
-const CONTENT_COLLECTIONS = ['pages', 'page_groups', 'site_components', 'global_layout', 'articles'];
+const CONTENT_COLLECTIONS = [
+  'pages',
+  'page_groups',
+  'site_components',
+  'site_header',
+  'site_footer',
+  'languages',
+  'articles',
+  'hero_banners',
+  'hero_carousels',
+  'service_tiles',
+  'promo_grids',
+  'paragraphs',
+  'info_boxes',
+];
 
 function contentRules(actions: Array<PolicyRule['action']>): PolicyRule[] {
   return CONTENT_COLLECTIONS.flatMap((collection) =>
@@ -45,13 +59,10 @@ export async function seed(knex: Knex): Promise<void> {
     {
       id: MANAGE_CONTENT_POLICY_ID,
       name: 'Manage Content Policy',
-      description: 'Allows creating and editing pages, and updating global layout.',
+      description: 'Allows creating and editing pages, header, and footer.',
       icon: 'pages',
       is_system: true,
-      rules: [
-        ...contentRules(['create', 'read', 'update']),
-        { collection: 'global_layout', action: 'update' as const, fields: '*' as const },
-      ],
+      rules: contentRules(['create', 'read', 'update']),
     },
     {
       id: READ_PUBLIC_PAGES_POLICY_ID,

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import FileUploadField from './FileUploadField';
 import Icon from './Icon';
 import { getAssetUrl, type ItemRecord } from '../lib/api';
@@ -52,6 +53,32 @@ function defaultSchema(type: string): ComponentSchemaField[] {
       return [
         { field: 'section_title', type: 'string', label: 'Section Title' },
         { field: 'cards', type: 'text', label: 'Cards JSON' },
+      ];
+    case 'utility-bar':
+      return [
+        { field: 'consumer_label', type: 'string', label: 'Consumer Label' },
+        { field: 'business_label', type: 'string', label: 'Business Label' },
+        { field: 'account_label', type: 'string', label: 'Account Label' },
+        { field: 'account_url', type: 'string', label: 'Account URL' },
+        { field: 'phone', type: 'string', label: 'Phone' },
+        { field: 'language', type: 'string', label: 'Language' },
+      ];
+    case 'hero-carousel':
+      return [{ field: 'slides', type: 'text', label: 'Slides JSON' }];
+    case 'service-tiles':
+      return [{ field: 'tiles', type: 'text', label: 'Tiles JSON' }];
+    case 'promo-grid':
+      return [
+        { field: 'title', type: 'string', label: 'Section Title' },
+        { field: 'subtitle', type: 'text', label: 'Section Subtitle' },
+        { field: 'items', type: 'text', label: 'Items JSON' },
+      ];
+    case 'cookie-banner':
+      return [
+        { field: 'message', type: 'text', label: 'Message' },
+        { field: 'accept_label', type: 'string', label: 'Accept Label' },
+        { field: 'customize_label', type: 'string', label: 'Customize Label' },
+        { field: 'privacy_url', type: 'string', label: 'Privacy Policy URL' },
       ];
     default:
       return [
@@ -352,9 +379,9 @@ export default function PageComponentBuilder({
             {availableComponents.length === 0 ? (
               <p className="text-sm text-slate-500">
                 No components in library.{' '}
-                <a href="/content/site_components/new" className="text-brand-600 font-medium">
+                <Link to="/content/site_components/new" className="text-brand-600 font-medium">
                   Create one first
-                </a>
+                </Link>
               </p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

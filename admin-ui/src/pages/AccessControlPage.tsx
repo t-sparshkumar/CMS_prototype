@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AppLayout from '../components/AppLayout';
+import ConfirmDialog from '../components/data-model/ConfirmDialog';
 import Icon from '../components/Icon';
 import PolicyFormModal from '../components/PolicyFormModal';
 import RoleFormModal from '../components/RoleFormModal';
@@ -39,6 +40,8 @@ export default function AccessControlPage() {
   );
   const [deletingRoleId, setDeletingRoleId] = useState<string | null>(null);
   const [deletingPolicyId, setDeletingPolicyId] = useState<string | null>(null);
+  const [deleteRoleTarget, setDeleteRoleTarget] = useState<RoleMeta | null>(null);
+  const [deletePolicyTarget, setDeletePolicyTarget] = useState<PolicyMeta | null>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -134,7 +137,6 @@ export default function AccessControlPage() {
 
   async function handleDeleteRole(role: RoleMeta) {
     if (isSystemRole(role)) return;
-    if (!window.confirm(`Delete role "${role.name}"?`)) return;
     setDeletingRoleId(role.id);
     try {
       await deleteRole(role.id);
@@ -152,7 +154,6 @@ export default function AccessControlPage() {
 
   async function handleDeletePolicy(policy: PolicyMeta) {
     if (policy.is_system) return;
-    if (!window.confirm(`Delete policy "${policy.name}"?`)) return;
     setDeletingPolicyId(policy.id);
     try {
       await deletePolicy(policy.id);
@@ -176,7 +177,7 @@ export default function AccessControlPage() {
   return (
     <AppLayout
       title="Roles & Policies"
-      subtitle="Configure roles and assign policies to define permissions (Directus-style)"
+      subtitle="Configure roles and assign policies to define permissions"
       actions={
         tab === 'roles' ? (
           <button type="button" onClick={() => setRoleModal({ mode: 'create' })} className="btn-primary">
@@ -254,7 +255,7 @@ export default function AccessControlPage() {
                           <button
                             type="button"
                             disabled={deletingRoleId === role.id}
-                            onClick={() => void handleDeleteRole(role)}
+                            onClick={() => setDeleteRoleTarget(role)}
                             className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 disabled:opacity-40"
                           >
                             <Icon name="trash" className="h-4 w-4" />
@@ -376,7 +377,7 @@ export default function AccessControlPage() {
                       <button
                         type="button"
                         disabled={deletingPolicyId === policy.id}
-                        onClick={() => void handleDeletePolicy(policy)}
+                        onClick={() => setDeletePolicyTarget(policy)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 disabled:opacity-40"
                       >
                         <Icon name="trash" className="h-4 w-4" />
@@ -426,6 +427,32 @@ export default function AccessControlPage() {
           onSaved={handlePolicySaved}
         />
       )}
+
+      <ConfirmDialog
+        open={Boolean(deleteRoleTarget)}
+        title="Delete role"
+        message={`Delete role "${deleteRoleTarget?.name}"? Users with this role will lose associated permissions.`}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (!deleteRoleTarget) return;
+          void handleDeleteRole(deleteRoleTarget).finally(() => setDeleteRoleTarget(null));
+        }}
+        onCancel={() => setDeleteRoleTarget(null)}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deletePolicyTarget)}
+        title="Delete policy"
+        message={`Delete policy "${deletePolicyTarget?.name}"? It will be removed from all assigned roles.`}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (!deletePolicyTarget) return;
+          void handleDeletePolicy(deletePolicyTarget).finally(() => setDeletePolicyTarget(null));
+        }}
+        onCancel={() => setDeletePolicyTarget(null)}
+      />
     </AppLayout>
   );
 }

@@ -1,0 +1,33 @@
+- generic [ref=e3]:
+  - generic [ref=e7]:
+    - img "Paytm" [ref=e9]
+    - generic [ref=e10]:
+      - heading "Manage content at scale." [level=2] [ref=e11]
+      - paragraph [ref=e12]: Paytm — pages, components, assets, and a powerful data model in one workspace.
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - paragraph [ref=e15]: Pages
+        - paragraph [ref=e16]: Visual builder
+      - generic [ref=e17]:
+        - paragraph [ref=e18]: Assets
+        - paragraph [ref=e19]: Media gallery
+      - generic [ref=e20]:
+        - paragraph [ref=e21]: Roles
+        - paragraph [ref=e22]: Access control
+  - generic [ref=e24]:
+    - generic [ref=e25]:
+      - heading "Welcome back" [level=1] [ref=e26]
+      - paragraph [ref=e27]: Sign in to your Paytm account
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: Email
+          - textbox "Email" [ref=e31]:
+            - /placeholder: you@company.com
+            - text: admin@example.com
+        - generic [ref=e32]:
+          - generic [ref=e33]: Password
+          - textbox "Password" [ref=e34]:
+            - /placeholder: ••••••••
+            - text: admin
+        - button "Sign In" [ref=e35] [cursor=pointer]
+    - paragraph [ref=e36]: © 2026 Paytm

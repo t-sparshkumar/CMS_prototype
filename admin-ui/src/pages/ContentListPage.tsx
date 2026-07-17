@@ -1,8 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
+import type { BreadcrumbItem } from '../components/Breadcrumbs';
+import ConfirmDialog from '../components/data-model/ConfirmDialog';
+import CreateFolderModal from '../components/data-model/CreateFolderModal';
+import CreateCollectionModal from '../components/data-model/CreateCollectionModal';
 import ContentCollectionList, { buildBreadcrumbs } from '../components/ContentCollectionList';
 import Icon from '../components/Icon';
+import TableRowActions from '../components/TableRowActions';
+import {
+  browseFolderSubtitle,
+  createCollectionTitle,
+  createFolderTitle,
+} from '../lib/collectionLabels';
+import { getCollectionDisplayName } from '../lib/collectionDisplay';
 import {
   deleteItem,
   fetchCollection,
@@ -18,6 +29,17 @@ import {
 import { formatDisplayTemplate } from '../lib/displayTemplate';
 
 const PAGE_SIZE = 25;
+
+function buildContentBreadcrumbs(
+  trail: { collection: string; label: string }[],
+  currentLabel: string,
+): BreadcrumbItem[] {
+  return [
+    { label: 'Content', to: '/content' },
+    ...trail.map((crumb) => ({ label: crumb.label, to: `/content/${crumb.collection}` })),
+    { label: currentLabel },
+  ];
+}
 
 function formatCellValue(field: FieldMeta, value: unknown): string {
   if (value === null || value === undefined || value === '') {
@@ -50,6 +72,9 @@ export default function ContentListPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [createModal, setCreateModal] = useState<'folder' | 'collection' | null>(null);
 
   const currentCollectionMeta = useMemo(
     () => allCollections.find((col) => col.collection === selectedCollection) ?? collectionMeta,
@@ -121,12 +146,24 @@ export default function ContentListPage() {
       setTotalCount(result.filterCount);
       setCollectionMeta(meta);
       setSelectedIds(new Set());
+
+      if (meta.singleton && !search && offset === 0) {
+        const singletonItem = result.items[0];
+        if (result.items.length === 1 && singletonItem) {
+          navigate(`/content/${selectedCollection}/${String(singletonItem.id)}`, { replace: true });
+          return;
+        }
+        if (result.items.length === 0) {
+          navigate(`/content/${selectedCollection}/new`, { replace: true });
+          return;
+        }
+      }
     } catch {
       setError('Failed to load content');
     } finally {
       setIsLoading(false);
     }
-  }, [selectedCollection, isGroupView, collectionsLoading, offset, search, sort, includeArchived]);
+  }, [selectedCollection, isGroupView, collectionsLoading, offset, search, sort, includeArchived, navigate]);
 
   useEffect(() => {
     void loadCollections();
@@ -150,7 +187,6 @@ export default function ContentListPage() {
 
   async function handleDelete(id: string) {
     if (!selectedCollection) return;
-    if (!window.confirm('Delete this item?')) return;
 
     try {
       await deleteItem(selectedCollection, id);
@@ -162,7 +198,6 @@ export default function ContentListPage() {
 
   async function handleBulkDelete() {
     if (!selectedCollection || selectedIds.size === 0) return;
-    if (!window.confirm(`Delete ${selectedIds.size} selected item(s)?`)) return;
 
     setError(null);
     try {
@@ -235,7 +270,11 @@ export default function ContentListPage() {
 
   if (!selectedCollection) {
     return (
-      <AppLayout title="Content" subtitle="Choose a collection to browse and manage its records">
+      <AppLayout
+        title="Content"
+        subtitle="Choose a collection to browse and manage its records"
+        breadcrumbs={[{ label: 'Content' }]}
+      >
         <ContentCollectionList
           collections={visibleCollections}
           isLoading={collectionsLoading}
@@ -247,67 +286,82 @@ export default function ContentListPage() {
 
   if (isGroupView && currentCollectionMeta) {
     const breadcrumbs = buildBreadcrumbs(allCollections, currentCollectionMeta);
+    const layoutBreadcrumbs = buildContentBreadcrumbs(
+      breadcrumbs,
+      getCollectionDisplayName(currentCollectionMeta),
+    );
 
     return (
       <AppLayout
-        title={currentCollectionMeta.collection}
-        subtitle={currentCollectionMeta.note ?? 'Browse sub-collections in this group'}
+        title={getCollectionDisplayName(currentCollectionMeta)}
+        subtitle={currentCollectionMeta.note ?? browseFolderSubtitle()}
+        breadcrumbs={layoutBreadcrumbs}
       >
-        <ContentCollectionList
-          collections={visibleCollections}
-          isLoading={collectionsLoading}
-          breadcrumbs={breadcrumbs}
-          inSubCollectionContext
-          parentName={currentCollectionMeta.collection}
-          onReorder={() => void loadCollections()}
-        />
+        <div className="space-y-4">
+          <div className="page-toolbar">
+            <h2 className="section-title mr-auto">Collections</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" onClick={() => setCreateModal('folder')} className="btn-secondary">
+                <Icon name="folder" className="h-4 w-4" />
+                {createFolderTitle()}
+              </button>
+              <button type="button" onClick={() => setCreateModal('collection')} className="btn-primary">
+                <Icon name="plus" className="h-4 w-4" />
+                {createCollectionTitle()}
+              </button>
+            </div>
+          </div>
+
+          <ContentCollectionList
+            collections={visibleCollections}
+            isLoading={collectionsLoading}
+            inFolderContext
+            parentName={getCollectionDisplayName(currentCollectionMeta)}
+            onReorder={() => void loadCollections()}
+          />
+        </div>
+
+        {createModal === 'folder' && (
+          <CreateFolderModal
+            parent={currentCollectionMeta.collection}
+            onClose={() => setCreateModal(null)}
+            onCreated={() => void loadCollections()}
+          />
+        )}
+
+        {createModal === 'collection' && (
+          <CreateCollectionModal
+            parent={currentCollectionMeta.collection}
+            onClose={() => setCreateModal(null)}
+            onCreated={() => void loadCollections()}
+          />
+        )}
       </AppLayout>
     );
   }
 
   const breadcrumbs = currentCollectionMeta ? buildBreadcrumbs(allCollections, currentCollectionMeta) : [];
+  const layoutBreadcrumbs = buildContentBreadcrumbs(
+    breadcrumbs,
+    currentCollectionMeta
+      ? getCollectionDisplayName(currentCollectionMeta)
+      : selectedCollection,
+  );
 
   return (
     <AppLayout
-      title={currentCollectionMeta?.collection ?? selectedCollection}
+      title={
+        currentCollectionMeta
+          ? getCollectionDisplayName(currentCollectionMeta)
+          : selectedCollection
+      }
       subtitle={currentCollectionMeta?.note ?? 'Manage collection items'}
+      breadcrumbs={layoutBreadcrumbs}
     >
-      <div className="space-y-6">
-        {breadcrumbs.length > 0 && (
-          <nav className="flex flex-wrap items-center gap-1.5 text-sm">
-            <Link to="/content" className="font-medium text-slate-500 hover:text-brand-600">
-              All collections
-            </Link>
-            {breadcrumbs.map((crumb) => (
-              <span key={crumb.collection} className="flex items-center gap-1.5">
-                <Icon name="chevron-right" className="h-3.5 w-3.5 text-slate-300" />
-                <Link
-                  to={`/content/${crumb.collection}`}
-                  className="font-medium text-slate-500 hover:text-brand-600"
-                >
-                  {crumb.label}
-                </Link>
-              </span>
-            ))}
-            <Icon name="chevron-right" className="h-3.5 w-3.5 text-slate-300" />
-            <span className="font-medium text-slate-700">{selectedCollection}</span>
-          </nav>
-        )}
-
-        <div className="space-y-4">
+      <div className="space-y-4">
         <div className="page-toolbar">
           <h2 className="section-title mr-auto">Items</h2>
           <div className="flex flex-wrap items-center gap-3">
-          {breadcrumbs.length === 0 && (
-            <Link
-              to="/content"
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-brand-600"
-            >
-              <Icon name="chevron-right" className="h-4 w-4 rotate-180" />
-              All collections
-            </Link>
-          )}
-
           <div className="relative">
             <Icon name="search" className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -332,7 +386,7 @@ export default function ContentListPage() {
           </label>
           <div className="flex items-center gap-2">
             {selectedIds.size > 0 && (
-              <button type="button" onClick={() => void handleBulkDelete()} className="btn-danger">
+              <button type="button" onClick={() => setBulkDeleteOpen(true)} className="btn-danger">
                 <Icon name="trash" className="h-4 w-4" />
                 Delete ({selectedIds.size})
               </button>
@@ -351,7 +405,8 @@ export default function ContentListPage() {
           <p className="text-sm text-slate-400">Loading...</p>
         ) : (
           <div className="table-shell">
-            <table className="w-full text-sm">
+            <div className="table-scroll">
+            <table className="w-full min-w-[720px] text-sm">
               <thead className="table-head">
                 <tr>
                   <th className="table-th w-10">
@@ -375,8 +430,8 @@ export default function ContentListPage() {
                     </th>
                   ))}
                   {canReorder && <th className="table-th w-20">Order</th>}
-                  <th className="table-th">ID</th>
-                  <th className="table-th" />
+                  <th className="table-th w-32">ID</th>
+                  <th className="table-th-actions">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -449,24 +504,16 @@ export default function ContentListPage() {
                             ? formatDisplayTemplate(collectionMeta.display_template, item)
                             : itemId}
                         </td>
-                        <td className="table-td text-right">
-                          <div className="flex items-center justify-end gap-3">
-                            <Link
-                              to={`/content/${selectedCollection}/${itemId}`}
-                              className="inline-flex items-center gap-1 text-brand-600 hover:text-brand-700 text-xs font-semibold"
-                            >
-                              <Icon name="edit" className="h-3.5 w-3.5" />
-                              Edit
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={() => void handleDelete(itemId)}
-                              className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-xs font-semibold"
-                            >
-                              <Icon name="trash" className="h-3.5 w-3.5" />
-                              Delete
-                            </button>
-                          </div>
+                        <td className="table-td-actions">
+                          <TableRowActions
+                            editTo={`/content/${selectedCollection}/${itemId}`}
+                            onDelete={() => setDeleteTargetId(itemId)}
+                            itemLabel={
+                              collectionMeta?.display_template
+                                ? formatDisplayTemplate(collectionMeta.display_template, item)
+                                : itemId
+                            }
+                          />
                         </td>
                       </tr>
                     );
@@ -474,6 +521,7 @@ export default function ContentListPage() {
                 )}
               </tbody>
             </table>
+            </div>
 
             {totalPages > 1 && (
               <div className="px-5 py-3.5 border-t border-surface-border flex items-center justify-between text-sm text-slate-500 bg-surface-muted/30">
@@ -502,8 +550,32 @@ export default function ContentListPage() {
             )}
           </div>
         )}
-        </div>
       </div>
+
+      <ConfirmDialog
+        open={Boolean(deleteTargetId)}
+        title="Delete item"
+        message="Delete this item? This action cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (!deleteTargetId) return;
+          void handleDelete(deleteTargetId).finally(() => setDeleteTargetId(null));
+        }}
+        onCancel={() => setDeleteTargetId(null)}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        title="Delete selected items"
+        message={`Delete ${selectedIds.size} selected item(s)? This action cannot be undone.`}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          void handleBulkDelete().finally(() => setBulkDeleteOpen(false));
+        }}
+        onCancel={() => setBulkDeleteOpen(false)}
+      />
     </AppLayout>
   );
 }

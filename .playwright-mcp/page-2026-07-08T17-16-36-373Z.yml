@@ -1,0 +1,22 @@
+- generic [active] [ref=f8e1]:
+  - generic:
+    - generic [ref=f8e2]: "Please note: This website includes an accessibility system. Press Control-F11 to adjust the website to people with visual disabilities who are using a screen reader; Press Control-F10 to open an accessibility menu."
+    - button "Accessibility" [ref=f8e3]:
+      - img
+      - img [ref=f8e4]
+      - generic [ref=f8e6]: Accessibility
+    - generic:
+      - list:
+        - listitem:
+          - button "Press enter for Accessibility for blind people who use screen readers" [ref=f8e7] [cursor=pointer]:
+            - text: Press enter for Accessibility for blind people
+            - generic [ref=f8e8]: who use screen readers
+        - listitem:
+          - button "Press enter for Keyboard Navigation" [ref=f8e9] [cursor=pointer]
+        - listitem:
+          - button "Press enter for Accessibility menu" [ref=f8e10] [cursor=pointer]
+  - generic [ref=f8e14]:
+    - iframe [ref=f8e15]:
+      
+    - iframe [ref=f8e16]:
+      

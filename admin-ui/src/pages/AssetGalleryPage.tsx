@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AppLayout from '../components/AppLayout';
+import ConfirmDialog from '../components/data-model/ConfirmDialog';
 import Icon from '../components/Icon';
 import Modal from '../components/Modal';
 import {
@@ -21,14 +22,91 @@ interface AssetGalleryPageProps {
   onSelect?: (file: FileMeta) => void;
 }
 
+type ViewMode = 'list' | 'grid';
+type MenuTarget =
+  | { kind: 'folder'; item: FolderMeta }
+  | { kind: 'file'; item: FileMeta }
+  | null;
+
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function formatDate(value: string): string {
+  return new Date(value).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
 function isImage(type: string | null): boolean {
   return Boolean(type?.startsWith('image/'));
+}
+
+function buildBreadcrumbPath(folders: FolderMeta[], currentFolder: string | null): FolderMeta[] {
+  const path: FolderMeta[] = [];
+  let folderId = currentFolder;
+
+  while (folderId) {
+    const folder = folders.find((entry) => entry.id === folderId);
+    if (!folder) break;
+    path.unshift(folder);
+    folderId = folder.parent;
+  }
+
+  return path;
+}
+
+function sortByName<T extends { name?: string; title?: string | null; filename_download?: string }>(
+  items: T[],
+  getName: (item: T) => string,
+): T[] {
+  return [...items].sort((left, right) => getName(left).localeCompare(getName(right), undefined, { sensitivity: 'base' }));
+}
+
+interface FolderTreeProps {
+  folders: FolderMeta[];
+  parent: string | null;
+  depth?: number;
+  currentFolder: string | null;
+  onOpen: (folderId: string | null) => void;
+}
+
+function FolderTree({ folders, parent, depth = 0, currentFolder, onOpen }: FolderTreeProps) {
+  const children = sortByName(
+    folders.filter((folder) => folder.parent === parent),
+    (folder) => folder.name,
+  );
+
+  return (
+    <>
+      {children.map((folder) => (
+        <div key={folder.id}>
+          <button
+            type="button"
+            onClick={() => onOpen(folder.id)}
+            className={`asset-gallery-sidebar-item ${
+              currentFolder === folder.id ? 'asset-gallery-sidebar-item-active' : ''
+            } ${depth > 0 ? 'asset-gallery-sidebar-nested' : ''}`}
+            style={depth > 0 ? { paddingLeft: `${1 + depth * 0.75}rem` } : undefined}
+          >
+            <Icon name="folder" className="h-4 w-4 shrink-0 text-amber-500" />
+            <span className="truncate">{folder.name}</span>
+          </button>
+          <FolderTree
+            folders={folders}
+            parent={folder.id}
+            depth={depth + 1}
+            currentFolder={currentFolder}
+            onOpen={onOpen}
+          />
+        </div>
+      ))}
+    </>
+  );
 }
 
 export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryPageProps) {
@@ -37,6 +115,7 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
   const [total, setTotal] = useState(0);
   const [currentFolder, setCurrentFolder] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,7 +133,12 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
 
+  const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderMeta | null>(null);
+  const [deleteFileTarget, setDeleteFileTarget] = useState<FileMeta | null>(null);
+  const [openMenuKey, setOpenMenuKey] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -78,8 +162,35 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
     void loadData();
   }, [loadData]);
 
-  const childFolders = folders.filter((f) => f.parent === currentFolder);
-  const currentFolderMeta = currentFolder ? folders.find((f) => f.id === currentFolder) : null;
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuKey(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const childFolders = useMemo(
+    () =>
+      sortByName(
+        folders.filter((folder) => folder.parent === currentFolder),
+        (folder) => folder.name,
+      ),
+    [folders, currentFolder],
+  );
+
+  const sortedFiles = useMemo(
+    () =>
+      sortByName(files, (file) => file.title ?? file.filename_download),
+    [files],
+  );
+
+  const breadcrumbPath = useMemo(
+    () => buildBreadcrumbPath(folders, currentFolder),
+    [folders, currentFolder],
+  );
 
   async function handleCreateFolder() {
     if (!folderName.trim()) return;
@@ -98,7 +209,6 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
   }
 
   async function handleDeleteFolder(folder: FolderMeta) {
-    if (!window.confirm(`Delete folder "${folder.name}"? Files will move to root.`)) return;
     await deleteFolder(folder.id);
     if (currentFolder === folder.id) {
       setCurrentFolder(null);
@@ -135,10 +245,29 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
   }
 
   async function handleDeleteFile(file: FileMeta) {
-    if (!window.confirm(`Delete "${file.title ?? file.filename_download}"?`)) return;
     await deleteFile(file.id);
     setEditingFile(null);
     void loadData();
+  }
+
+  function menuKey(target: MenuTarget): string | null {
+    if (!target) return null;
+    return `${target.kind}:${target.item.id}`;
+  }
+
+  function openFolder(folderId: string | null) {
+    setCurrentFolder(folderId);
+    setOpenMenuKey(null);
+  }
+
+  function openFile(file: FileMeta) {
+    if (pickerMode && onSelect) {
+      onSelect(file);
+      return;
+    }
+    setEditingFile(file);
+    setEditTitle(file.title ?? '');
+    setEditDescription(file.description ?? '');
   }
 
   const toolbar = (
@@ -149,10 +278,10 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
           setFolderName('');
           setShowFolderModal(true);
         }}
-        className="btn-secondary"
+        className="btn-secondary text-sm"
       >
         <Icon name="folder" className="h-4 w-4" />
-        New Folder
+        New folder
       </button>
       <button
         type="button"
@@ -162,169 +291,317 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
           setUploadFileInput(null);
           setShowUploadModal(true);
         }}
-        className="btn-primary"
+        className="btn-primary text-sm"
       >
         <Icon name="upload" className="h-4 w-4" />
-        Upload Asset
+        Upload
       </button>
     </div>
   );
 
-  const content = (
-    <div className={pickerMode ? '' : 'max-w-6xl space-y-5'}>
-      {/* Breadcrumb + search */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm">
+  function renderRowMenu(target: MenuTarget) {
+    if (!target || pickerMode) return null;
+    const key = menuKey(target);
+    const isOpen = openMenuKey === key;
+
+    return (
+      <div className="relative" ref={isOpen ? menuRef : undefined}>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            setOpenMenuKey(isOpen ? null : key);
+          }}
+          className="rounded-lg p-1.5 text-[var(--app-text-faint)] hover:bg-[var(--app-hover)] hover:text-[var(--app-text)]"
+          aria-label="More actions"
+        >
+          <Icon name="more" className="h-4 w-4" />
+        </button>
+        {isOpen && (
+          <div className="asset-gallery-menu">
+            {target.kind === 'folder' ? (
+              <>
+                <button
+                  type="button"
+                  className="asset-gallery-menu-btn"
+                  onClick={() => {
+                    setEditingFolder(target.item);
+                    setFolderName(target.item.name);
+                    setOpenMenuKey(null);
+                  }}
+                >
+                  Rename
+                </button>
+                <button
+                  type="button"
+                  className="asset-gallery-menu-btn asset-gallery-menu-btn-danger"
+                  onClick={() => {
+                    setDeleteFolderTarget(target.item);
+                    setOpenMenuKey(null);
+                  }}
+                >
+                  Delete
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="asset-gallery-menu-btn"
+                  onClick={() => {
+                    openFile(target.item);
+                    setOpenMenuKey(null);
+                  }}
+                >
+                  Edit details
+                </button>
+                <button
+                  type="button"
+                  className="asset-gallery-menu-btn asset-gallery-menu-btn-danger"
+                  onClick={() => {
+                    setDeleteFileTarget(target.item);
+                    setOpenMenuKey(null);
+                  }}
+                >
+                  Delete
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  function renderListView() {
+    return (
+      <table className="asset-gallery-table">
+        <thead className="asset-gallery-table-head">
+          <tr>
+            <th>Name</th>
+            <th className="hidden sm:table-cell">Date modified</th>
+            <th className="hidden md:table-cell w-28">Size</th>
+            {!pickerMode && <th className="w-12" />}
+          </tr>
+        </thead>
+        <tbody>
+          {childFolders.map((folder) => {
+            const target: MenuTarget = { kind: 'folder', item: folder };
+            return (
+              <tr key={folder.id} className="asset-gallery-row">
+                <td>
+                  <button type="button" onClick={() => openFolder(folder.id)} className="asset-gallery-row-name w-full text-left">
+                    <span className="asset-gallery-row-icon asset-gallery-row-icon-folder">
+                      <Icon name="folder" className="h-4 w-4" />
+                    </span>
+                    <span className="truncate">{folder.name}</span>
+                  </button>
+                </td>
+                <td className="hidden sm:table-cell">{formatDate(folder.created_on)}</td>
+                <td className="hidden md:table-cell">—</td>
+                {!pickerMode && <td className="asset-gallery-row-actions">{renderRowMenu(target)}</td>}
+              </tr>
+            );
+          })}
+          {sortedFiles.map((file) => {
+            const target: MenuTarget = { kind: 'file', item: file };
+            return (
+              <tr key={file.id} className="asset-gallery-row">
+                <td>
+                  <button type="button" onClick={() => openFile(file)} className="asset-gallery-row-name w-full text-left">
+                    {isImage(file.type) ? (
+                      <img
+                        src={getAssetUrl(file.id, { width: 64, height: 64, fit: 'cover', format: 'webp' })}
+                        alt=""
+                        className="asset-gallery-row-thumb"
+                      />
+                    ) : (
+                      <span className="asset-gallery-row-icon bg-[var(--app-hover)] text-[var(--app-text-faint)]">
+                        <Icon name="file" className="h-4 w-4" />
+                      </span>
+                    )}
+                    <span className="truncate">{file.title ?? file.filename_download}</span>
+                  </button>
+                </td>
+                <td className="hidden sm:table-cell">{formatDate(file.uploaded_on)}</td>
+                <td className="hidden md:table-cell">{formatBytes(file.filesize)}</td>
+                {!pickerMode && <td className="asset-gallery-row-actions">{renderRowMenu(target)}</td>}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    );
+  }
+
+  function renderGridView() {
+    return (
+      <div className="asset-gallery-grid">
+        {childFolders.map((folder) => (
+          <button
+            key={folder.id}
+            type="button"
+            onClick={() => openFolder(folder.id)}
+            className="asset-gallery-grid-item"
+          >
+            <div className="asset-gallery-grid-preview asset-gallery-grid-preview-folder">
+              <Icon name="folder" className="h-10 w-10" />
+            </div>
+            <div className="asset-gallery-grid-meta">
+              <p className="asset-gallery-grid-title">{folder.name}</p>
+              <p className="asset-gallery-grid-subtitle">Folder</p>
+            </div>
+          </button>
+        ))}
+        {sortedFiles.map((file) => (
+          <button
+            key={file.id}
+            type="button"
+            onClick={() => openFile(file)}
+            className="asset-gallery-grid-item"
+          >
+            <div className="asset-gallery-grid-preview">
+              {isImage(file.type) ? (
+                <img
+                  src={getAssetUrl(file.id, { width: 280, height: 200, fit: 'cover', format: 'webp' })}
+                  alt=""
+                />
+              ) : (
+                <Icon name="file" className="h-10 w-10 text-[var(--app-text-faint)]" />
+              )}
+            </div>
+            <div className="asset-gallery-grid-meta">
+              <p className="asset-gallery-grid-title">{file.title ?? file.filename_download}</p>
+              <p className="asset-gallery-grid-subtitle">{formatBytes(file.filesize)}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  const driveContent = (
+    <div className="asset-gallery">
+      {!pickerMode && (
+        <aside className="asset-gallery-sidebar">
           <button
             type="button"
             onClick={() => setCurrentFolder(null)}
-            className={`inline-flex items-center gap-1.5 font-medium ${
-              currentFolder === null ? 'text-brand-700' : 'text-slate-500 hover:text-slate-900'
+            className={`asset-gallery-sidebar-item ${
+              currentFolder === null ? 'asset-gallery-sidebar-item-active' : ''
             }`}
           >
-            <Icon name="folder" className="h-4 w-4" />
-            Root
+            <Icon name="image" className="h-4 w-4 shrink-0" />
+            <span>My Drive</span>
           </button>
-          {currentFolderMeta && (
-            <>
-              <Icon name="chevron-right" className="h-4 w-4 text-slate-300" />
-              <span className="text-brand-700 font-medium">{currentFolderMeta.name}</span>
-            </>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Icon name="search" className="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <FolderTree
+            folders={folders}
+            parent={null}
+            currentFolder={currentFolder}
+            onOpen={openFolder}
+          />
+        </aside>
+      )}
+
+      <div className="asset-gallery-main">
+        <div className="asset-gallery-toolbar">
+          {!pickerMode && toolbar}
+          <div className={`asset-gallery-search ${pickerMode ? 'max-w-none flex-1' : ''}`}>
+            <Icon name="search" className="asset-gallery-search-icon h-4 w-4" />
             <input
               type="search"
-              placeholder="Search assets..."
+              placeholder="Search in Drive"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="input pl-9 w-64"
+              className="asset-gallery-search-input"
             />
+          </div>
+          <div className="asset-gallery-view-toggle">
+            <button
+              type="button"
+              onClick={() => setViewMode('list')}
+              className={`asset-gallery-view-btn ${viewMode === 'list' ? 'asset-gallery-view-btn-active' : ''}`}
+              aria-label="List view"
+            >
+              <Icon name="list" className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('grid')}
+              className={`asset-gallery-view-btn ${viewMode === 'grid' ? 'asset-gallery-view-btn-active' : ''}`}
+              aria-label="Grid view"
+            >
+              <Icon name="grid" className="h-4 w-4" />
+            </button>
           </div>
           {pickerMode && toolbar}
         </div>
-      </div>
 
-      {error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-
-      {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div key={i} className="card p-0 overflow-hidden animate-pulse">
-              <div className="h-32 bg-slate-100" />
-              <div className="p-3 space-y-2">
-                <div className="h-3 w-2/3 bg-slate-100 rounded" />
-                <div className="h-2.5 w-1/3 bg-slate-100 rounded" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : childFolders.length === 0 && files.length === 0 ? (
-        <div className="card p-16 text-center">
-          <div className="flex flex-col items-center gap-3">
-            <span className="h-14 w-14 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-600 text-white flex items-center justify-center">
-              <Icon name="image" className="h-7 w-7" />
-            </span>
-            <h3 className="text-lg font-bold text-slate-900">No Assets Found</h3>
-            <p className="text-sm text-slate-500">Upload an asset or create a folder to get started.</p>
-            <div className="mt-1">{toolbar}</div>
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-          {childFolders.map((folder) => (
-            <div key={folder.id} className="card p-0 overflow-hidden group">
-              <button
-                type="button"
-                onClick={() => setCurrentFolder(folder.id)}
-                className="w-full text-left"
-              >
-                <div className="h-32 flex items-center justify-center bg-gradient-to-br from-amber-50 to-orange-50 text-amber-500 group-hover:from-amber-100 transition-colors">
-                  <Icon name="folder" className="h-12 w-12" />
-                </div>
-                <div className="p-3">
-                  <p className="text-sm font-semibold text-slate-900 truncate">{folder.name}</p>
-                  <p className="text-xs text-slate-400">Folder</p>
-                </div>
-              </button>
-              {!pickerMode && (
-                <div className="px-3 pb-3 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingFolder(folder);
-                      setFolderName(folder.name);
-                    }}
-                    className="text-xs font-medium text-brand-600 hover:text-brand-700"
-                  >
-                    Rename
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleDeleteFolder(folder)}
-                    className="text-xs font-medium text-red-600 hover:text-red-700"
-                  >
-                    Delete
-                  </button>
-                </div>
+        <nav className="asset-gallery-breadcrumb" aria-label="Breadcrumb">
+          <button type="button" onClick={() => setCurrentFolder(null)} className="asset-gallery-breadcrumb-link">
+            My Drive
+          </button>
+          {breadcrumbPath.map((folder, index) => (
+            <span key={folder.id} className="inline-flex items-center gap-1">
+              <Icon name="chevron-right" className="h-3.5 w-3.5 text-[var(--app-text-faint)]" />
+              {index === breadcrumbPath.length - 1 ? (
+                <span className="asset-gallery-breadcrumb-current">{folder.name}</span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setCurrentFolder(folder.id)}
+                  className="asset-gallery-breadcrumb-link"
+                >
+                  {folder.name}
+                </button>
               )}
-            </div>
+            </span>
           ))}
+        </nav>
 
-          {files.map((file) => (
-            <div key={file.id} className="card p-0 overflow-hidden group hover:shadow-card-hover transition-all">
-              <button
-                type="button"
-                onClick={() => {
-                  if (pickerMode && onSelect) {
-                    onSelect(file);
-                  } else {
-                    setEditingFile(file);
-                    setEditTitle(file.title ?? '');
-                    setEditDescription(file.description ?? '');
-                  }
-                }}
-                className="w-full text-left"
-              >
-                <div className="h-32 bg-slate-100 flex items-center justify-center overflow-hidden">
-                  {isImage(file.type) ? (
-                    <img
-                      src={getAssetUrl(file.id, { width: 280, height: 200, fit: 'cover', format: 'webp' })}
-                      alt={file.title ?? ''}
-                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <Icon name="file" className="h-10 w-10 text-slate-300" />
-                  )}
-                </div>
-                <div className="p-3">
-                  <p className="text-sm font-semibold text-slate-900 truncate">
-                    {file.title ?? file.filename_download}
-                  </p>
-                  <p className="text-xs text-slate-400 mt-0.5">{formatBytes(file.filesize)}</p>
-                </div>
-              </button>
+        {error && (
+          <div className="mx-4 mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        <div className="asset-gallery-content">
+          {isLoading ? (
+            <div className="asset-gallery-empty">
+              <p className="text-sm text-[var(--app-text-muted)]">Loading assets...</p>
             </div>
-          ))}
+          ) : childFolders.length === 0 && sortedFiles.length === 0 ? (
+            <div className="asset-gallery-empty">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--app-accent-light)] text-[var(--app-accent)]">
+                <Icon name="image" className="h-7 w-7" />
+              </span>
+              <h3 className="text-base font-semibold text-[var(--app-text)]">This folder is empty</h3>
+              <p className="max-w-sm text-sm text-[var(--app-text-muted)]">
+                Upload files or create a folder to organize your assets, just like Google Drive.
+              </p>
+              {toolbar}
+            </div>
+          ) : viewMode === 'list' ? (
+            renderListView()
+          ) : (
+            renderGridView()
+          )}
         </div>
-      )}
 
-      {!isLoading && total > files.length && (
-        <p className="text-xs text-slate-400">
-          Showing {files.length} of {total} assets
-        </p>
-      )}
+        {!isLoading && total > sortedFiles.length && (
+          <p className="border-t border-[var(--app-border)] px-4 py-2 text-xs text-[var(--app-text-faint)]">
+            Showing {sortedFiles.length} of {total} files in this folder
+          </p>
+        )}
+      </div>
+    </div>
+  );
 
-      {/* Folder create/edit modal */}
+  const modals = (
+    <>
       <Modal
         open={showFolderModal || editingFolder !== null}
-        title={editingFolder ? 'Rename Folder' : 'Create Folder'}
+        title={editingFolder ? 'Rename folder' : 'New folder'}
         onClose={() => {
           setShowFolderModal(false);
           setEditingFolder(null);
@@ -353,7 +630,7 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
           </>
         }
       >
-        <label className="label">Folder Name</label>
+        <label className="label">Folder name</label>
         <input
           autoFocus
           value={folderName}
@@ -363,10 +640,9 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
         />
       </Modal>
 
-      {/* Upload modal */}
       <Modal
         open={showUploadModal}
-        title="Upload Asset"
+        title="Upload file"
         onClose={() => setShowUploadModal(false)}
         footer={
           <>
@@ -390,22 +666,21 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full rounded-xl border-2 border-dashed border-slate-300 hover:border-brand-400 hover:bg-brand-50/30 transition-colors px-4 py-8 text-center"
+              className="w-full rounded-xl border-2 border-dashed border-[var(--app-border)] px-4 py-8 text-center transition-colors hover:border-[var(--app-accent)] hover:bg-[var(--app-accent-light)]/30"
             >
-              <Icon name="upload" className="h-8 w-8 text-slate-400 mx-auto mb-2" />
-              <p className="text-sm font-medium text-slate-700">
-                {uploadFileInput ? uploadFileInput.name : 'Click to choose a file'}
+              <Icon name="upload" className="mx-auto mb-2 h-8 w-8 text-[var(--app-text-faint)]" />
+              <p className="text-sm font-medium text-[var(--app-text)]">
+                {uploadFileInput ? uploadFileInput.name : 'Choose a file to upload'}
               </p>
-              <p className="text-xs text-slate-400 mt-0.5">Images, documents, and media up to 10MB</p>
             </button>
             <input
               ref={fileInputRef}
               type="file"
               className="hidden"
               onChange={(e) => {
-                const f = e.target.files?.[0] ?? null;
-                setUploadFileInput(f);
-                if (f && !uploadTitle) setUploadTitle(f.name);
+                const file = e.target.files?.[0] ?? null;
+                setUploadFileInput(file);
+                if (file && !uploadTitle) setUploadTitle(file.name);
               }}
             />
           </div>
@@ -430,16 +705,15 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
         </div>
       </Modal>
 
-      {/* Edit asset modal */}
       <Modal
         open={editingFile !== null && !pickerMode}
-        title="Edit Asset"
+        title="File details"
         onClose={() => setEditingFile(null)}
         footer={
           <>
             <button
               type="button"
-              onClick={() => editingFile && void handleDeleteFile(editingFile)}
+              onClick={() => editingFile && setDeleteFileTarget(editingFile)}
               className="btn-danger mr-auto"
             >
               <Icon name="trash" className="h-4 w-4" />
@@ -460,7 +734,7 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
               <img
                 src={getAssetUrl(editingFile.id, { width: 560, height: 280, fit: 'contain', format: 'webp' })}
                 alt=""
-                className="w-full h-48 object-contain rounded-xl bg-slate-50 border border-slate-100"
+                className="h-48 w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-hover)] object-contain"
               />
             )}
             <div>
@@ -476,7 +750,7 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
                 className="input"
               />
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[var(--app-text-faint)]">
               {formatBytes(editingFile.filesize)} ·{' '}
               {editingFile.width && editingFile.height
                 ? `${editingFile.width}×${editingFile.height}px`
@@ -485,20 +759,51 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
           </div>
         )}
       </Modal>
-    </div>
+
+      <ConfirmDialog
+        open={deleteFolderTarget !== null}
+        title="Delete folder"
+        message={`Delete folder "${deleteFolderTarget?.name}"? Files inside will move to the root folder.`}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (!deleteFolderTarget) return;
+          void handleDeleteFolder(deleteFolderTarget).finally(() => setDeleteFolderTarget(null));
+        }}
+        onCancel={() => setDeleteFolderTarget(null)}
+      />
+
+      <ConfirmDialog
+        open={deleteFileTarget !== null}
+        title="Delete file"
+        message={`Delete "${deleteFileTarget?.title ?? deleteFileTarget?.filename_download}"?`}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (!deleteFileTarget) return;
+          void handleDeleteFile(deleteFileTarget).finally(() => setDeleteFileTarget(null));
+        }}
+        onCancel={() => setDeleteFileTarget(null)}
+      />
+    </>
   );
 
   if (pickerMode) {
-    return content;
+    return (
+      <>
+        {driveContent}
+        {modals}
+      </>
+    );
   }
 
   return (
     <AppLayout
       title="Asset Gallery"
-      subtitle="View and manage all uploaded images, icons, and media"
-      actions={toolbar}
+      subtitle="Browse folders and files like Google Drive"
     >
-      {content}
+      {driveContent}
+      {modals}
     </AppLayout>
   );
 }

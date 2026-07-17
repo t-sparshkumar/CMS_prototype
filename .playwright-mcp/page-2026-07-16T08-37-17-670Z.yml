@@ -1,0 +1,70 @@
+- generic [ref=f3e3]:
+  - generic [ref=f3e4]:
+    - generic [ref=f3e5]:
+      - link "Back to editor" [ref=f3e6] [cursor=pointer]:
+        - /url: /pages/69c33d66-a336-49dd-bd48-69b552b2b469/edit
+        - img [ref=f3e7]
+        - text: Back to editor
+      - generic [ref=f3e9]: "|"
+      - heading "Home" [level=1] [ref=f3e10]
+    - generic [ref=f3e11]:
+      - button "Desktop" [ref=f3e12] [cursor=pointer]
+      - button "Mobile" [ref=f3e13] [cursor=pointer]
+      - link "Open in new tab" [ref=f3e14] [cursor=pointer]:
+        - /url: /pages/69c33d66-a336-49dd-bd48-69b552b2b469/preview
+        - img [ref=f3e15]
+        - text: Open in new tab
+  - main [ref=f3e20]:
+    - generic [ref=f3e22]: "Unknown block type: utility-bar"
+    - generic [ref=f3e24]:
+      - generic [ref=f3e25]:
+        - img "Unbeatable Internet" [ref=f3e26]
+        - generic [ref=f3e28]:
+          - heading "Unbeatable Internet" [level=2] [ref=f3e29]
+          - paragraph [ref=f3e30]: Fast, reliable fiber internet for your home
+          - link "Shop Internet" [ref=f3e31] [cursor=pointer]:
+            - /url: https://www.libertypr.com/hogar/internet
+      - generic [ref=f3e32]:
+        - button "Go to slide 1" [ref=f3e33] [cursor=pointer]
+        - button "Go to slide 2" [ref=f3e34] [cursor=pointer]
+        - button "Go to slide 3" [ref=f3e35] [cursor=pointer]
+        - button "Go to slide 4" [ref=f3e36] [cursor=pointer]
+        - button "Go to slide 5" [ref=f3e37] [cursor=pointer]
+    - generic [ref=f3e39]:
+      - link "Internet+TV Internet+TV Bundle home internet and television" [ref=f3e40] [cursor=pointer]:
+        - /url: https://www.libertypr.com/hogar/internet
+        - img "Internet+TV" [ref=f3e42]
+        - generic [ref=f3e44]:
+          - heading "Internet+TV" [level=3] [ref=f3e45]
+          - paragraph [ref=f3e46]: Bundle home internet and television
+      - link "Mobile Plans Mobile Plans Unlimited data on Puerto Rico's 5G network" [ref=f3e47] [cursor=pointer]:
+        - /url: https://www.libertypr.com/movil/planes/ilimitado-upick
+        - img "Mobile Plans" [ref=f3e49]
+        - generic [ref=f3e51]:
+          - heading "Mobile Plans" [level=3] [ref=f3e52]
+          - paragraph [ref=f3e53]: Unlimited data on Puerto Rico's 5G network
+    - generic [ref=f3e55]:
+      - heading "Otros servicios que te pueden interesar" [level=2] [ref=f3e57]
+      - generic [ref=f3e58]:
+        - article [ref=f3e59]:
+          - img "5G Mobile Network" [ref=f3e60]
+          - generic [ref=f3e61]:
+            - heading "5G Mobile Network" [level=3] [ref=f3e62]
+            - paragraph [ref=f3e63]: Conéctate en todo Puerto Rico con nuestra red móvil 5G
+            - link "Explore Mobile" [ref=f3e64] [cursor=pointer]:
+              - /url: https://www.libertypr.com/movil/planes/ilimitado
+        - article [ref=f3e65]:
+          - img "Unlimited Home Internet" [ref=f3e66]
+          - generic [ref=f3e67]:
+            - heading "Unlimited Home Internet" [level=3] [ref=f3e68]
+            - paragraph [ref=f3e69]: Navega y Disfruta con el Internet ilimitado para el hogar
+            - link "Shop Internet" [ref=f3e70] [cursor=pointer]:
+              - /url: https://www.libertypr.com/hogar/internet
+        - article [ref=f3e71]:
+          - img "Liberty Loop" [ref=f3e72]
+          - generic [ref=f3e73]:
+            - heading "Liberty Loop" [level=3] [ref=f3e74]
+            - paragraph [ref=f3e75]: Combina móvil y fijo y disfruta los beneficios de Liberty Loop
+            - link "Bundle & Save" [ref=f3e76] [cursor=pointer]:
+              - /url: https://www.libertypr.com/ofertas
+    - generic [ref=f3e78]: "Unknown block type: cookie-banner"

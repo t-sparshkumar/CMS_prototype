@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react';
 import AssetPickerModal from './AssetPickerModal';
 import Icon from './Icon';
-import { getAssetUrl, uploadFile } from '../lib/api';
+import { FieldLabel } from './fields/fieldShared';
+import { getAssetUrl, uploadFile, type FieldMeta } from '../lib/api';
 
 interface FileUploadFieldProps {
-  label: string;
+  field?: FieldMeta;
+  label?: string;
   required?: boolean;
   value: unknown;
   onChange: (value: unknown) => void;
@@ -12,7 +14,35 @@ interface FileUploadFieldProps {
   accept?: string;
 }
 
+function UploadFieldLabel({
+  field,
+  label,
+  required,
+}: {
+  field?: FieldMeta;
+  label?: string;
+  required?: boolean;
+}) {
+  if (field) {
+    return <FieldLabel field={field} required={required} />;
+  }
+
+  if (!label) {
+    return null;
+  }
+
+  return (
+    <label className="block mb-2">
+      <span className="block min-h-5 text-sm font-semibold leading-5 text-slate-800">
+        {label}
+        {required && <span className="text-red-500"> *</span>}
+      </span>
+    </label>
+  );
+}
+
 export default function FileUploadField({
+  field,
   label,
   required,
   value,
@@ -27,6 +57,7 @@ export default function FileUploadField({
 
   const fileId = typeof value === 'string' && value.length > 0 ? value : null;
   const previewUrl = fileId ? getAssetUrl(fileId, { width: 320, height: 200, fit: 'cover', format: 'webp' }) : null;
+  const displayLabel = field ? field.field : label ?? 'File';
 
   async function handleFileChange(file: File | null) {
     if (!file) {
@@ -47,18 +78,13 @@ export default function FileUploadField({
 
   return (
     <div>
-      {label && (
-        <label className="label">
-          {label}
-          {required && <span className="text-red-500"> *</span>}
-        </label>
-      )}
+      <UploadFieldLabel field={field} label={label} required={required} />
 
       {previewUrl ? (
         <div className="mb-3 flex items-start gap-3">
           <img
             src={previewUrl}
-            alt={label}
+            alt={displayLabel}
             className="h-24 w-32 rounded-xl border border-slate-200 object-cover shadow-sm"
           />
           <div className="text-xs text-slate-400 break-all">
@@ -85,24 +111,24 @@ export default function FileUploadField({
         onChange={(e) => void handleFileChange(e.target.files?.[0] ?? null)}
       />
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex min-h-[42px] flex-wrap items-center gap-2">
         <button
           type="button"
           disabled={disabled || isUploading}
           onClick={() => inputRef.current?.click()}
-          className="btn-secondary"
+          className="btn-secondary h-[42px]"
         >
           <Icon name="upload" className="h-4 w-4" />
-          {isUploading ? 'Uploading...' : fileId ? 'Replace' : 'Upload'}
+          {isUploading ? 'Uploading...' : fileId ? 'Replace from computer' : 'Upload from computer'}
         </button>
         <button
           type="button"
           disabled={disabled || isUploading}
           onClick={() => setShowPicker(true)}
-          className="btn-ghost"
+          className="btn-ghost h-[42px]"
         >
           <Icon name="image" className="h-4 w-4" />
-          Choose from gallery
+          Asset Gallery
         </button>
       </div>
 

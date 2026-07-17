@@ -1,120 +1,129 @@
 import { Link } from 'react-router-dom';
 import Icon from '../Icon';
+import CollectionMaterialIcon from '../CollectionMaterialIcon';
 import {
-  isSubCollection,
-  SubCollectionBadge,
-  SubCollectionParentLink,
-} from '../SubCollectionHighlight';
+  addCollectionLabel,
+  addFolderLabel,
+  childCollectionsLabel,
+  folderBadgeLabel,
+  nestedCollectionBadgeLabel,
+  openCollectionLabel,
+  openFolderLabel,
+} from '../../lib/collectionLabels';
+import { isSubCollection } from '../SubCollectionHighlight';
 import type { CollectionMeta } from '../../lib/api';
+import { getCollectionDisplayName } from '../../lib/collectionDisplay';
 
 interface CollectionCardProps {
   collection: CollectionMeta;
   onDelete?: (name: string) => void;
   onDuplicate?: (name: string) => void;
-  onAddSubCollection?: (collection: CollectionMeta) => void;
-  /** Force sub-collection styling (e.g. inside a parent's sub-collections section). */
+  onAddFolder?: (collection: CollectionMeta) => void;
+  onAddCollection?: (collection: CollectionMeta) => void;
   highlightAsSubCollection?: boolean;
-}
-
-function NestedCollectionsBadge() {
-  return (
-    <span className="badge-tag-neutral">
-      <Icon name="component" className="h-3 w-3" />
-      Has nested
-    </span>
-  );
 }
 
 export default function CollectionCard({
   collection,
   onDelete,
   onDuplicate,
-  onAddSubCollection,
+  onAddFolder,
+  onAddCollection,
   highlightAsSubCollection = false,
 }: CollectionCardProps) {
-  const color = collection.color ?? '#6366f1';
-  const initials = collection.collection.slice(0, 2).toUpperCase();
+  const color = collection.color ?? 'var(--app-accent)';
   const isSub = highlightAsSubCollection || isSubCollection(collection);
+  const displayName = getCollectionDisplayName(collection);
 
   const metaText = collection.is_group
-    ? `${collection.child_count} sub-collection${collection.child_count === 1 ? '' : 's'}`
+    ? childCollectionsLabel(collection.child_count)
     : `${collection.field_count} field${collection.field_count === 1 ? '' : 's'}`;
 
   return (
-    <article className={`collection-card group ${isSub ? 'collection-card-sub' : ''}`}>
-      <div
-        className="collection-card-accent"
-        style={{ backgroundColor: isSub ? '#8b5cf6' : color }}
-      />
-
-      <div className="collection-card-body">
-        <div className="collection-card-header">
+    <article className={`dm-item-card group ${isSub ? 'is-nested' : ''}`}>
+      <div className="dm-item-card-body">
+        <div className="dm-item-card-header">
           <span
-            className="collection-card-avatar"
-            style={{ backgroundColor: isSub ? '#7c3aed' : color }}
+            className="dm-row-icon"
+            style={{
+              backgroundColor: `color-mix(in srgb, ${color} 14%, var(--app-surface))`,
+              color,
+            }}
           >
-            {initials}
+            <CollectionMaterialIcon
+              icon={collection.icon}
+              isGroup={collection.is_group}
+              size={16}
+            />
           </span>
           <div className="min-w-0 flex-1">
             <Link
               to={`/settings/data-model/${collection.collection}`}
-              className="collection-card-title block"
+              className="dm-row-title block truncate"
             >
-              {collection.collection}
+              {displayName}
             </Link>
             {isSub && collection.parent && (
-              <SubCollectionParentLink
-                parent={collection.parent}
-                basePath="/settings/data-model"
-                className="mt-1"
-              />
+              <p className="collection-list-note">Under {collection.parent}</p>
             )}
             {collection.note ? (
-              <p className="collection-card-desc">{collection.note}</p>
+              <p className="collection-list-note">{collection.note}</p>
             ) : (
-              <p className="collection-card-desc text-slate-400/80 italic">No description</p>
+              <p className="collection-list-note italic opacity-70">No description</p>
             )}
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-1.5 mt-4">
-          {isSub && <SubCollectionBadge />}
-          {!isSub && collection.child_count > 0 && <NestedCollectionsBadge />}
-          {collection.is_group && <span className="badge-tag-brand">Group</span>}
-          {collection.singleton && <span className="badge-tag-brand">Singleton</span>}
-          {collection.system && <span className="badge-tag-neutral">System</span>}
-          {collection.hidden && (
-            <span className="badge-tag bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/10">
-              Hidden
+        <div className="flex flex-wrap gap-1 mt-3">
+          {isSub && (
+            <span className="dm-badge-neutral dm-badge">
+              <Icon name="component" className="h-2.5 w-2.5" />
+              {nestedCollectionBadgeLabel()}
             </span>
+          )}
+          {collection.is_group && <span className="dm-badge">{folderBadgeLabel()}</span>}
+          {collection.singleton && <span className="dm-badge">Singleton</span>}
+          {collection.system && <span className="dm-badge-neutral dm-badge">System</span>}
+          {collection.hidden && (
+            <span className="dm-badge-neutral dm-badge">Hidden</span>
           )}
         </div>
 
-        <p className="collection-card-meta">{metaText}</p>
+        <p className="collection-list-count mt-2">{metaText}</p>
 
         {!collection.system && (
-          <div className="collection-card-footer">
+          <div className="dm-item-card-footer">
             <Link
               to={`/settings/data-model/${collection.collection}`}
-              className="collection-card-action"
+              className="dm-item-card-action"
             >
-              Open
+              {collection.is_group ? openFolderLabel() : openCollectionLabel()}
             </Link>
-            {onAddSubCollection && (
+            {collection.is_group && onAddFolder && (
               <button
                 type="button"
-                onClick={() => onAddSubCollection(collection)}
-                className="collection-card-action-muted"
+                onClick={() => onAddFolder(collection)}
+                className="dm-item-card-action-muted"
+              >
+                <Icon name="folder" className="h-3 w-3" />
+                {addFolderLabel()}
+              </button>
+            )}
+            {collection.is_group && onAddCollection && (
+              <button
+                type="button"
+                onClick={() => onAddCollection(collection)}
+                className="dm-item-card-action-muted"
               >
                 <Icon name="plus" className="h-3 w-3" />
-                Add sub-collection
+                {addCollectionLabel()}
               </button>
             )}
             {onDuplicate && (
               <button
                 type="button"
                 onClick={() => onDuplicate(collection.collection)}
-                className="collection-card-action-muted"
+                className="dm-item-card-action-muted"
               >
                 Duplicate
               </button>
@@ -123,7 +132,7 @@ export default function CollectionCard({
               <button
                 type="button"
                 onClick={() => onDelete(collection.collection)}
-                className="collection-card-action-danger"
+                className="dm-item-card-action-danger"
               >
                 Delete
               </button>

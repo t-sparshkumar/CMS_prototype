@@ -2,14 +2,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import Icon from './Icon';
+import CollectionMaterialIcon from './CollectionMaterialIcon';
 import {
-  isSubCollection,
-  SubCollectionBadge,
-  SubCollectionParentLink,
-  subCollectionRowClass,
-  subCollectionSectionClass,
-} from './SubCollectionHighlight';
+  childCollectionsLabel,
+  folderBadgeLabel,
+  nestedCollectionBadgeLabel,
+  nestedCollectionsHeading,
+  nestedUnderLabel,
+  openFolderLabel,
+} from '../lib/collectionLabels';
 import { reorderCollections, type CollectionMeta } from '../lib/api';
+import { getCollectionDisplayName } from '../lib/collectionDisplay';
+import { isSubCollection } from './SubCollectionHighlight';
 
 export interface BreadcrumbItem {
   collection: string;
@@ -20,8 +24,7 @@ interface ContentCollectionListProps {
   collections: CollectionMeta[];
   isLoading?: boolean;
   breadcrumbs?: BreadcrumbItem[];
-  /** When true, wraps the list in sub-collection section styling (e.g. inside a group). */
-  inSubCollectionContext?: boolean;
+  inFolderContext?: boolean;
   parentName?: string;
   onReorder?: () => void;
 }
@@ -69,7 +72,7 @@ function CollectionActionsMenu({
             onClick={onClose}
             role="menuitem"
           >
-            Open group
+            {openFolderLabel()}
           </Link>
         ) : (
           <>
@@ -136,38 +139,35 @@ function openMenuAtButton(
 }
 
 function CollectionIcon({ collection }: { collection: CollectionMeta }) {
-  const color = collection.color ?? '#6366f1';
-  const label = collection.collection.slice(0, 2).toUpperCase();
+  const color = collection.color ?? 'var(--app-accent)';
 
   return (
     <span
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white shadow-sm"
-      style={{ backgroundColor: color }}
+      className="collection-list-icon"
+      style={{
+        backgroundColor: `color-mix(in srgb, ${color} 14%, var(--app-surface))`,
+        color,
+      }}
       aria-hidden="true"
     >
-      {label}
+      <CollectionMaterialIcon
+        icon={collection.icon}
+        isGroup={collection.is_group}
+        size={16}
+      />
     </span>
   );
 }
 
 function GripIcon() {
   return (
-    <svg viewBox="0 0 16 16" className="h-4 w-4 text-slate-300" aria-hidden="true">
-      <circle cx="5" cy="4" r="1.2" fill="currentColor" />
-      <circle cx="11" cy="4" r="1.2" fill="currentColor" />
-      <circle cx="5" cy="8" r="1.2" fill="currentColor" />
-      <circle cx="11" cy="8" r="1.2" fill="currentColor" />
-      <circle cx="5" cy="12" r="1.2" fill="currentColor" />
-      <circle cx="11" cy="12" r="1.2" fill="currentColor" />
-    </svg>
-  );
-}
-
-function HiddenIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 text-slate-400" aria-hidden="true" fill="currentColor">
-      <path d="M12 6.5c2.76 0 5.26 1.56 6.5 4-1.24 2.44-3.74 4-6.5 4s-5.26-1.56-6.5-4c1.24-2.44 3.74-4 6.5-4zm0 2.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z" />
-      <path d="M2.71 3.16 1.29 4.58l2.07 2.07C2.56 8.03 1.5 9.68 1 11.5 2.73 15.89 7 19 12 19c1.78 0 3.44-.43 4.91-1.18l2.38 2.38 1.41-1.41L2.71 3.16zM12 17c-3.31 0-6.5-2.44-7.93-6 .56-1.34 1.42-2.52 2.48-3.44l1.57 1.57A4.48 4.48 0 0 0 12 15.5c.62 0 1.21-.13 1.74-.36l1.53 1.53C14.09 16.82 13.07 17 12 17z" />
+    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" aria-hidden="true">
+      <circle cx="5" cy="4" r="1.1" fill="currentColor" />
+      <circle cx="11" cy="4" r="1.1" fill="currentColor" />
+      <circle cx="5" cy="8" r="1.1" fill="currentColor" />
+      <circle cx="11" cy="8" r="1.1" fill="currentColor" />
+      <circle cx="5" cy="12" r="1.1" fill="currentColor" />
+      <circle cx="11" cy="12" r="1.1" fill="currentColor" />
     </svg>
   );
 }
@@ -176,18 +176,21 @@ function CollectionMetaBadges({ col }: { col: CollectionMeta }) {
   const isSub = isSubCollection(col);
 
   return (
-    <div className="flex shrink-0 items-center gap-1 text-slate-400">
-      {isSub && <SubCollectionBadge className="mr-1 normal-case tracking-normal" />}
-      {col.is_group && <span className="badge-blue text-[10px] mr-1">Group</span>}
-      {col.singleton && <span className="badge-blue text-[10px] mr-1">Singleton</span>}
-      {col.is_group ? (
-        <span className="text-xs text-slate-400 mr-1">
-          {col.child_count} sub-collection{col.child_count === 1 ? '' : 's'}
+    <div className="collection-list-badges">
+      {isSub && (
+        <span className="collection-list-sub-badge">
+          <Icon name="component" className="h-2.5 w-2.5" />
+          {nestedCollectionBadgeLabel()}
         </span>
-      ) : (
-        <span className="text-xs text-slate-400 mr-1">{col.field_count} fields</span>
       )}
-      <Icon name="chevron-right" className="h-4 w-4 text-slate-300 group-hover:text-brand-500" />
+      {col.is_group && <span className="collection-list-badge">{folderBadgeLabel()}</span>}
+      {col.singleton && <span className="collection-list-badge">Singleton</span>}
+      {col.is_group ? (
+        <span className="collection-list-count">{childCollectionsLabel(col.child_count)}</span>
+      ) : (
+        <span className="collection-list-count">{col.field_count} fields</span>
+      )}
+      <Icon name="chevron-right" className="collection-list-chevron h-3.5 w-3.5" />
     </div>
   );
 }
@@ -196,7 +199,7 @@ export default function ContentCollectionList({
   collections,
   isLoading,
   breadcrumbs = [],
-  inSubCollectionContext = false,
+  inFolderContext = false,
   parentName,
   onReorder,
 }: ContentCollectionListProps) {
@@ -220,6 +223,7 @@ export default function ContentCollectionList({
     return orderedCollections.filter(
       (col) =>
         col.collection.toLowerCase().includes(query) ||
+        getCollectionDisplayName(col).toLowerCase().includes(query) ||
         (col.note?.toLowerCase().includes(query) ?? false),
     );
   }, [orderedCollections, search]);
@@ -262,141 +266,120 @@ export default function ContentCollectionList({
     : null;
 
   return (
-    <div className={`space-y-4 ${inSubCollectionContext ? subCollectionSectionClass() : ''}`}>
-      {inSubCollectionContext && parentName && (
-        <div className="flex items-center gap-2 -mt-1 mb-1">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
-            <Icon name="component" className="h-4 w-4" />
+    <div className={`space-y-3 ${inFolderContext ? 'collection-list-nested-wrap' : ''}`}>
+      {inFolderContext && parentName && (
+        <div className="collection-list-folder-header">
+          <span className="collection-list-folder-icon">
+            <Icon name="folder" className="h-3.5 w-3.5" />
           </span>
           <div>
-            <h2 className="text-sm font-semibold text-slate-800">Sub-collections</h2>
-            <p className="text-xs text-violet-600/80">Nested under {parentName}</p>
+            <h2 className="text-sm font-semibold text-[var(--app-text)]">{nestedCollectionsHeading()}</h2>
+            <p className="text-xs text-[var(--app-text-muted)]">{nestedUnderLabel(parentName)}</p>
           </div>
         </div>
       )}
 
       {breadcrumbs.length > 0 && (
-        <nav className="flex flex-wrap items-center gap-1.5 text-sm">
-          <Link to="/content" className="font-medium text-slate-500 hover:text-brand-600">
-            All collections
-          </Link>
+        <nav className="collection-list-breadcrumb flex flex-wrap items-center gap-1.5">
+          <Link to="/content">All collections</Link>
           {breadcrumbs.map((crumb) => (
             <span key={crumb.collection} className="flex items-center gap-1.5">
-              <Icon name="chevron-right" className="h-3.5 w-3.5 text-slate-300" />
-              <Link
-                to={`/content/${crumb.collection}`}
-                className="font-medium text-slate-500 hover:text-brand-600"
-              >
-                {crumb.label}
-              </Link>
+              <Icon name="chevron-right" className="collection-list-breadcrumb-sep h-3 w-3" />
+              <Link to={`/content/${crumb.collection}`}>{crumb.label}</Link>
             </span>
           ))}
         </nav>
       )}
 
-      <div className="page-toolbar">
-        <div className="relative flex-1 min-w-[240px] max-w-lg">
-          <Icon name="search" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <div className="collection-list-header">
+        <div className="collection-list-search">
+          <Icon name="search" className="collection-list-search-icon h-3.5 w-3.5" />
           <input
             type="search"
             placeholder="Search collections..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input pl-10"
+            className="collection-list-search-input"
           />
         </div>
-        <span className="toolbar-count">
+        <span className="collection-list-meta">
           {filtered.length} collection{filtered.length === 1 ? '' : 's'}
-          {canReorder && filtered.length > 1 && (
-            <span className="text-slate-400 font-normal"> · drag to reorder</span>
-          )}
+          {canReorder && filtered.length > 1 && ' · drag to reorder'}
         </span>
       </div>
 
-      <div className="table-shell">
-        <div className="collection-card-accent bg-gradient-to-r from-brand-500 to-violet-500" />
+      <div className="collection-list-shell">
         {isLoading ? (
-          <div className="px-6 py-12 text-center text-sm text-slate-400">Loading collections...</div>
+          <div className="collection-list-empty text-sm">Loading collections...</div>
         ) : filtered.length === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-              <Icon name="content" className="h-6 w-6" />
+          <div className="collection-list-empty">
+            <span className="collection-list-empty-icon">
+              <Icon name="content" className="h-5 w-5" />
             </span>
-            <p className="text-sm font-medium text-slate-700">No collections found</p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="text-sm font-medium text-[var(--app-text)]">No collections found</p>
+            <p className="mt-1 text-xs">
               {search ? 'Try a different search term.' : 'Create a collection in Data Model first.'}
             </p>
             {!search && (
-              <Link to="/settings/data-model" className="btn-primary mt-4 inline-flex">
+              <Link to="/settings/data-model" className="btn-primary mt-4 inline-flex text-sm">
                 Go to Data Model
               </Link>
             )}
           </div>
         ) : (
-          <ul className="divide-y-0">
+          <ul>
             {filtered.map((col, index) => {
               const isSub = isSubCollection(col);
               const isDragging = dragIndex === index;
+              const displayName = getCollectionDisplayName(col);
 
               return (
-              <li
-                key={col.collection}
-                className={`list-row group ${subCollectionRowClass(isSub)} ${isDragging ? 'opacity-50' : ''}`}
-                onDragOver={(e) => {
-                  if (canReorder) e.preventDefault();
-                }}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  handleDrop(index);
-                }}
-              >
-                <button
-                  type="button"
-                  draggable={canReorder}
-                  aria-label={`Reorder ${col.collection}`}
-                  aria-disabled={!canReorder}
-                  onDragStart={(e) => {
-                    if (!canReorder) {
-                      e.preventDefault();
-                      return;
-                    }
-                    setDragIndex(index);
-                    e.dataTransfer.effectAllowed = 'move';
+                <li
+                  key={col.collection}
+                  className={`collection-list-row group ${isSub ? 'is-nested' : ''} ${isDragging ? 'opacity-40' : ''}`}
+                  onDragOver={(e) => {
+                    if (canReorder) e.preventDefault();
                   }}
-                  onDragEnd={() => setDragIndex(null)}
-                  className={`shrink-0 touch-none p-1 -ml-1 rounded-md transition-opacity ${
-                    canReorder
-                      ? 'cursor-grab active:cursor-grabbing opacity-60 hover:opacity-100 hover:bg-slate-100'
-                      : 'cursor-not-allowed opacity-30'
-                  } ${isSub ? 'text-violet-300 hover:bg-violet-50' : 'text-slate-300'}`}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    handleDrop(index);
+                  }}
                 >
-                  <GripIcon />
-                </button>
-                <Link to={`/content/${col.collection}`} className="flex min-w-0 flex-1 items-center gap-3">
-                  <CollectionIcon collection={col} />
-                  {col.hidden && (
-                    <span title="Hidden collection" className="shrink-0">
-                      <HiddenIcon />
-                    </span>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className={`truncate text-sm font-semibold group-hover:text-brand-700 ${isSub ? 'text-violet-900' : 'text-slate-900'}`}>
-                      {col.collection}
-                    </p>
-                    {isSub && col.parent && (
-                      <SubCollectionParentLink parent={col.parent} basePath="/content" />
-                    )}
-                    {col.note && (
-                      <p className="truncate text-xs text-slate-500 mt-0.5">{col.note}</p>
-                    )}
-                  </div>
-                  <CollectionMetaBadges col={col} />
-                </Link>
-
-                <div className="relative shrink-0">
                   <button
                     type="button"
-                    aria-label={`Actions for ${col.collection}`}
+                    draggable={canReorder}
+                    aria-label={`Reorder ${displayName}`}
+                    aria-disabled={!canReorder}
+                    onDragStart={(e) => {
+                      if (!canReorder) {
+                        e.preventDefault();
+                        return;
+                      }
+                      setDragIndex(index);
+                      e.dataTransfer.effectAllowed = 'move';
+                    }}
+                    onDragEnd={() => setDragIndex(null)}
+                    className="collection-list-grip"
+                    disabled={!canReorder}
+                  >
+                    <GripIcon />
+                  </button>
+
+                  <Link to={`/content/${col.collection}`} className="collection-list-link">
+                    <CollectionIcon collection={col} />
+                    <div className="min-w-0 flex-1">
+                      <p className="collection-list-title">{displayName}</p>
+                      {isSub && col.parent && (
+                        <p className="collection-list-note">Under {col.parent}</p>
+                      )}
+                      {col.note && <p className="collection-list-note">{col.note}</p>}
+                    </div>
+                    <CollectionMetaBadges col={col} />
+                  </Link>
+
+                  <button
+                    type="button"
+                    aria-label={`Actions for ${displayName}`}
                     aria-expanded={openMenu?.collection === col.collection}
                     aria-haspopup="menu"
                     onClick={(e) => {
@@ -404,11 +387,7 @@ export default function ContentCollectionList({
                       e.stopPropagation();
                       openMenuAtButton(e.currentTarget, col.collection, setOpenMenu, openMenu);
                     }}
-                    className={`rounded-lg p-1.5 transition-colors ${
-                      openMenu?.collection === col.collection
-                        ? 'bg-brand-50 text-brand-600'
-                        : 'text-slate-400 hover:bg-white hover:text-slate-600'
-                    }`}
+                    className="collection-list-menu-btn"
                   >
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
                       <circle cx="12" cy="5" r="2" />
@@ -416,9 +395,8 @@ export default function ContentCollectionList({
                       <circle cx="12" cy="19" r="2" />
                     </svg>
                   </button>
-                </div>
-              </li>
-            );
+                </li>
+              );
             })}
           </ul>
         )}
@@ -445,7 +423,10 @@ function buildBreadcrumbs(
   while (parentName) {
     const parent = allCollections.find((col) => col.collection === parentName);
     if (!parent) break;
-    crumbs.unshift({ collection: parent.collection, label: parent.collection });
+    crumbs.unshift({
+      collection: parent.collection,
+      label: getCollectionDisplayName(parent),
+    });
     parentName = parent.parent;
   }
 

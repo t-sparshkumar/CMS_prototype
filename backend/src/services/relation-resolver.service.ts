@@ -5,6 +5,12 @@ import type { FieldMeta } from '../types/field.js';
 import type { ItemRecord } from '../types/item.js';
 import { listFields } from './fields.service.js';
 import { getRelationsMap } from './relations.service.js';
+import { loadM2aValues, type M2aItemRef } from './m2a.service.js';
+import { loadTranslationValues } from './translations.service.js';
+
+export interface M2aItemRefWithData extends M2aItemRef {
+  data?: ItemRecord;
+}
 
 /**
  * Resolve nested relation fields on an item record.
@@ -50,6 +56,14 @@ export async function resolveItemRelations(
       result[fieldName] = relatedItems.map((row) => projectFields(normalizeRow(row), subFields));
     } else if (kind === 'm2m' && relation.junction_collection) {
       result[fieldName] = await loadM2mRelatedItems(db, collectionName, item.id as string, relation, subFields);
+    } else if (kind === 'm2a') {
+      result[fieldName] = await loadM2aRelatedItems(
+        db,
+        collectionName,
+        item.id as string,
+        fieldName,
+        subFields,
+      );
     }
   }
 
@@ -193,9 +207,81 @@ export async function enrichItemWithRelations(
 
   let enriched = await loadManyToManyValues(db, collectionName, item, fieldsMeta);
   enriched = await loadOneToManyValues(db, collectionName, enriched, fieldsMeta);
+  enriched = await loadManyToAnyValues(db, collectionName, enriched, fieldsMeta, nested);
+  enriched = await loadTranslationValues(db, collectionName, enriched, fieldsMeta);
 
   if (nested.size > 0) {
     enriched = await resolveItemRelations(db, collectionName, enriched, nested, fieldsMeta);
+  }
+
+  return enriched;
+}
+
+/**
+ * Load M2A relation values with expanded item data for each reference.
+ */
+export async function loadManyToAnyValues(
+  db: Knex,
+  collectionName: string,
+  item: ItemRecord,
+  fieldsMeta: FieldMeta[],
+  nestedFields: Map<string, string[]> = new Map(),
+): Promise<ItemRecord> {
+  const result = { ...item };
+
+  for (const field of fieldsMeta) {
+    if (field.interface !== 'many-to-any') {
+      continue;
+    }
+
+    const subFields = nestedFields.get(field.field);
+    const expandData = subFields === undefined || subFields.some((f) => f === 'data' || f.startsWith('data.'));
+    result[field.field] = await loadM2aRelatedItems(
+      db,
+      collectionName,
+      item.id as string,
+      field.field,
+      expandData ? subFields ?? ['data'] : subFields ?? [],
+    );
+  }
+
+  return result;
+}
+
+async function loadM2aRelatedItems(
+  db: Knex,
+  collectionName: string,
+  itemId: string,
+  fieldName: string,
+  subFields: string[],
+): Promise<M2aItemRefWithData[]> {
+  const refs = await loadM2aValues(db, collectionName, itemId);
+  if (refs.length === 0) {
+    return [];
+  }
+
+  const expandData =
+    subFields.length === 0 ||
+    subFields.some((f) => f === 'data' || f.startsWith('data.'));
+
+  const dataSubFields = expandData
+    ? subFields
+        .filter((f) => f.startsWith('data.'))
+        .map((f) => f.slice('data.'.length))
+        .filter(Boolean)
+    : [];
+
+  const enriched: M2aItemRefWithData[] = [];
+
+  for (const ref of refs) {
+    const entry: M2aItemRefWithData = { ...ref };
+    if (expandData) {
+      const related = await db(ref.collection).where({ id: ref.item }).first<ItemRecord>();
+      if (related) {
+        entry.data = projectFields(normalizeRow(related), dataSubFields);
+      }
+    }
+    enriched.push(entry);
   }
 
   return enriched;
@@ -252,7 +338,7 @@ function findRelationForField(
   fieldMeta: FieldMeta,
 ): CmsRelationRow | undefined {
   const kind = getRelationKind(fieldMeta.interface);
-  if (kind === 'm2o' || kind === 'm2m') {
+  if (kind === 'm2o' || kind === 'm2m' || kind === 'm2a') {
     return relations.find((r) => r.many_collection === collectionName && r.many_field === fieldName);
   }
   if (kind === 'o2m') {

@@ -1,5 +1,6 @@
 export interface CmsCollectionRow {
   collection: string;
+  display_name: string | null;
   icon: string | null;
   color: string | null;
   display_template: string | null;
@@ -24,6 +25,7 @@ export interface CollectionMeta extends CmsCollectionRow {
 
 export interface CreateCollectionInput {
   collection: string;
+  display_name?: string | null;
   icon?: string | null;
   color?: string | null;
   display_template?: string | null;
@@ -47,6 +49,7 @@ export interface CreateCollectionInput {
 }
 
 export interface UpdateCollectionInput {
+  display_name?: string | null;
   icon?: string | null;
   color?: string | null;
   display_template?: string | null;

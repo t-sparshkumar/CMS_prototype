@@ -66,8 +66,15 @@ api.interceptors.response.use(
   },
 );
 
+export interface SchemaImportMeta {
+  source?: string;
+  warnings?: string[];
+  stats?: Record<string, number>;
+}
+
 export interface ApiSuccess<T> {
   data: T;
+  meta?: SchemaImportMeta;
 }
 
 export interface UserProfile {
@@ -89,6 +96,7 @@ export interface LoginResponse {
 
 export interface CollectionMeta {
   collection: string;
+  display_name: string | null;
   icon: string | null;
   color: string | null;
   display_template: string | null;
@@ -109,6 +117,7 @@ export interface CollectionMeta {
 }
 
 export interface UpdateCollectionInput {
+  display_name?: string | null;
   icon?: string | null;
   color?: string | null;
   display_template?: string | null;
@@ -127,6 +136,7 @@ export interface UpdateCollectionInput {
 
 export interface CreateCollectionInput {
   collection: string;
+  display_name?: string | null;
   icon?: string | null;
   color?: string | null;
   display_template?: string | null;
@@ -214,7 +224,7 @@ export interface CreateFieldInput {
 }
 
 export interface UpdateFieldInput {
-  type?: SqlFieldType;
+  type?: SqlFieldType | 'alias';
   interface?: string;
   options?: Record<string, unknown> | null;
   display?: string | null;
@@ -263,6 +273,18 @@ export async function loginRequest(email: string, password: string): Promise<Log
 
 export async function logoutRequest(): Promise<void> {
   await api.post('/auth/logout');
+}
+
+export async function refreshSession(): Promise<LoginResponse | null> {
+  try {
+    const res = await axios.post<ApiSuccess<LoginResponse>>(apiUrl('/auth/refresh'), null, {
+      withCredentials: true,
+      baseURL: API_BASE_URL,
+    });
+    return res.data.data;
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchCurrentUser(): Promise<UserProfile> {
@@ -512,16 +534,41 @@ export interface SchemaDiff {
   relations_to_delete: number[];
 }
 
-export async function diffSchemaSnapshot(snapshot: Record<string, unknown>): Promise<SchemaDiff> {
+export async function diffSchemaSnapshot(
+  snapshot: Record<string, unknown>,
+): Promise<{ diff: SchemaDiff; meta?: SchemaImportMeta }> {
   const res = await api.post<ApiSuccess<SchemaDiff>>('/api/schema/diff', snapshot);
+  return { diff: res.data.data, meta: res.data.meta };
+}
+
+export interface TranslationsConfig {
+  translations_field: string;
+  languages_collection: string;
+  languages_field: string;
+  translation_collection: string;
+  parent_fk_field: string;
+  translatable_fields: string[];
+  enabled_languages: string[];
+}
+
+export async function fetchTranslationsConfig(collection: string): Promise<TranslationsConfig | null> {
+  const res = await api.get<ApiSuccess<TranslationsConfig | null>>(
+    `/api/collections/${encodeURIComponent(collection)}/translations/config`,
+  );
   return res.data.data;
 }
 
 export async function setupTranslations(
   collection: string,
-  input: { languages_collection: string; languages_field?: string; translations_field?: string },
-): Promise<{ translations_field: string; languages_collection: string }> {
-  const res = await api.post<ApiSuccess<{ translations_field: string; languages_collection: string }>>(
+  input: {
+    languages_collection?: string;
+    languages_field?: string;
+    translations_field?: string;
+    translatable_fields: string[];
+    enabled_languages?: string[];
+  },
+): Promise<TranslationsConfig> {
+  const res = await api.post<ApiSuccess<TranslationsConfig>>(
     `/api/collections/${encodeURIComponent(collection)}/translations/setup`,
     input,
   );
@@ -870,6 +917,10 @@ export async function updateUser(
   return res.data.data;
 }
 
+export async function deleteUser(id: string): Promise<void> {
+  await api.delete(`/users/${id}`);
+}
+
 export interface DashboardStats {
   page_groups: number;
   components: number;
@@ -881,6 +932,93 @@ export interface DashboardStats {
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
   const res = await api.get<ApiSuccess<DashboardStats>>('/api/dashboard/stats');
+  return res.data.data;
+}
+
+export type FlowStatus = 'active' | 'inactive';
+export type FlowTriggerType = 'event' | 'webhook' | 'schedule' | 'manual' | 'operation';
+
+export interface FlowSummary {
+  id: string;
+  name: string;
+  status: FlowStatus;
+  trigger_type: FlowTriggerType;
+  trigger_options: Record<string, unknown> | null;
+  accountability: string;
+  operation: string | null;
+  date_created: string;
+  date_updated: string;
+}
+
+export interface FlowOperation {
+  id: string;
+  flow: string;
+  name: string | null;
+  key: string;
+  type: string;
+  options: Record<string, unknown> | null;
+  resolve: string | null;
+  reject: string | null;
+}
+
+export interface FlowLogEntry {
+  id: string;
+  flow: string;
+  status: string;
+  started_at: string;
+  finished_at: string | null;
+  execution_time: number | null;
+  trigger_log: Record<string, unknown> | null;
+  operations_log: unknown[] | null;
+}
+
+export interface CreateFlowInput {
+  name: string;
+  status?: FlowStatus;
+  trigger_type: FlowTriggerType;
+  trigger_options?: Record<string, unknown> | null;
+  accountability?: string;
+  operations?: Array<{
+    key: string;
+    type: string;
+    name?: string;
+    options?: Record<string, unknown> | null;
+    resolve?: string | null;
+    reject?: string | null;
+  }>;
+}
+
+export async function fetchFlows(): Promise<FlowSummary[]> {
+  const res = await api.get<ApiSuccess<FlowSummary[]>>('/api/flows');
+  return res.data.data;
+}
+
+export async function fetchFlow(id: string): Promise<{ flow: FlowSummary; operations: FlowOperation[] }> {
+  const res = await api.get<ApiSuccess<{ flow: FlowSummary; operations: FlowOperation[] }>>(`/api/flows/${id}`);
+  return res.data.data;
+}
+
+export async function createFlow(input: CreateFlowInput): Promise<{ flow: FlowSummary; operations: FlowOperation[] }> {
+  const res = await api.post<ApiSuccess<{ flow: FlowSummary; operations: FlowOperation[] }>>('/api/flows', input);
+  return res.data.data;
+}
+
+export async function updateFlow(id: string, input: Partial<CreateFlowInput>): Promise<FlowSummary> {
+  const res = await api.patch<ApiSuccess<FlowSummary>>(`/api/flows/${id}`, input);
+  return res.data.data;
+}
+
+export async function deleteFlow(id: string): Promise<void> {
+  await api.delete(`/api/flows/${id}`);
+}
+
+export async function fetchFlowLogs(id: string): Promise<FlowLogEntry[]> {
+  const res = await api.get<ApiSuccess<FlowLogEntry[]>>(`/api/flows/${id}/logs`);
+  return res.data.data;
+}
+
+export async function triggerFlow(id: string, payload: Record<string, unknown> = {}): Promise<unknown> {
+  const res = await api.post<ApiSuccess<unknown>>(`/api/flows/${id}/trigger`, payload);
   return res.data.data;
 }
 

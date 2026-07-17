@@ -32,16 +32,23 @@ export function getDb(): Knex {
   };
 
   if (env.DB_CLIENT === 'pg' || env.DB_CLIENT === 'postgresql') {
+    const connection = env.DATABASE_URL
+      ? {
+          connectionString: env.DATABASE_URL,
+          ssl: env.DB_SSL === 'false' ? false : { rejectUnauthorized: false },
+        }
+      : {
+          host: env.DB_HOST ?? 'localhost',
+          port: env.DB_PORT ?? 5432,
+          user: env.DB_USER ?? 'cms',
+          password: env.DB_PASSWORD ?? 'cms',
+          database: env.DB_NAME ?? 'cms',
+        };
+
     db = knex({
       ...baseConfig,
       client: 'pg',
-      connection: {
-        host: env.DB_HOST ?? 'localhost',
-        port: env.DB_PORT ?? 5432,
-        user: env.DB_USER ?? 'cms',
-        password: env.DB_PASSWORD ?? 'cms',
-        database: env.DB_NAME ?? 'cms',
-      },
+      connection,
     });
   } else {
     db = knex({

@@ -123,7 +123,11 @@ export async function createField(
 
   const fieldInterface = input.interface ?? (input.type ? getDefaultInterface(input.type as never) : 'input');
 
-  if (isPresentationalInterface(fieldInterface) || input.type === 'alias') {
+  if (
+    isPresentationalInterface(fieldInterface) ||
+    input.type === 'alias' ||
+    fieldInterface === 'translations'
+  ) {
     return createVirtualField(db, collectionName, input, fieldInterface);
   }
 
@@ -200,7 +204,11 @@ async function createVirtualField(
 
   const metaRow = buildMetaRow(collectionName, input, {
     type: 'alias',
-    special: isPresentationalInterface(fieldInterface) ? fieldInterface : null,
+    special: isPresentationalInterface(fieldInterface)
+      ? fieldInterface
+      : fieldInterface === 'translations'
+        ? 'translations'
+        : null,
     interface: fieldInterface,
     sort: nextSort,
     required,

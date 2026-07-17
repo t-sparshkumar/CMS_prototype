@@ -1,0 +1,639 @@
+- generic [ref=f16e1]:
+  - generic:
+    - alert [active] [ref=f16e2]: "Please note: This website includes an accessibility system. Press Control-F11 to adjust the website to people with visual disabilities who are using a screen reader; Press Control-F10 to open an accessibility menu."
+    - button "Accessibility" [ref=f16e3]:
+      - img
+      - img [ref=f16e4]
+      - generic [ref=f16e6]: Accessibility
+    - generic:
+      - list:
+        - listitem:
+          - button "Press enter for Accessibility for blind people who use screen readers" [ref=f16e7] [cursor=pointer]:
+            - text: Press enter for Accessibility for blind people
+            - generic [ref=f16e8]: who use screen readers
+        - listitem:
+          - button "Press enter for Keyboard Navigation" [ref=f16e9] [cursor=pointer]
+        - listitem:
+          - button "Press enter for Accessibility menu" [ref=f16e10] [cursor=pointer]
+  - generic [ref=f16e12]:
+    - generic [ref=f16e13]:
+      - paragraph [ref=f16e15]:
+        - text: Usamos cookies para mejorar tu experiencia. Revisa o cambia tus preferencias en Personalizar cookies. Más en nuestra
+        - link "Política de privacidad" [ref=f16e16] [cursor=pointer]:
+          - /url: https://www.libertypr.com/es/aviso-de-privacidad-del-sitio-web
+        - text: .
+      - generic [ref=f16e17]:
+        - generic [ref=f16e18]: Personalizar cookies
+        - button "Aceptar todo" [ref=f16e22]:
+          - generic [ref=f16e24]: Aceptar todo
+    - generic [ref=f16e27]:
+      - generic [ref=f16e30]:
+        - generic [ref=f16e33]:
+          - generic:
+            - radiogroup "Font Style" [ref=f16e37]:
+              - generic [ref=f16e38]:
+                - radio "Personas" [checked] [ref=f16e39] [cursor=pointer]:
+                  - generic [ref=f16e40]: Personas
+                - radio "Empresas" [ref=f16e41] [cursor=pointer]:
+                  - generic [ref=f16e42]: Empresas
+            - list [ref=f16e44]:
+              - listitem [ref=f16e45]:
+                - link "Mis Cuentas y Pagos" [ref=f16e46] [cursor=pointer]:
+                  - /url: /mi-cuenta
+                  - generic [ref=f16e49]:
+                    - img:
+                      - img
+                  - text: Mis Cuentas y Pagos
+              - listitem [ref=f16e50]:
+                - link "Asistencia de ventas" [ref=f16e51] [cursor=pointer]:
+                  - /url: javascript:void(0)
+                  - generic [ref=f16e52]:
+                    - img [ref=f16e54]
+                    - generic [ref=f16e56]: Asistencia de ventas
+        - generic [ref=f16e57]:
+          - generic [ref=f16e58]:
+            - generic:
+              - generic:
+                - link "logo":
+                  - /url: /
+                  - img "logo" [ref=f16e59] [cursor=pointer]
+          - list [ref=f16e63]:
+            - listitem [ref=f16e64]:
+              - link "Planes Móviles" [ref=f16e65] [cursor=pointer]:
+                - /url: /movil/planes/liberty-mix
+                - generic [ref=f16e68]:
+                  - img:
+                    - img
+                - generic [ref=f16e69]: Planes Móviles
+          - generic [ref=f16e70]:
+            - generic [ref=f16e71]:
+              - generic [ref=f16e74]:
+                - img:
+                  - img
+              - generic [ref=f16e77]: EN
+            - generic [ref=f16e82] [cursor=pointer]:
+              - img:
+                - img
+            - generic [ref=f16e86] [cursor=pointer]:
+              - img:
+                - img
+            - generic [ref=f16e90] [cursor=pointer]:
+              - img:
+                - img
+            - text: 
+      - text: 
+    - generic [ref=f16e92]:
+      - generic [ref=f16e97]:
+        - generic [ref=f16e99]:
+          - generic [ref=f16e102]:
+            - img "null" [ref=f16e103]
+            - generic [ref=f16e107]:
+              - heading [level=2]
+              - heading "Unbeatable Internet" [level=2] [ref=f16e108]
+              - paragraph [ref=f16e109]: Conexión que no se detiene, mantente conectado siempre.
+              - button "Lo quiero" [ref=f16e113]:
+                - generic [ref=f16e115]: Lo quiero
+          - generic [ref=f16e120]:
+            - img "null" [ref=f16e121]
+            - generic [ref=f16e125]:
+              - heading [level=1]
+              - heading "Planes desde $15" [level=2] [ref=f16e126]
+              - paragraph [ref=f16e127]: Sin contrato, sin verificación de crédito
+              - button "Lo quiero" [ref=f16e131]:
+                - generic [ref=f16e133]: Lo quiero
+          - generic [ref=f16e138]:
+            - img "null" [ref=f16e139]
+            - generic [ref=f16e143]:
+              - heading [level=1]
+              - heading "300 Megas" [level=2] [ref=f16e144]
+              - paragraph [ref=f16e145]: ¡No te pierdas ni un gol!
+              - paragraph [ref=f16e147]: $57.99
+              - button "Lo quiero" [ref=f16e151]:
+                - generic [ref=f16e153]: Lo quiero
+          - generic [ref=f16e158]:
+            - img "null" [ref=f16e159]
+            - generic [ref=f16e163]:
+              - heading [level=2]
+              - heading "Liberty SIMple" [level=2] [ref=f16e164]
+              - generic [ref=f16e165]:
+                - paragraph [ref=f16e166]: $30.00
+                - generic [ref=f16e167]: al mes por línea
+              - button "Lo quiero" [ref=f16e171]:
+                - generic [ref=f16e173]: Lo quiero
+          - generic [ref=f16e178]:
+            - img "null" [ref=f16e179]
+            - generic [ref=f16e183]:
+              - heading "Samsung" [level=2] [ref=f16e184]
+              - heading "Galaxy S26+" [level=2] [ref=f16e185]
+              - paragraph [ref=f16e186]: El Samsung ideal para ti está en Liberty
+              - button "Lo quiero" [ref=f16e190]:
+                - generic [ref=f16e192]: Lo quiero
+          - generic [ref=f16e197]:
+            - img "My Liberty App" [ref=f16e198]
+            - generic [ref=f16e202]:
+              - heading [level=2]
+              - heading "Sección de cuentas" [level=2] [ref=f16e203]
+              - paragraph [ref=f16e204]: Verifica tu consumo, revisa facturas y haz cambios al alcance de tu mano
+              - button "Descarga el app" [ref=f16e208]:
+                - generic [ref=f16e210]: Descarga el app
+        - generic:
+          - generic [ref=f16e217] [cursor=pointer]:
+            - img:
+              - img
+          - generic [ref=f16e222] [cursor=pointer]:
+            - img:
+              - img
+      - generic [ref=f16e227]:
+        - link "Internet" [ref=f16e228] [cursor=pointer]:
+          - /url: /hogar/internet
+          - generic [ref=f16e231]:
+            - img:
+              - img
+          - paragraph [ref=f16e233]: Internet
+        - link "Planes Móviles" [ref=f16e234] [cursor=pointer]:
+          - /url: /movil/planes/ilimitado-upick
+          - generic [ref=f16e237]:
+            - img:
+              - img
+          - paragraph [ref=f16e239]: Planes Móviles
+        - link "Prepago" [ref=f16e240] [cursor=pointer]:
+          - /url: https://www.libertypr.com/movil/planes/prepago/ilimitado-pgreen
+          - generic [ref=f16e243]:
+            - img:
+              - img
+          - paragraph [ref=f16e245]: Prepago
+        - link "Por nuestra cuenta" [ref=f16e246] [cursor=pointer]:
+          - /url: /movil/planes/ilimitado
+          - generic [ref=f16e249]:
+            - img:
+              - img
+          - paragraph [ref=f16e251]: Por nuestra cuenta
+      - generic [ref=f16e256]:
+        - heading "Conéctate en todo Puerto Rico con nuestra red móvil 5G" [level=2] [ref=f16e257]
+        - heading [level=2]
+        - paragraph [ref=f16e258]: Todos nuestros planes móviles están diseñados para mantenerte siempre conectado con velocidad 5G y la mejor cobertura.
+        - button "Conoce nuestros planes" [ref=f16e262]:
+          - generic [ref=f16e264]: Conoce nuestros planes
+      - generic [ref=f16e270]:
+        - generic [ref=f16e275]:
+          - generic [ref=f16e279]:
+            - img:
+              - img
+          - generic [ref=f16e280]:
+            - generic [ref=f16e281]: Llama y navega sin límites
+            - paragraph [ref=f16e282]: Nuestros planes cuentan con llamadas y datos ilimitados para que uses tu móvil sin preocupaciones.
+        - generic [ref=f16e287]:
+          - generic [ref=f16e291]:
+            - img:
+              - img
+          - generic [ref=f16e292]:
+            - generic [ref=f16e293]: Liberty 5G
+            - paragraph [ref=f16e294]: Experimenta la red 5G más rápida, segura y confiable y úsala para streaming, trabajo y juegos.
+        - generic [ref=f16e299]:
+          - generic [ref=f16e303]:
+            - img:
+              - img
+          - generic [ref=f16e304]:
+            - generic [ref=f16e305]: Navega sin Fronteras
+            - paragraph [ref=f16e306]: Tu conexión te sigue a donde vayas. Navega libre y sin costos extra en toda América y el Caribe.
+      - generic [ref=f16e309]:
+        - paragraph [ref=f16e315]:
+          - link "Mujer disfrutando la red movil 5g" [ref=f16e316] [cursor=pointer]:
+            - /url: https://cmsecom.lla.digital/prod/assets/507c6f09-62eb-4994-b4a0-bb480fd2ea24?width=941&height=960
+            - img "Mujer disfrutando la red movil 5g" [ref=f16e317]
+        - generic [ref=f16e326]:
+          - generic [ref=f16e331]:
+            - img "imageAltText" [ref=f16e333]
+            - generic [ref=f16e334]:
+              - generic [ref=f16e337]:
+                - generic [ref=f16e338]: iPhone 17
+                - paragraph [ref=f16e339]: Hasta 2 iPhone 17 por nuestra cuenta con trade-in con los planes Liberty Mix.
+              - link "Lo quiero" [ref=f16e341] [cursor=pointer]:
+                - /url: /movil/apple/iphone-17
+          - generic [ref=f16e346]:
+            - img "imageAltText" [ref=f16e348]
+            - generic [ref=f16e349]:
+              - generic [ref=f16e352]:
+                - heading "Samsung Galaxy S25" [level=4] [ref=f16e353]
+                - paragraph [ref=f16e354]: Hasta 2 Samsung Galaxy S25 por nuestra cuenta con trade-in con los planes Liberty Mix.
+              - link "Lo quiero" [ref=f16e356] [cursor=pointer]:
+                - /url: /samsung/galaxy-S25
+          - generic [ref=f16e361]:
+            - img "imageAltText" [ref=f16e363]
+            - generic [ref=f16e364]:
+              - generic [ref=f16e367]:
+                - generic [ref=f16e368]: iPhone 16 Pro
+                - paragraph [ref=f16e369]: Con Apple Intelligence por nuestra cuenta y sin trade-in con el plan Mix Max.
+              - link "Lo quiero" [ref=f16e371] [cursor=pointer]:
+                - /url: /apple/iphone-16-pro
+      - heading "Navega y Disfruta con el Internet ilimitado para el hogar" [level=2] [ref=f16e383]
+      - paragraph [ref=f16e388]: Imagina tener el hogar mejor conectado de Puerto Rico, con nuestros planes de internet y TV, podrás revivir tus programas favoritos con replay TV, grabar tus series sin preocupaciones y disfrutar de una experiencia de entretenimiento sin límites.
+      - generic [ref=f16e393]:
+        - heading [level=2]
+        - paragraph
+        - generic [ref=f16e394]:
+          - button "Planes de Internet" [ref=f16e397]:
+            - generic [ref=f16e399]: Planes de Internet
+          - button "Planes de Internet + TV" [ref=f16e404]:
+            - generic [ref=f16e406]: Planes de Internet + TV
+      - generic [ref=f16e412]:
+        - generic [ref=f16e417]:
+          - generic [ref=f16e421]:
+            - img:
+              - img
+          - generic [ref=f16e422]:
+            - generic [ref=f16e423]: Haz streaming, juega y trabaja sin interrupciones
+            - paragraph [ref=f16e424]: Disfruta de Internet de alta velocidad hasta 1,000 Megas y conexión de fibra* para que disfrutes sin interrupciones. .
+        - generic [ref=f16e429]:
+          - generic [ref=f16e433]:
+            - img:
+              - img
+          - generic [ref=f16e434]:
+            - generic [ref=f16e435]: TV Digital con los mejores canales en tu idioma
+            - paragraph [ref=f16e436]: Más de 150 canales, y la más extensa programación en español. Entretenimiento para todos los gustos desde la comodidad de tu hogar o en tu celular con Liberty GO.
+        - generic [ref=f16e441]:
+          - generic [ref=f16e445]:
+            - img:
+              - img
+          - generic [ref=f16e446]:
+            - generic [ref=f16e447]: Llamadas ilimitadas a PR y USA
+            - paragraph [ref=f16e448]: Mantente cerca de los tuyos sin contar los minutos. Habla todo lo que quieras con la tranquilidad y confianza que Liberty te da.
+      - generic [ref=f16e458]:
+        - img "Mujer ahorrando con Liberty Loop" [ref=f16e459]
+        - generic [ref=f16e463]:
+          - heading [level=6]
+          - button "Combina móvil y fijo" [ref=f16e467]:
+            - generic [ref=f16e469]: Combina móvil y fijo
+      - heading "Combina móvil y fijo y disfruta los beneficios de Liberty Loop" [level=2] [ref=f16e476]
+      - generic [ref=f16e480]:
+        - generic [ref=f16e485]:
+          - generic [ref=f16e489]:
+            - img:
+              - img
+          - generic [ref=f16e490]:
+            - generic [ref=f16e491]: 2X Velocidad de Internet
+            - paragraph [ref=f16e492]: Doble velocidad de Internet.
+        - generic [ref=f16e497]:
+          - generic [ref=f16e501]:
+            - img:
+              - img
+          - generic [ref=f16e502]:
+            - generic [ref=f16e503]: Data ilimitada sin reducción de velocidad
+            - paragraph [ref=f16e504]: Disfruta de tu data sin restricciones.
+        - generic [ref=f16e509]:
+          - generic [ref=f16e513]:
+            - img:
+              - img
+          - generic [ref=f16e514]:
+            - generic [ref=f16e515]: Telefonía Móvil Ilimitada
+            - paragraph [ref=f16e516]: Telefonía Móvil ílimitada a P.R y U.S.
+      - generic [ref=f16e518]:
+        - heading "¿Necesitas Ayuda?" [level=4] [ref=f16e520]
+        - generic [ref=f16e522]:
+          - generic [ref=f16e524]:
+            - img "imageAltText" [ref=f16e526]
+            - generic [ref=f16e527]:
+              - generic [ref=f16e530]:
+                - generic [ref=f16e531]: Chatea con nosotros por WhatsApp
+                - paragraph [ref=f16e532]: Contacta a un representante de Liberty para resolver todas tus dudas, contratar un servicio o gestionar tus productos.
+              - link "Ir a WhatsApp" [ref=f16e534] [cursor=pointer]:
+                - /url: https://api.whatsapp.com/send/?phone=17879362304&text=Quiero%20hablar%20con%20un%20agente
+          - generic [ref=f16e536]:
+            - img "imageAltText" [ref=f16e538]
+            - generic [ref=f16e539]:
+              - generic [ref=f16e542]:
+                - generic [ref=f16e543]: Revisa nuestro mapa de cobertura
+                - paragraph [ref=f16e544]: Consulta nuestro mapa de cobertura para conocer todas las áreas donde llega el servicio de Liberty.
+              - link "Ver mapa" [ref=f16e546] [cursor=pointer]:
+                - /url: /5g
+          - generic [ref=f16e548]:
+            - img "imageAltText" [ref=f16e550]
+            - generic [ref=f16e551]:
+              - generic [ref=f16e554]:
+                - generic [ref=f16e555]: Te ayudamos con todas tus dudas
+                - paragraph [ref=f16e556]: Ingresa a nuestro centro de ayuda para brindarte la solución que necesitas sobre tus planes de móvil o beneficios de hogar.
+              - link "Ingresar a Liberty University" [ref=f16e558] [cursor=pointer]:
+                - /url: /centro-de-ayuda
+      - heading "Otros servicios que te pueden interesar" [level=2] [ref=f16e563]
+      - generic [ref=f16e566]:
+        - generic [ref=f16e573]:
+          - link "My Liberty App" [ref=f16e574] [cursor=pointer]:
+            - /url: https://my.libertypr.com/login
+            - generic [ref=f16e577]:
+              - img:
+                - img
+            - paragraph [ref=f16e579]: My Liberty App
+          - link "Paga tu cuenta" [ref=f16e580] [cursor=pointer]:
+            - /url: /mi-cuenta
+            - generic [ref=f16e583]:
+              - img:
+                - img
+            - paragraph [ref=f16e585]: Paga tu cuenta
+          - link "Mapa de tiendas" [ref=f16e586] [cursor=pointer]:
+            - /url: /tiendas
+            - generic [ref=f16e589]:
+              - img:
+                - img
+            - paragraph [ref=f16e591]: Mapa de tiendas
+          - link "Ofertas" [ref=f16e592] [cursor=pointer]:
+            - /url: /movil/planes/ilimitado
+            - generic [ref=f16e595]:
+              - img:
+                - img
+            - paragraph [ref=f16e597]: Ofertas
+        - paragraph [ref=f16e603]:
+          - link "Familia usando el plan Liberty Family." [ref=f16e604] [cursor=pointer]:
+            - /url: https://cmsecom.lla.digital/prod/assets/948515d7-864c-4387-a901-6ee5c0022805?width=751&height=500
+            - img "Familia usando el plan Liberty Family." [ref=f16e605]
+      - generic [ref=f16e612]:
+        - generic [ref=f16e613]:
+          - generic [ref=f16e614]: Ofertas
+          - paragraph [ref=f16e615]:
+            - paragraph [ref=f16e616]:
+              - link "Ofertas Liberty" [ref=f16e617] [cursor=pointer]:
+                - /url: https://www.libertypr.com/es/ofertas
+              - link "Liberty Mix" [ref=f16e618] [cursor=pointer]:
+                - /url: https://www.libertypr.com/es/liberty-mix
+        - generic [ref=f16e619]:
+          - generic [ref=f16e620]: Servicios Hogar
+          - paragraph [ref=f16e621]:
+            - table [ref=f16e622]:
+              - rowgroup [ref=f16e625]:
+                - row "Triple Pack" [ref=f16e626]:
+                  - cell "Triple Pack" [ref=f16e627]:
+                    - link "Triple Pack" [ref=f16e628] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/hogar/triple-pack
+                - row "Internet Residencial" [ref=f16e629]:
+                  - cell "Internet Residencial" [ref=f16e630]:
+                    - link "Internet Residencial" [ref=f16e631] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/hogar/internet
+                - row "Internet de Fibra Óptica" [ref=f16e632]:
+                  - cell "Internet de Fibra Óptica" [ref=f16e633]:
+                    - link "Internet de Fibra Óptica" [ref=f16e634] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/fibra-optica
+                - row "WoW-Fi Hogar" [ref=f16e635]:
+                  - cell "WoW-Fi Hogar" [ref=f16e636]:
+                    - link "WoW-Fi Hogar" [ref=f16e637] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/hogar/internet/wow-fi
+                - row "Hub TV" [ref=f16e638]:
+                  - cell "Hub TV" [ref=f16e639]:
+                    - link "Hub TV" [ref=f16e640] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/hub-tv
+            - paragraph [ref=f16e641]
+        - generic [ref=f16e642]:
+          - generic [ref=f16e643]: Servicios Móviles
+          - paragraph [ref=f16e644]:
+            - table [ref=f16e645]:
+              - rowgroup [ref=f16e648]:
+                - row "Planes Móviles Ilimitados" [ref=f16e649]:
+                  - cell "Planes Móviles Ilimitados" [ref=f16e650]:
+                    - link "Planes Móviles Ilimitados" [ref=f16e651] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/movil/planes/ilimitado
+                - row "Planes U-Save" [ref=f16e652]:
+                  - cell "Planes U-Save" [ref=f16e653]:
+                    - link "Planes U-Save" [ref=f16e654] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/movil/planes/u-save
+                - row "Planes Prepago" [ref=f16e655]:
+                  - cell "Planes Prepago" [ref=f16e656]:
+                    - link "Planes Prepago" [ref=f16e657] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/movil/planes/prepago/ilimitado-pgreen
+                - row [ref=f16e658]:
+                  - cell [ref=f16e659]
+            - paragraph [ref=f16e660]
+        - generic [ref=f16e661]:
+          - generic [ref=f16e662]: Equipos Apple
+          - paragraph [ref=f16e663]:
+            - table [ref=f16e664]:
+              - rowgroup [ref=f16e667]:
+                - row "iPhone 17 Pro Max" [ref=f16e668]:
+                  - cell "iPhone 17 Pro Max" [ref=f16e669]:
+                    - link "iPhone 17 Pro Max" [ref=f16e670] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/movil/apple/iphone-17-pro-max
+                - row "iPhone 17 Pro" [ref=f16e671]:
+                  - cell "iPhone 17 Pro" [ref=f16e672]:
+                    - link "iPhone 17 Pro" [ref=f16e673] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/movil/apple/iphone-17-pro
+                - row "iPhone 17" [ref=f16e674]:
+                  - cell "iPhone 17" [ref=f16e675]:
+                    - link "iPhone 17" [ref=f16e676] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/movil/apple/iphone-17
+                - row "iPhone 17 Air" [ref=f16e677]:
+                  - cell "iPhone 17 Air" [ref=f16e678]:
+                    - link "iPhone 17 Air" [ref=f16e679] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/movil/apple/iphone-17-air
+                - row "iPhone 16 Pro" [ref=f16e680]:
+                  - cell "iPhone 16 Pro" [ref=f16e681]:
+                    - link "iPhone 16 Pro" [ref=f16e682] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/apple/iphone-16-pro
+                - row "iPhone 16e" [ref=f16e683]:
+                  - cell "iPhone 16e" [ref=f16e684]:
+                    - link "iPhone 16e" [ref=f16e685] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/apple/iphone-16e
+            - paragraph [ref=f16e686]
+        - generic [ref=f16e687]:
+          - generic [ref=f16e688]: Equipos Samsung
+          - paragraph [ref=f16e689]:
+            - table [ref=f16e690]:
+              - rowgroup [ref=f16e693]:
+                - row "Galaxy S25 Ultra" [ref=f16e694]:
+                  - cell "Galaxy S25 Ultra" [ref=f16e695]:
+                    - link "Galaxy S25 Ultra" [ref=f16e696] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/samsung/galaxy-s25-ultra
+                - row "Galaxy S25 Plus" [ref=f16e697]:
+                  - cell "Galaxy S25 Plus" [ref=f16e698]:
+                    - link "Galaxy S25 Plus" [ref=f16e699] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/samsung/galaxy-S25-Plus
+                - row "Galaxy S25" [ref=f16e700]:
+                  - cell "Galaxy S25" [ref=f16e701]:
+                    - link "Galaxy S25" [ref=f16e702] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/samsung/galaxy-S25
+                - row "Galaxy S25 FE" [ref=f16e703]:
+                  - cell "Galaxy S25 FE" [ref=f16e704]:
+                    - link "Galaxy S25 FE" [ref=f16e705] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/samsung/galaxy-S25-FE
+                - row "Galaxy Z Flip 7" [ref=f16e706]:
+                  - cell "Galaxy Z Flip 7" [ref=f16e707]:
+                    - link "Galaxy Z Flip 7" [ref=f16e708] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/samsung/galaxy-Z-flip-7
+                - row "Galaxy Serie A" [ref=f16e709]:
+                  - cell "Galaxy Serie A" [ref=f16e710]:
+                    - link "Galaxy Serie A" [ref=f16e711] [cursor=pointer]:
+                      - /url: https://www.libertypr.com/es/movil/planes/ilimitados/galaxy-serie-a
+            - paragraph [ref=f16e712]
+    - generic [ref=f16e715]:
+      - generic [ref=f16e717]:
+        - generic [ref=f16e718]:
+          - generic [ref=f16e719]: Servicios Móviles
+          - link "Planes Liberty Mix" [ref=f16e720] [cursor=pointer]:
+            - /url: /movil/planes/ilimitado-upick
+          - link:
+            - /url: /movil/planes/ilimitado-upick
+          - link "Celulares por nuestra cuenta" [ref=f16e721] [cursor=pointer]:
+            - /url: /movil/planes/ilimitado
+          - link:
+            - /url: /movil/planes/ilimitado
+          - link "Prepago Móvil" [ref=f16e722] [cursor=pointer]:
+            - /url: https://www.libertypr.com/movil/planes/prepago/ilimitado-pgreen
+          - link:
+            - /url: https://www.libertypr.com/movil/planes/prepago/ilimitado-pgreen
+          - link "Roaming" [ref=f16e723] [cursor=pointer]:
+            - /url: /roaming
+          - link:
+            - /url: /roaming
+          - link "Cobertura 5G" [ref=f16e724] [cursor=pointer]:
+            - /url: /5g
+          - link:
+            - /url: /5g
+          - link "Broadband Facts Servicio Móvil" [ref=f16e725] [cursor=pointer]:
+            - /url: /mobile/broadband-facts
+          - link:
+            - /url: /mobile/broadband-facts
+        - generic [ref=f16e726]:
+          - generic [ref=f16e727]: Servicios Hogar
+          - link "Internet para el Hogar" [ref=f16e728] [cursor=pointer]:
+            - /url: /hogar/internet
+          - link:
+            - /url: /hogar/internet
+          - link "Internet +TV +Telefonía" [ref=f16e729] [cursor=pointer]:
+            - /url: /hogar/triple-pack
+          - link:
+            - /url: /hogar/triple-pack
+          - link "Liberty Loop" [ref=f16e730] [cursor=pointer]:
+            - /url: /liberty-loop/internet-residencial-plan-con-celular
+          - link:
+            - /url: /liberty-loop/internet-residencial-plan-con-celular
+          - link "Fibra Óptica" [ref=f16e731] [cursor=pointer]:
+            - /url: /fibra-optica
+          - link:
+            - /url: /fibra-optica
+          - link "Broadband Facts Internet Hogar" [ref=f16e732] [cursor=pointer]:
+            - /url: /internet/broadband-facts
+          - link:
+            - /url: /internet/broadband-facts
+          - link "Kit de Bienvenida" [ref=f16e733] [cursor=pointer]:
+            - /url: /welcome-kit
+          - link:
+            - /url: /welcome-kit
+        - generic [ref=f16e734]:
+          - generic [ref=f16e735]: Ayuda
+          - link "Centro de Ayuda" [ref=f16e736] [cursor=pointer]:
+            - /url: /centro-de-ayuda
+          - link:
+            - /url: /centro-de-ayuda
+          - link "Preguntas Frecuentes Móvil" [ref=f16e737] [cursor=pointer]:
+            - /url: /centro-de-ayuda/mobile
+          - link:
+            - /url: /centro-de-ayuda/mobile
+          - link "Preguntas Frecuentes Hogar" [ref=f16e738] [cursor=pointer]:
+            - /url: /centro-de-ayuda/internet
+          - link:
+            - /url: /centro-de-ayuda/internet
+          - link "Facturación" [ref=f16e739] [cursor=pointer]:
+            - /url: /centro-de-ayuda/factura
+          - link:
+            - /url: /centro-de-ayuda/factura
+          - link "Contáctanos" [ref=f16e740] [cursor=pointer]:
+            - /url: /contactanos
+          - link:
+            - /url: /contactanos
+        - generic [ref=f16e741]:
+          - generic [ref=f16e742]: Nuestra Empresa
+          - link "Trabaja con nosotros" [ref=f16e743] [cursor=pointer]:
+            - /url: https://careers.lla.com/
+          - link:
+            - /url: https://careers.lla.com/
+          - link "Términos Legales" [ref=f16e744] [cursor=pointer]:
+            - /url: /legal
+          - link:
+            - /url: /legal
+          - link "Aviso de Privacidad" [ref=f16e745] [cursor=pointer]:
+            - /url: /aviso-de-privacidad-del-sitio-web
+          - link:
+            - /url: /aviso-de-privacidad-del-sitio-web
+          - link "Términos y Condiciones del Sitio" [ref=f16e746] [cursor=pointer]:
+            - /url: /legal/terminos-y-condiciones-sitio-web
+          - link:
+            - /url: /legal/terminos-y-condiciones-sitio-web
+          - link "Noticias y RSE" [ref=f16e747] [cursor=pointer]:
+            - /url: /news
+          - link:
+            - /url: /news
+          - link "Liberty Foundation" [ref=f16e748] [cursor=pointer]:
+            - /url: https://www.libertyfoundationpr.org/
+          - link:
+            - /url: https://www.libertyfoundationpr.org/
+          - link "Nuevas comunidades" [ref=f16e749] [cursor=pointer]:
+            - /url: /new-communities
+          - link:
+            - /url: /new-communities
+          - link "Navega con Seguridad" [ref=f16e750] [cursor=pointer]:
+            - /url: https://www.libertypr.com/es/navega-con-seguridad
+          - link:
+            - /url: https://www.libertypr.com/es/navega-con-seguridad
+        - generic [ref=f16e751]:
+          - generic [ref=f16e752]: Contáctanos
+          - link "Escríbenos en WhatsApp" [ref=f16e753] [cursor=pointer]:
+            - /url: https://api.whatsapp.com/send?phone=17873553535
+            - generic [ref=f16e756]:
+              - generic [ref=f16e761]:
+                - img:
+                  - img
+              - paragraph [ref=f16e763]: Escríbenos en WhatsApp
+          - 'link "Servicio al cliente Hogar: 787-355-3535" [ref=f16e764] [cursor=pointer]':
+            - /url: tel:787-355-3535
+            - generic [ref=f16e767]:
+              - generic [ref=f16e772]:
+                - img:
+                  - img
+              - paragraph [ref=f16e774]: "Servicio al cliente Hogar: 787-355-3535"
+          - 'link "Servicio al cliente Móvil: 1-833-641-3035" [ref=f16e775] [cursor=pointer]':
+            - /url: tel:1-833-641-3035
+            - generic [ref=f16e778]:
+              - generic [ref=f16e783]:
+                - img:
+                  - img
+              - paragraph [ref=f16e785]: "Servicio al cliente Móvil: 1-833-641-3035"
+          - 'link "Ventas Hogar: 787-355-6565" [ref=f16e786] [cursor=pointer]':
+            - /url: tel:787-355-6565
+            - generic [ref=f16e789]:
+              - generic [ref=f16e794]:
+                - img:
+                  - img
+              - paragraph [ref=f16e796]: "Ventas Hogar: 787-355-6565"
+          - link "Ventas Móvil 1-855-655-0055" [ref=f16e797] [cursor=pointer]:
+            - /url: tel:1-855-655-0055
+            - generic [ref=f16e800]:
+              - generic [ref=f16e805]:
+                - img:
+                  - img
+              - paragraph [ref=f16e807]: Ventas Móvil 1-855-655-0055
+          - 'link "Lifeline Móvil: 787-405-5463" [ref=f16e808] [cursor=pointer]':
+            - /url: "tel: 787-405-5463"
+            - generic [ref=f16e811]:
+              - generic [ref=f16e816]:
+                - img:
+                  - img
+              - paragraph [ref=f16e818]: "Lifeline Móvil: 787-405-5463"
+        - text:     
+      - generic [ref=f16e820]:
+        - img "logo" [ref=f16e821]
+        - generic [ref=f16e822]:
+          - paragraph [ref=f16e823]: ©2026 Liberty Communications of Puerto Rico LLC. Todos los derechos reservados.
+          - paragraph [ref=f16e824]: Liberty y el logo de Liberty son marcas registradas de Liberty Communications of Puerto Rico LLC.
+          - paragraph [ref=f16e825]
+        - generic [ref=f16e826]:
+          - link [ref=f16e827] [cursor=pointer]:
+            - /url: https://www.facebook.com/LibertyPR/
+            - generic [ref=f16e830]:
+              - img:
+                - img
+          - link [ref=f16e831] [cursor=pointer]:
+            - /url: https://www.instagram.com/libertypuertorico
+            - generic [ref=f16e834]:
+              - img:
+                - img
+          - link [ref=f16e835] [cursor=pointer]:
+            - /url: https://www.youtube.com/user/LibertyIncreible/feed
+            - generic [ref=f16e838]:
+              - img:
+                - img

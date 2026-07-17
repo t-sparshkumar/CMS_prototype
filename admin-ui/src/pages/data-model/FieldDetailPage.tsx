@@ -35,6 +35,7 @@ import {
   isManyToOneInterface,
   isOneToManyInterface,
   isRelationInterface,
+  isTranslationsInterface,
 } from '../../lib/interfaceCatalog';
 import { getDefaultPreviewValue } from '../../lib/fieldUtils';
 
@@ -185,9 +186,11 @@ export default function FieldDetailPage() {
     setConditionRows(parseConditionsPayload(f.conditions));
   }
 
+  const isTranslations = isTranslationsInterface(iface);
+
   function buildPayload(): Omit<CreateFieldInput, 'field'> & UpdateFieldInput {
     return {
-      ...(!isRelation && !isAlias ? { type } : {}),
+      ...(isAlias || isTranslations ? { type: 'alias' as const } : !isRelation ? { type } : {}),
       interface: iface,
       options: buildOptions(),
       display: display || null,
@@ -343,6 +346,15 @@ export default function FieldDetailPage() {
 
           {(mode === 'simple' || tab === 'schema') && (
             <div className="space-y-4">
+              {isNew && isTranslations && (
+                <div className="alert-info">
+                  This creates a translations field placeholder. Open the collection{' '}
+                  <Link to={`/settings/data-model/${collection}/setup`} className="font-medium underline">
+                    Setup
+                  </Link>{' '}
+                  tab to choose languages and translatable fields.
+                </div>
+              )}
               {isNew && (
                 <div>
                   <label className="label">Field name</label>

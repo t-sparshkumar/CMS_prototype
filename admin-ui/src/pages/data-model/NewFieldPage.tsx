@@ -29,7 +29,7 @@ export default function NewFieldPage() {
       />
       <p className="mt-6 flex items-center gap-1.5 text-xs text-slate-400">
         <Icon name="component" className="h-3.5 w-3.5" />
-        Interfaces are grouped like Directus — text, selection, relational, presentation, and layout groups.
+        Interfaces are grouped by category — text, selection, relational, presentation, and layout groups.
       </p>
     </div>
   );

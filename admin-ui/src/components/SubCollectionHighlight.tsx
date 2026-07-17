@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import Icon from './Icon';
+import { nestedCollectionBadgeLabel } from '../lib/collectionLabels';
 import type { CollectionMeta } from '../lib/api';
 
 export function isSubCollection(collection: CollectionMeta): boolean {
@@ -16,7 +17,7 @@ export function SubCollectionBadge({ className = '' }: SubCollectionBadgeProps) 
       className={`inline-flex items-center gap-1 rounded-md bg-violet-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-700 ${className}`}
     >
       <Icon name="component" className="h-3 w-3" />
-      Sub-collection
+      {nestedCollectionBadgeLabel()}
     </span>
   );
 }

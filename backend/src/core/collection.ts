@@ -153,6 +153,7 @@ export interface InsertSystemFieldsOptions {
     sort?: boolean;
     accountability?: boolean;
   };
+  primaryKeyType?: 'uuid' | 'integer';
 }
 
 /**
@@ -164,12 +165,13 @@ export async function insertSystemFields(
   options: InsertSystemFieldsOptions = {},
 ): Promise<void> {
   const optional = options.optionalSystemFields ?? {};
+  const primaryKeyType = options.primaryKeyType ?? 'uuid';
   const rows: Array<Record<string, unknown>> = [
     {
       collection: collectionName,
       field: 'id',
-      type: 'uuid',
-      special: 'uuid',
+      type: primaryKeyType === 'integer' ? 'integer' : 'uuid',
+      special: primaryKeyType === 'integer' ? null : 'uuid',
       interface: 'input',
       readonly: true,
       hidden: true,

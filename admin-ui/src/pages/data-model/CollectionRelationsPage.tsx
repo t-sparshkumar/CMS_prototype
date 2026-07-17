@@ -20,6 +20,7 @@ import {
   RELATION_INTERFACE_OPTIONS,
 } from '../../lib/interfaceCatalog';
 import ConfirmDialog from '../../components/data-model/ConfirmDialog';
+import TableRowActions from '../../components/TableRowActions';
 
 export default function CollectionRelationsPage() {
   const { collection = '' } = useParams<{ collection: string }>();
@@ -171,14 +172,15 @@ export default function CollectionRelationsPage() {
       </form>
 
       <div className="table-shell">
-        <table className="w-full text-sm">
+        <div className="table-scroll">
+        <table className="w-full min-w-[640px] text-sm">
           <thead className="table-head">
             <tr>
               <th className="table-th">Field</th>
               <th className="table-th">Type</th>
               <th className="table-th">Related</th>
               <th className="table-th">On delete</th>
-              <th className="table-th" />
+              <th className="table-th-actions">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -219,10 +221,12 @@ export default function CollectionRelationsPage() {
                         <option value="RESTRICT">RESTRICT</option>
                       </select>
                     </td>
-                    <td className="table-td text-right">
-                      <button type="button" onClick={() => setDeleteId(rel.id)} className="text-xs font-medium text-red-600 hover:text-red-700">
-                        Delete
-                      </button>
+                    <td className="table-td-actions">
+                      <TableRowActions
+                        showEdit={false}
+                        onDelete={() => setDeleteId(rel.id)}
+                        itemLabel={fieldKey}
+                      />
                     </td>
                   </tr>
                 );
@@ -230,6 +234,7 @@ export default function CollectionRelationsPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       <ConfirmDialog

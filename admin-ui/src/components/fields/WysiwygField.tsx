@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import Modal from '../Modal';
 import { FieldLabel, FieldTabBar } from './fieldShared';
 import type { FieldMeta } from '../../lib/api';
 
@@ -14,6 +15,8 @@ type Tab = 'edit' | 'preview';
 export default function WysiwygField({ field, value, onChange, disabled }: WysiwygFieldProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<Tab>('edit');
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
   const html = String(value ?? '');
 
   function exec(command: string, arg?: string) {
@@ -56,8 +59,8 @@ export default function WysiwygField({ field, value, onChange, disabled }: Wysiw
               type="button"
               disabled={disabled}
               onClick={() => {
-                const url = window.prompt('Link URL');
-                if (url) exec('createLink', url);
+                setLinkUrl('');
+                setLinkModalOpen(true);
               }}
               className="field-wysiwyg-btn"
             >
@@ -81,6 +84,39 @@ export default function WysiwygField({ field, value, onChange, disabled }: Wysiw
           dangerouslySetInnerHTML={{ __html: html || '<p class="text-slate-400">Empty content</p>' }}
         />
       )}
+      <Modal
+        open={linkModalOpen}
+        title="Insert link"
+        onClose={() => setLinkModalOpen(false)}
+        footer={
+          <>
+            <button type="button" onClick={() => setLinkModalOpen(false)} className="btn-secondary">
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={!linkUrl.trim()}
+              onClick={() => {
+                exec('createLink', linkUrl.trim());
+                setLinkModalOpen(false);
+              }}
+              className="btn-primary"
+            >
+              Insert
+            </button>
+          </>
+        }
+      >
+        <label className="label">URL</label>
+        <input
+          autoFocus
+          type="url"
+          value={linkUrl}
+          onChange={(e) => setLinkUrl(e.target.value)}
+          placeholder="https://example.com"
+          className="input"
+        />
+      </Modal>
     </div>
   );
 }

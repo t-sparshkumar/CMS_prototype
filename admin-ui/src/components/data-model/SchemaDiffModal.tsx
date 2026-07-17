@@ -1,13 +1,14 @@
-import type { SchemaDiff } from '../../lib/api';
+import type { SchemaDiff, SchemaImportMeta } from '../../lib/api';
 
 interface SchemaDiffModalProps {
   open: boolean;
   diff: SchemaDiff | null;
+  importMeta?: SchemaImportMeta | null;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
-export default function SchemaDiffModal({ open, diff, onConfirm, onCancel }: SchemaDiffModalProps) {
+export default function SchemaDiffModal({ open, diff, importMeta, onConfirm, onCancel }: SchemaDiffModalProps) {
   if (!open || !diff) return null;
 
   const hasChanges =
@@ -20,6 +21,25 @@ export default function SchemaDiffModal({ open, diff, onConfirm, onCancel }: Sch
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fade-in">
       <div className="w-full max-w-lg max-h-[80vh] overflow-auto rounded-2xl border border-surface-border bg-surface p-6 shadow-elevated animate-scale-in">
         <h3 className="text-base font-bold text-slate-900">Schema changes</h3>
+        {importMeta?.stats && (
+          <p className="mt-2 text-sm text-slate-600">
+            Imported schema snapshot — {importMeta.stats.collections} collections,{' '}
+            {importMeta.stats.fields} fields.
+          </p>
+        )}
+        {importMeta?.warnings && importMeta.warnings.length > 0 && (
+          <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/60 p-3 text-sm text-amber-900">
+            <p className="font-semibold">Import warnings ({importMeta.warnings.length})</p>
+            <ul className="mt-1 list-disc ml-5">
+              {importMeta.warnings.slice(0, 5).map((warning) => (
+                <li key={warning}>{warning}</li>
+              ))}
+            </ul>
+            {importMeta.warnings.length > 5 && (
+              <p className="mt-1 text-xs text-amber-800">…and {importMeta.warnings.length - 5} more</p>
+            )}
+          </div>
+        )}
         {!hasChanges ? (
           <p className="mt-2 text-sm text-slate-600">No differences detected.</p>
         ) : (

@@ -1,0 +1,137 @@
+- generic [ref=f4e3]:
+  - complementary [ref=f4e4]:
+    - generic [ref=f4e5]:
+      - img "Paytm" [ref=f4e6]
+      - generic [ref=f4e7]:
+        - paragraph [ref=f4e8]: Paytm
+        - paragraph [ref=f4e9]: Admin
+    - navigation [ref=f4e10]:
+      - link "Dashboard" [ref=f4e11] [cursor=pointer]:
+        - /url: /
+        - img [ref=f4e12]
+        - generic [ref=f4e14]: Dashboard
+      - generic [ref=f4e15]:
+        - button "Content & schema" [ref=f4e16] [cursor=pointer]:
+          - img [ref=f4e17]
+          - generic [ref=f4e19]: Content & schema
+          - img [ref=f4e20]
+        - generic [ref=f4e22]:
+          - link "Content" [ref=f4e23] [cursor=pointer]:
+            - /url: /content
+            - generic [ref=f4e25]: Content
+          - link "Pages" [ref=f4e26] [cursor=pointer]:
+            - /url: /pages
+            - generic [ref=f4e28]: Pages
+          - link "Data Model" [ref=f4e29] [cursor=pointer]:
+            - /url: /settings/data-model
+            - generic [ref=f4e31]: Data Model
+          - link "Triggers" [ref=f4e32] [cursor=pointer]:
+            - /url: /settings/triggers
+            - generic [ref=f4e34]: Triggers
+          - link "Translations" [ref=f4e35] [cursor=pointer]:
+            - /url: /settings/translations
+            - generic [ref=f4e37]: Translations
+      - generic [ref=f4e38]:
+        - button "People & access" [ref=f4e39] [cursor=pointer]:
+          - img [ref=f4e40]
+          - generic [ref=f4e42]: People & access
+          - img [ref=f4e43]
+        - generic [ref=f4e45]:
+          - link "Users" [ref=f4e46] [cursor=pointer]:
+            - /url: /settings/users
+            - generic [ref=f4e48]: Users
+          - link "Roles & Policies" [ref=f4e49] [cursor=pointer]:
+            - /url: /settings/access-control
+            - generic [ref=f4e51]: Roles & Policies
+      - generic [ref=f4e52]:
+        - button "Project" [ref=f4e53] [cursor=pointer]:
+          - img [ref=f4e54]
+          - generic [ref=f4e56]: Project
+          - img [ref=f4e57]
+        - generic [ref=f4e59]:
+          - link "Project Settings" [ref=f4e60] [cursor=pointer]:
+            - /url: /settings/project
+            - generic [ref=f4e62]: Project Settings
+          - link "Asset Gallery" [ref=f4e63] [cursor=pointer]:
+            - /url: /assets
+            - generic [ref=f4e65]: Asset Gallery
+          - link "History" [ref=f4e66] [cursor=pointer]:
+            - /url: /history
+            - generic [ref=f4e68]: History
+    - button "Sign out" [ref=f4e70] [cursor=pointer]:
+      - img [ref=f4e71]
+      - text: Sign out
+  - generic [ref=f4e73]:
+    - banner [ref=f4e74]:
+      - generic [ref=f4e75]:
+        - button "Toggle sidebar" [ref=f4e76] [cursor=pointer]:
+          - img [ref=f4e77]
+        - generic [ref=f4e79]:
+          - paragraph [ref=f4e80]: Environment
+          - paragraph [ref=f4e81]: Development
+      - generic [ref=f4e82]:
+        - button "AU · Super Admin · CMS-00000000" [ref=f4e84] [cursor=pointer]:
+          - generic [ref=f4e85]: AU · Super Admin · CMS-00000000
+          - img [ref=f4e86]
+        - generic "Admin User" [ref=f4e88]: AU
+    - generic [ref=f4e89]:
+      - navigation "Breadcrumb" [ref=f4e90]:
+        - link "Admin" [ref=f4e92] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f4e93]:
+          - img [ref=f4e94]
+          - generic [ref=f4e96]: Edit Page
+      - generic [ref=f4e98]:
+        - heading "Edit Page" [level=1] [ref=f4e99]
+        - paragraph [ref=f4e100]: Update page content and sections
+    - main [ref=f4e101]:
+      - generic [ref=f4e103]:
+        - link "Back to Pages" [ref=f4e104] [cursor=pointer]:
+          - /url: /pages
+          - img [ref=f4e105]
+          - text: Back to Pages
+        - generic [ref=f4e107]:
+          - generic [ref=f4e108]:
+            - heading "Page Details" [level=2] [ref=f4e109]
+            - generic [ref=f4e110]:
+              - generic [ref=f4e111]:
+                - generic [ref=f4e112]: Title
+                - textbox "Home Page" [ref=f4e113]: Home
+              - generic [ref=f4e114]:
+                - generic [ref=f4e115]: Slug
+                - textbox "home" [ref=f4e116]
+            - generic [ref=f4e117]:
+              - generic [ref=f4e118]:
+                - generic [ref=f4e119]: Status
+                - combobox [ref=f4e120]:
+                  - option "Draft"
+                  - option "Published" [selected]
+                  - option "Archived"
+              - generic [ref=f4e122] [cursor=pointer]:
+                - checkbox "Active" [checked] [ref=f4e123]
+                - text: Active
+          - generic [ref=f4e125]:
+            - generic [ref=f4e126]:
+              - generic [ref=f4e127]:
+                - img [ref=f4e129]
+                - generic [ref=f4e131]:
+                  - heading "Page Sections" [level=2] [ref=f4e132]
+                  - paragraph [ref=f4e133]: 0 blocks on this page
+              - button "Add Existing" [ref=f4e135] [cursor=pointer]:
+                - img [ref=f4e136]
+                - text: Add Existing
+            - generic [ref=f4e138]:
+              - img [ref=f4e140]
+              - paragraph [ref=f4e142]: No sections on this page yet.
+              - paragraph [ref=f4e143]:
+                - text: Create blocks in
+                - link "Content" [ref=f4e144] [cursor=pointer]:
+                  - /url: /content
+                - text: then add them here.
+              - button "Add your first block" [ref=f4e145] [cursor=pointer]
+          - generic [ref=f4e146]:
+            - button "Save Page" [ref=f4e147] [cursor=pointer]
+            - link "Preview" [ref=f4e148] [cursor=pointer]:
+              - /url: /pages/69c33d66-a336-49dd-bd48-69b552b2b469/preview
+            - link "Cancel" [ref=f4e149] [cursor=pointer]:
+              - /url: /pages

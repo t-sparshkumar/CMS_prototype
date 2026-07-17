@@ -157,3 +157,29 @@ export async function updateUser(db: Knex, userId: string, input: UpdateUserInpu
   }
   return updated;
 }
+
+/**
+ * Delete a CMS user. Prevents deleting self or the last administrator.
+ */
+export async function deleteUser(db: Knex, userId: string, currentUserId: string): Promise<void> {
+  const existing = await db<CmsUserRow>('cms_users').where({ id: userId }).first();
+  if (!existing) {
+    throw new AppError('User not found', 404, 'NOT_FOUND');
+  }
+
+  if (userId === currentUserId) {
+    throw new AppError('You cannot delete your own account', 400, 'VALIDATION_ERROR');
+  }
+
+  const role = await db('cms_roles').where({ id: existing.role }).first();
+  if (role?.admin_access) {
+    const adminRoleIds: string[] = await db('cms_roles').where({ admin_access: true }).pluck('id');
+    const adminCountRow = await db('cms_users').whereIn('role', adminRoleIds).count('* as count').first();
+    const adminCount = Number(adminCountRow?.count ?? 0);
+    if (adminCount <= 1) {
+      throw new AppError('Cannot delete the last administrator', 400, 'VALIDATION_ERROR');
+    }
+  }
+
+  await db('cms_users').where({ id: userId }).delete();
+}

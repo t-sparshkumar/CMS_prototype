@@ -148,7 +148,12 @@ export function isAliasInterface(id: string): boolean {
   return option?.kind === 'presentational' || option?.kind === 'group';
 }
 
+export function isTranslationsInterface(id: string): boolean {
+  return id === 'translations';
+}
+
 export function getDefaultTypeForInterface(id: string): string | undefined {
+  if (isTranslationsInterface(id)) return 'alias';
   const option = getInterfaceOption(id);
   if (option?.kind === 'presentational' || option?.kind === 'group') return 'alias';
   if (option?.kind === 'relation') return undefined;

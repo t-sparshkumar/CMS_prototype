@@ -1,0 +1,132 @@
+- generic [ref=f5e3]:
+  - generic [ref=f5e4]:
+    - generic [ref=f5e5]:
+      - link "Back to editor" [ref=f5e6] [cursor=pointer]:
+        - /url: /pages/69c33d66-a336-49dd-bd48-69b552b2b469/edit
+        - img [ref=f5e7]
+        - text: Back to editor
+      - generic [ref=f5e9]: "|"
+      - heading "Home" [level=1] [ref=f5e19]
+    - generic [ref=f5e11]:
+      - button "Desktop" [ref=f5e12] [cursor=pointer]
+      - button "Mobile" [ref=f5e13] [cursor=pointer]
+      - link "Open in new tab" [ref=f5e14] [cursor=pointer]:
+        - /url: /pages/69c33d66-a336-49dd-bd48-69b552b2b469/preview
+        - img [ref=f5e15]
+        - text: Open in new tab
+  - main [ref=f5e22]:
+    - generic [ref=f5e24]:
+      - link "Liberty" [ref=f5e25] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f5e26]: Liberty
+      - navigation [ref=f5e27]:
+        - link "Hogar" [ref=f5e28] [cursor=pointer]:
+          - /url: https://www.libertypr.com/hogar/internet
+        - link "Móvil" [ref=f5e29] [cursor=pointer]:
+          - /url: https://www.libertypr.com/movil/planes/liberty-mix
+        - link "Ofertas" [ref=f5e30] [cursor=pointer]:
+          - /url: https://www.libertypr.com/ofertas
+        - link "Ayuda" [ref=f5e31] [cursor=pointer]:
+          - /url: https://www.libertypr.com/ayuda
+        - link "Internet+TV" [ref=f5e32] [cursor=pointer]:
+          - /url: https://www.libertypr.com/hogar/internet
+        - link "Planes Móviles" [ref=f5e33] [cursor=pointer]:
+          - /url: https://www.libertypr.com/movil/planes/ilimitado-upick
+      - link "Mi Liberty" [ref=f5e35] [cursor=pointer]:
+        - /url: https://www.libertypr.com/mi-cuenta
+    - generic [ref=f5e37]:
+      - generic [ref=f5e38]:
+        - img "Liberty SIMple" [ref=f5e126]
+        - generic [ref=f5e41]:
+          - heading "Liberty SIMple" [level=2] [ref=f5e127]
+          - paragraph [ref=f5e43]: Simple prepaid mobile service
+          - link "Learn More" [ref=f5e128] [cursor=pointer]:
+            - /url: https://www.libertypr.com/movil/planes/prepago/ilimitado-pgreen
+      - generic [ref=f5e45]:
+        - button "Go to slide 1" [ref=f5e46] [cursor=pointer]
+        - button "Go to slide 2" [ref=f5e47] [cursor=pointer]
+        - button "Go to slide 3" [ref=f5e48] [cursor=pointer]
+        - button "Go to slide 4" [ref=f5e49] [cursor=pointer]
+        - button "Go to slide 5" [ref=f5e50] [cursor=pointer]
+    - generic [ref=f5e52]:
+      - link "Internet+TV Internet+TV Bundle home internet and television" [ref=f5e53] [cursor=pointer]:
+        - /url: https://www.libertypr.com/hogar/internet
+        - img "Internet+TV" [ref=f5e55]
+        - generic [ref=f5e57]:
+          - heading "Internet+TV" [level=3] [ref=f5e58]
+          - paragraph [ref=f5e59]: Bundle home internet and television
+      - link "Mobile Plans Mobile Plans Unlimited data on Puerto Rico's 5G network" [ref=f5e60] [cursor=pointer]:
+        - /url: https://www.libertypr.com/movil/planes/ilimitado-upick
+        - img "Mobile Plans" [ref=f5e62]
+        - generic [ref=f5e64]:
+          - heading "Mobile Plans" [level=3] [ref=f5e65]
+          - paragraph [ref=f5e66]: Unlimited data on Puerto Rico's 5G network
+    - generic [ref=f5e68]:
+      - heading "Otros servicios que te pueden interesar" [level=2] [ref=f5e70]
+      - generic [ref=f5e71]:
+        - article [ref=f5e72]:
+          - img "5G Mobile Network" [ref=f5e73]
+          - generic [ref=f5e74]:
+            - heading "5G Mobile Network" [level=3] [ref=f5e75]
+            - paragraph [ref=f5e76]: Conéctate en todo Puerto Rico con nuestra red móvil 5G
+            - link "Explore Mobile" [ref=f5e77] [cursor=pointer]:
+              - /url: https://www.libertypr.com/movil/planes/ilimitado
+        - article [ref=f5e78]:
+          - img "Unlimited Home Internet" [ref=f5e79]
+          - generic [ref=f5e80]:
+            - heading "Unlimited Home Internet" [level=3] [ref=f5e81]
+            - paragraph [ref=f5e82]: Navega y Disfruta con el Internet ilimitado para el hogar
+            - link "Shop Internet" [ref=f5e83] [cursor=pointer]:
+              - /url: https://www.libertypr.com/hogar/internet
+        - article [ref=f5e84]:
+          - img "Liberty Loop" [ref=f5e85]
+          - generic [ref=f5e86]:
+            - heading "Liberty Loop" [level=3] [ref=f5e87]
+            - paragraph [ref=f5e88]: Combina móvil y fijo y disfruta los beneficios de Liberty Loop
+            - link "Bundle & Save" [ref=f5e89] [cursor=pointer]:
+              - /url: https://www.libertypr.com/ofertas
+    - generic [ref=f5e91]:
+      - generic [ref=f5e92]:
+        - generic [ref=f5e93]:
+          - paragraph [ref=f5e94]: Liberty
+          - paragraph [ref=f5e95]: Liberty Puerto Rico ofrece los mejores servicios de internet, móvil, TV y teléfono en la isla.
+        - generic [ref=f5e96]:
+          - heading "Servicios" [level=4] [ref=f5e97]
+          - list [ref=f5e98]:
+            - listitem [ref=f5e99]:
+              - link "Internet" [ref=f5e100] [cursor=pointer]:
+                - /url: https://www.libertypr.com/hogar/internet
+            - listitem [ref=f5e101]:
+              - link "TV" [ref=f5e102] [cursor=pointer]:
+                - /url: https://www.libertypr.com/hogar/tv
+            - listitem [ref=f5e103]:
+              - link "Móvil" [ref=f5e104] [cursor=pointer]:
+                - /url: https://www.libertypr.com/movil/planes/liberty-mix
+            - listitem [ref=f5e105]:
+              - link "Prepago" [ref=f5e106] [cursor=pointer]:
+                - /url: https://www.libertypr.com/movil/planes/prepago/ilimitado-pgreen
+        - generic [ref=f5e107]:
+          - heading "Ayuda" [level=4] [ref=f5e108]
+          - list [ref=f5e109]:
+            - listitem [ref=f5e110]:
+              - link "Centro de Ayuda" [ref=f5e111] [cursor=pointer]:
+                - /url: https://www.libertypr.com/ayuda
+            - listitem [ref=f5e112]:
+              - link "Contacto" [ref=f5e113] [cursor=pointer]:
+                - /url: https://www.libertypr.com/contacto
+            - listitem [ref=f5e114]:
+              - link "Tiendas" [ref=f5e115] [cursor=pointer]:
+                - /url: https://www.libertypr.com/tiendas
+        - generic [ref=f5e116]:
+          - heading "Empresa" [level=4] [ref=f5e117]
+          - list [ref=f5e118]:
+            - listitem [ref=f5e119]:
+              - link "Acerca de Liberty" [ref=f5e120] [cursor=pointer]:
+                - /url: https://www.libertypr.com/acerca
+            - listitem [ref=f5e121]:
+              - link "Carreras" [ref=f5e122] [cursor=pointer]:
+                - /url: https://www.libertypr.com/carreras
+            - listitem [ref=f5e123]:
+              - link "Política de privacidad" [ref=f5e124] [cursor=pointer]:
+                - /url: https://www.libertypr.com/es/aviso-de-privacidad-del-sitio-web
+      - paragraph [ref=f5e125]: © 2026 Liberty Puerto Rico. Todos los derechos reservados.

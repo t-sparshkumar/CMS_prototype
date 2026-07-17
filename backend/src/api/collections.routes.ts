@@ -16,7 +16,7 @@ import {
 } from '../services/collections.service.js';
 import type { CreateCollectionInput, UpdateCollectionInput } from '../types/collection.js';
 import { fieldsRouter } from './fields.routes.js';
-import { setupTranslations } from '../services/translations.service.js';
+import { setupTranslations, getTranslationsConfig } from '../services/translations.service.js';
 
 export const collectionsRouter = Router();
 
@@ -146,6 +146,20 @@ collectionsRouter.delete('/:name', requireAdmin, async (req: Request, res: Respo
   }
 });
 
+collectionsRouter.get(
+  '/:name/translations/config',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const name = String(req.params.name);
+      const db = getDb();
+      const config = await getTranslationsConfig(db, name);
+      res.json(success(config));
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
 collectionsRouter.post(
   '/:name/translations/setup',
   requireAdmin,
@@ -153,22 +167,33 @@ collectionsRouter.post(
     try {
       const name = String(req.params.name);
       const body = req.body as {
-        languages_collection: string;
+        languages_collection?: string;
         languages_field?: string;
         translations_field?: string;
+        translatable_fields?: string[];
+        enabled_languages?: string[];
       };
 
-      if (!body.languages_collection) {
+      if (!Array.isArray(body.translatable_fields) || body.translatable_fields.length === 0) {
         res.status(400).json({
           errors: [
-            { message: 'languages_collection is required', extensions: { code: 'VALIDATION_ERROR' } },
+            {
+              message: 'translatable_fields is required and must contain at least one field',
+              extensions: { code: 'VALIDATION_ERROR' },
+            },
           ],
         });
         return;
       }
 
       const db = getDb();
-      const result = await setupTranslations(db, name, body);
+      const result = await setupTranslations(db, name, {
+        languages_collection: body.languages_collection,
+        languages_field: body.languages_field,
+        translations_field: body.translations_field,
+        translatable_fields: body.translatable_fields,
+        enabled_languages: body.enabled_languages,
+      });
       res.status(201).json(success(result));
     } catch (err) {
       next(err);

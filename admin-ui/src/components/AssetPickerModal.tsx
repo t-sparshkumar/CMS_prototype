@@ -24,11 +24,11 @@ export default function AssetPickerModal({ open, onClose, onSelect }: AssetPicke
       onClick={onClose}
     >
       <div
-        className="bg-slate-50 rounded-2xl shadow-elevated w-full max-w-5xl max-h-[90vh] overflow-auto animate-scale-in"
+        className="w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] shadow-elevated animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-white border-b border-slate-100">
-          <h2 className="text-base font-bold text-slate-900">Choose from Asset Gallery</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-4">
+          <h2 className="text-base font-bold text-[var(--app-text)]">Choose from Asset Gallery</h2>
           <button
             type="button"
             onClick={onClose}
@@ -37,7 +37,7 @@ export default function AssetPickerModal({ open, onClose, onSelect }: AssetPicke
             <Icon name="close" className="h-5 w-5" />
           </button>
         </div>
-        <div className="p-6">
+        <div className="overflow-auto p-4">
           <AssetGalleryPage pickerMode onSelect={handleSelect} />
         </div>
       </div>

@@ -2,17 +2,22 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import Icon from '../components/Icon';
-import PageComponentBuilder, { parsePageComponents } from '../components/PageComponentBuilder';
+import PageSectionsBuilder, {
+  PAGE_SECTION_COLLECTIONS,
+  parsePageSections,
+} from '../components/PageSectionsBuilder';
 import RelationPicker from '../components/RelationPicker';
 import {
   createItem,
   fetchFields,
   fetchItem,
-  fetchItems,
   updateItem,
   type FieldMeta,
   type ItemRecord,
 } from '../lib/api';
+import { parseBoolean } from '../lib/booleanValue';
+
+const ALLOWED_SECTION_COLLECTIONS = [...PAGE_SECTION_COLLECTIONS];
 
 export default function PageEditPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,11 +26,10 @@ export default function PageEditPage() {
   const isNew = location.pathname.endsWith('/new') || id === 'new';
 
   const [pageGroupField, setPageGroupField] = useState<FieldMeta | null>(null);
-  const [componentLibrary, setComponentLibrary] = useState<ItemRecord[]>([]);
   const [formData, setFormData] = useState<ItemRecord>({
     active: true,
     status: 'draft',
-    components: [],
+    sections: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -34,22 +38,18 @@ export default function PageEditPage() {
   useEffect(() => {
     async function load() {
       try {
-        const [fields, componentsResult] = await Promise.all([
-          fetchFields('pages'),
-          fetchItems('site_components', { limit: 200 }),
-        ]);
-
+        const fields = await fetchFields('pages');
         const pgField = fields.find((f) => f.field === 'page_group');
         if (pgField) {
           setPageGroupField(pgField);
         }
-        setComponentLibrary(componentsResult.items);
 
         if (!isNew && id) {
           const page = await fetchItem('pages', id);
           setFormData({
             ...page,
-            components: parsePageComponents(page.components),
+            active: parseBoolean(page.active, true),
+            sections: parsePageSections(page.sections),
           });
         }
       } catch {
@@ -73,7 +73,8 @@ export default function PageEditPage() {
     try {
       const payload = {
         ...formData,
-        components: parsePageComponents(formData.components),
+        active: parseBoolean(formData.active, true),
+        sections: parsePageSections(formData.sections),
       };
 
       if (isNew) {
@@ -96,9 +97,9 @@ export default function PageEditPage() {
   return (
     <AppLayout
       title={isNew ? 'Create Page' : 'Edit Page'}
-      subtitle={isNew ? 'Compose a new website page from components' : 'Update page content and layout'}
+      subtitle={isNew ? 'Compose a page from reusable content blocks' : 'Update page content and sections'}
     >
-      <div className="max-w-4xl">
+      <div className="w-full">
         <Link to="/pages" className="back-link mb-5">
           <Icon name="chevron-right" className="h-4 w-4 rotate-180" />
           Back to Pages
@@ -170,19 +171,24 @@ export default function PageEditPage() {
             </section>
 
             <section className="form-card">
-              <PageComponentBuilder
-                value={formData.components}
-                onChange={(components) => setField('components', components)}
-                availableComponents={componentLibrary}
+              <PageSectionsBuilder
+                value={formData.sections}
+                onChange={(sections) => setField('sections', sections)}
+                allowedCollections={ALLOWED_SECTION_COLLECTIONS}
               />
             </section>
 
             {error && <div className="alert-error">{error}</div>}
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button type="submit" disabled={isSaving} className="btn-primary">
                 {isSaving ? 'Saving...' : 'Save Page'}
               </button>
+              {!isNew && id && (
+                <Link to={`/pages/${id}/preview`} className="btn-secondary">
+                  Preview
+                </Link>
+              )}
               <Link to="/pages" className="btn-secondary">
                 Cancel
               </Link>

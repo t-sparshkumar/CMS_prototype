@@ -10,8 +10,8 @@ export default function LoginPage() {
   const isLoading = useAuthStore((s) => s.isLoading);
   const projectName = useSettingsStore((s) => s.projectName);
 
-  const [email, setEmail] = useState('admin@example.com');
-  const [password, setPassword] = useState('admin');
+  const [email, setEmail] = useState(import.meta.env.PROD ? '' : 'admin@example.com');
+  const [password, setPassword] = useState(import.meta.env.PROD ? '' : 'admin');
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: FormEvent) {
@@ -66,7 +66,9 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="email" className="label">Email</label>
+                <label htmlFor="email" className="label">
+                  Email
+                </label>
                 <input
                   id="email"
                   type="email"
@@ -78,7 +80,9 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="label">Password</label>
+                <label htmlFor="password" className="label">
+                  Password
+                </label>
                 <input
                   id="password"
                   type="password"

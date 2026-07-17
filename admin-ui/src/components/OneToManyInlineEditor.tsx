@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+import ConfirmDialog from './data-model/ConfirmDialog';
+import TableRowActions from './TableRowActions';
 import { createItem, deleteItem, fetchFields, fetchItems, type FieldMeta, type ItemRecord } from '../lib/api';
 
 interface OneToManyInlineEditorProps {
@@ -14,6 +16,7 @@ export default function OneToManyInlineEditor({ field, parentId, disabled }: One
   const [items, setItems] = useState<ItemRecord[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const loadItems = useCallback(async () => {
     if (!relatedCollection || !relatedField || !parentId) {
@@ -62,7 +65,6 @@ export default function OneToManyInlineEditor({ field, parentId, disabled }: One
 
   async function handleDelete(id: string) {
     if (!relatedCollection) return;
-    if (!window.confirm('Delete this related item?')) return;
     await deleteItem(relatedCollection, id);
     await loadItems();
   }
@@ -91,7 +93,7 @@ export default function OneToManyInlineEditor({ field, parentId, disabled }: One
               <tr>
                 {displayField && <th className="table-th">{displayField}</th>}
                 <th className="table-th">ID</th>
-                <th className="table-th w-16" />
+                <th className="table-th-actions">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-border/60">
@@ -108,15 +110,13 @@ export default function OneToManyInlineEditor({ field, parentId, disabled }: One
                       <td className="table-td text-slate-700">{String(item[displayField] ?? '—')}</td>
                     )}
                     <td className="table-td text-xs font-mono text-slate-400">{String(item.id)}</td>
-                    <td className="table-td text-right">
+                    <td className="table-td-actions">
                       {!disabled && (
-                        <button
-                          type="button"
-                          onClick={() => void handleDelete(String(item.id))}
-                          className="text-xs font-semibold text-red-600 hover:text-red-700"
-                        >
-                          Delete
-                        </button>
+                        <TableRowActions
+                          showEdit={false}
+                          onDelete={() => setDeleteTargetId(String(item.id))}
+                          itemLabel={displayField ? String(item[displayField] ?? String(item.id)) : String(item.id)}
+                        />
                       )}
                     </td>
                   </tr>
@@ -145,6 +145,18 @@ export default function OneToManyInlineEditor({ field, parentId, disabled }: One
           </button>
         </div>
       )}
+      <ConfirmDialog
+        open={deleteTargetId !== null}
+        title="Delete related item"
+        message="Delete this related item? This cannot be undone."
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (!deleteTargetId) return;
+          void handleDelete(deleteTargetId).finally(() => setDeleteTargetId(null));
+        }}
+        onCancel={() => setDeleteTargetId(null)}
+      />
     </div>
   );
 }

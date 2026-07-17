@@ -1,5 +1,14 @@
 import type { Knex } from 'knex';
 import { insertSystemFields } from '../core/collection.js';
+import { ensureBlockCollectionsModule } from './block-collections.service.js';
+
+const HOME_PAGE_SECTIONS = [
+  { collection: 'site_header', label: 'Home Site Header', sort: 1 },
+  { collection: 'hero_carousels', label: 'Home Hero Carousel', sort: 2 },
+  { collection: 'service_tiles', label: 'Home Service Tiles', sort: 3 },
+  { collection: 'promo_grids', label: 'Home Promo Grid', sort: 4 },
+  { collection: 'site_footer', label: 'Home Site Footer', sort: 5 },
+] as const;
 import { createCollection } from './collections.service.js';
 import { createField, restoreFieldMetadata } from './fields.service.js';
 import { insertRelation } from './relations.service.js';
@@ -14,7 +23,6 @@ const WEBSITE_SYSTEM_FIELDS: Record<string, SystemFieldOptions> = {
   page_groups: { status: false, sort: true, accountability: true },
   site_components: { status: false, sort: true, accountability: true },
   pages: { status: true, sort: true, accountability: true },
-  global_layout: { status: false, sort: false, accountability: true },
 };
 
 async function fieldCount(db: Knex, collectionName: string): Promise<number> {
@@ -90,6 +98,11 @@ async function insertSiteComponentFields(db: Knex, metadataOnly = false): Promis
         { text: 'Cards', value: 'cards' },
         { text: 'Form', value: 'form' },
         { text: 'Custom', value: 'custom' },
+        { text: 'Utility Bar', value: 'utility-bar' },
+        { text: 'Hero Carousel', value: 'hero-carousel' },
+        { text: 'Service Tiles', value: 'service-tiles' },
+        { text: 'Promo Grid', value: 'promo-grid' },
+        { text: 'Cookie Banner', value: 'cookie-banner' },
       ],
     },
     sort: 12,
@@ -162,7 +175,7 @@ async function insertPagesFields(db: Knex, metadataOnly = false): Promise<void> 
     options: { language: 'json' },
     note: 'JSON array of component instances (managed via Page Builder UI)',
     hidden: true,
-    sort: 14,
+    sort: 15,
     width: 12,
   });
 
@@ -183,78 +196,6 @@ async function insertPagesFields(db: Knex, metadataOnly = false): Promise<void> 
   }
 }
 
-async function insertGlobalLayoutFields(db: Knex, metadataOnly = false): Promise<void> {
-  const add = metadataOnly ? restoreFieldMetadata : createField;
-  const collection = 'global_layout';
-  await add(db, collection, {
-    field: 'header_logo',
-    type: 'uuid',
-    interface: 'file-image',
-    sort: 10,
-    width: 6,
-  });
-  await add(db, collection, {
-    field: 'header_title',
-    type: 'string',
-    interface: 'input',
-    sort: 11,
-    width: 6,
-  });
-  await add(db, collection, {
-    field: 'header_nav_links',
-    type: 'json',
-    interface: 'input-code',
-    options: { language: 'json' },
-    note: 'Array of { label, url } objects',
-    sort: 12,
-    width: 12,
-  });
-  await add(db, collection, {
-    field: 'header_cta_label',
-    type: 'string',
-    interface: 'input',
-    sort: 13,
-    width: 6,
-  });
-  await add(db, collection, {
-    field: 'header_cta_url',
-    type: 'string',
-    interface: 'input',
-    sort: 14,
-    width: 6,
-  });
-  await add(db, collection, {
-    field: 'footer_logo',
-    type: 'uuid',
-    interface: 'file-image',
-    sort: 20,
-    width: 6,
-  });
-  await add(db, collection, {
-    field: 'footer_description',
-    type: 'text',
-    interface: 'textarea',
-    sort: 21,
-    width: 12,
-  });
-  await add(db, collection, {
-    field: 'footer_links',
-    type: 'json',
-    interface: 'input-code',
-    options: { language: 'json' },
-    note: 'Array of { title, links: [{ label, url }] } columns',
-    sort: 22,
-    width: 12,
-  });
-  await add(db, collection, {
-    field: 'footer_copyright',
-    type: 'string',
-    interface: 'input',
-    sort: 23,
-    width: 12,
-  });
-}
-
 /**
  * Re-insert cms_fields metadata when tables exist but field rows were lost.
  */
@@ -263,7 +204,6 @@ export async function repairMissingWebsiteFieldMetadata(db: Knex): Promise<void>
     { collection: 'page_groups', seed: insertPageGroupFields },
     { collection: 'site_components', seed: insertSiteComponentFields },
     { collection: 'pages', seed: insertPagesFields },
-    { collection: 'global_layout', seed: insertGlobalLayoutFields },
   ];
 
   for (const { collection, seed } of repairs) {
@@ -309,7 +249,8 @@ export async function ensureWebsiteCollections(db: Knex): Promise<void> {
     await createCollection(db, {
       collection: 'site_components',
       icon: 'widgets',
-      note: 'Reusable CMS components for page builder',
+      note: 'Legacy component templates (deprecated — use page_components block collections)',
+      hidden: true,
       optional_system_fields: WEBSITE_SYSTEM_FIELDS.site_components,
     });
     await insertSiteComponentFields(db);
@@ -327,25 +268,8 @@ export async function ensureWebsiteCollections(db: Knex): Promise<void> {
     await insertPagesFields(db);
   }
 
-  await ensureGlobalLayout(db);
   await repairMissingWebsiteFieldMetadata(db);
-}
-
-/**
- * Ensure global header/footer singleton collection exists.
- */
-export async function ensureGlobalLayout(db: Knex): Promise<void> {
-  const exists = await db('cms_collections').where({ collection: 'global_layout' }).first();
-  if (!exists) {
-    await createCollection(db, {
-      collection: 'global_layout',
-      icon: 'web',
-      singleton: true,
-      note: 'Global header and footer applied to all pages by default',
-      optional_system_fields: WEBSITE_SYSTEM_FIELDS.global_layout,
-    });
-    await insertGlobalLayoutFields(db);
-  }
+  await ensureBlockCollectionsModule(db);
 }
 
 /**
@@ -380,4 +304,53 @@ export async function repairWebsiteModule(db: Knex): Promise<void> {
   await db('cms_fields')
     .where({ collection: 'pages', field: 'components' })
     .update({ hidden: true });
+
+  await ensureBlockCollectionsModule(db);
+  await repairHomePageSections(db);
+}
+
+/**
+ * Backfill home page M2A sections when block items exist but pages_m2a is empty.
+ */
+export async function repairHomePageSections(db: Knex): Promise<void> {
+  const hasJunction = await db.schema.hasTable('pages_m2a');
+  if (!hasJunction) {
+    return;
+  }
+
+  const homePage = await db('pages').where({ slug: 'home' }).first<{ id: string }>();
+  if (!homePage) {
+    return;
+  }
+
+  const existing = await db('pages_m2a').where({ pages_id: homePage.id }).first();
+  if (existing) {
+    return;
+  }
+
+  const refs: Array<{ collection: string; item: string; sort: number }> = [];
+
+  for (const section of HOME_PAGE_SECTIONS) {
+    const item = await db(section.collection).where({ label: section.label }).first<{ id: string }>();
+    if (item) {
+      refs.push({
+        collection: section.collection,
+        item: String(item.id),
+        sort: section.sort,
+      });
+    }
+  }
+
+  if (refs.length === 0) {
+    return;
+  }
+
+  await db('pages_m2a').insert(
+    refs.map((ref) => ({
+      pages_id: homePage.id,
+      collection: ref.collection,
+      item: ref.item,
+      sort: ref.sort,
+    })),
+  );
 }

@@ -1,0 +1,230 @@
+[     128ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[ 1009012ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/pages/ContentListPage.tsx?t=1784192183311:0
+[ 1009012ms] [ERROR] [vite] Failed to reload /src/pages/ContentListPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:881
+[ 1009748ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/pages/ContentListPage.tsx?t=1784192184049:0
+[ 1009748ms] [ERROR] [vite] Failed to reload /src/pages/ContentListPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:881
+[ 1011445ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/pages/ContentListPage.tsx?t=1784192185746:0
+[ 1011445ms] [ERROR] [vite] Failed to reload /src/pages/ContentListPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:881
+[ 1022338ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[ 1024192ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[ 1025365ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[ 1026748ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[ 1028564ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[ 1047292ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/pages/data-model/CollectionRelationsPage.tsx?t=1784192221589:0
+[ 1047292ms] [ERROR] [vite] Failed to reload /src/pages/data-model/CollectionRelationsPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:881
+[ 1056823ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/pages/data-model/CollectionRelationsPage.tsx?t=1784192231116:0
+[ 1056823ms] [ERROR] [vite] Failed to reload /src/pages/data-model/CollectionRelationsPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:881
+[ 1061234ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/pages/data-model/CollectionRelationsPage.tsx?t=1784192235537:0
+[ 1061234ms] [ERROR] [vite] Failed to reload /src/pages/data-model/CollectionRelationsPage.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:881
+[ 2382037ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/site_header:0
+[ 2382039ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/site_footer:0
+[ 2382040ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/hero_banners:0
+[ 2382041ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/promo_grids:0
+[ 2382041ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/hero_carousels:0
+[ 2382042ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/service_tiles:0
+[ 2382042ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/paragraphs:0
+[ 2382043ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/info_boxes:0
+[ 2382043ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/pages/fields:0
+[ 2382044ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/site_header:0
+[ 2382049ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/site_footer:0
+[ 2382049ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/hero_banners:0
+[ 2382136ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/promo_grids:0
+[ 2382137ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/hero_carousels:0
+[ 2382137ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/service_tiles:0
+[ 2382138ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/paragraphs:0
+[ 2382143ms] [ERROR] Failed to load resource: the server responded with a status of 401 (Unauthorized) @ http://localhost:5173/api/collections/info_boxes:0
+[ 2552781ms] ReferenceError: ALLOWED_SECTION_COLLECTIONS is not defined
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193726948:300:35)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 2552781ms] ReferenceError: ALLOWED_SECTION_COLLECTIONS is not defined
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193726948:300:35)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 2552782ms] [ERROR] The above error occurred in the <PageEditPage> component:
+
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193726948:33:18)
+    at ProtectedRoute (http://localhost:5173/src/components/ProtectedRoute.tsx?t=1784186963553:21:42)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7604:3)
+    at App (http://localhost:5173/src/App.tsx?t=1784192188967:48:27)
+    at ThemeProvider (http://localhost:5173/src/components/ThemeProvider.tsx:21:41)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7543:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:10859:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14079
+[ 2552782ms] ReferenceError: ALLOWED_SECTION_COLLECTIONS is not defined
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193726948:300:35)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15972:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:18786:28)
+    at performSyncWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:18932:28)
+[ 2553846ms] ReferenceError: ALLOWED_SECTION_COLLECTIONS is not defined
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193728009:301:35)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 2553846ms] ReferenceError: ALLOWED_SECTION_COLLECTIONS is not defined
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193728009:301:35)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 2553846ms] [ERROR] The above error occurred in the <PageEditPage> component:
+
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193728009:33:18)
+    at ProtectedRoute (http://localhost:5173/src/components/ProtectedRoute.tsx?t=1784186963553:21:42)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7604:3)
+    at App (http://localhost:5173/src/App.tsx?t=1784192188967:48:27)
+    at ThemeProvider (http://localhost:5173/src/components/ThemeProvider.tsx:21:41)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7543:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:10859:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14079
+[ 2553846ms] ReferenceError: ALLOWED_SECTION_COLLECTIONS is not defined
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193728009:301:35)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15972:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:18786:28)
+    at performConcurrentWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:18734:30)
+[ 2556539ms] ReferenceError: ALLOWED_SECTION_COLLECTIONS is not defined
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193730719:305:35)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 2556539ms] ReferenceError: ALLOWED_SECTION_COLLECTIONS is not defined
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193730719:305:35)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15972:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19818:15)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 2556540ms] [ERROR] The above error occurred in the <PageEditPage> component:
+
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193730719:33:18)
+    at ProtectedRoute (http://localhost:5173/src/components/ProtectedRoute.tsx?t=1784186963553:21:42)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7604:3)
+    at App (http://localhost:5173/src/App.tsx?t=1784192188967:48:27)
+    at ThemeProvider (http://localhost:5173/src/components/ThemeProvider.tsx:21:41)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7543:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:10859:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14079
+[ 2556541ms] ReferenceError: ALLOWED_SECTION_COLLECTIONS is not defined
+    at PageEditPage (http://localhost:5173/src/pages/PageEditPage.tsx?t=1784193730719:305:35)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:11596:26)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14630:28)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15972:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19169:15)
+    at recoverFromConcurrentError (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:18786:28)
+    at performConcurrentWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:18734:30)
+[ 2790358ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/pages/fields:0
+[ 2790446ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/pages/fields:0
+[ 2790447ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/site_header:0
+[ 2790448ms] AxiosError: Request failed with status code 500
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=651d6f11:1534:12)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=651d6f11:1997:7)
+    at Axios.request (http://localhost:5173/node_modules/.vite/deps/axios.js?v=651d6f11:2930:41)
+    at async fetchCollection (http://localhost:5173/src/lib/api.ts?t=1784193963447:88:15)
+    at async http://localhost:5173/src/components/PageSectionsBuilder.tsx?t=1784193964352:91:22
+    at async Promise.all (index 0)
+[ 2790448ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/site_footer:0
+[ 2790449ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/hero_carousels:0
+[ 2790450ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/service_tiles:0
+[ 2790450ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/hero_banners:0
+[ 2790451ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/promo_grids:0
+[ 2790452ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/paragraphs:0
+[ 2790452ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/info_boxes:0
+[ 2790452ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/site_header:0
+[ 2790453ms] AxiosError: Request failed with status code 500
+    at settle (http://localhost:5173/node_modules/.vite/deps/axios.js?v=651d6f11:1534:12)
+    at XMLHttpRequest.onloadend (http://localhost:5173/node_modules/.vite/deps/axios.js?v=651d6f11:1997:7)
+    at Axios.request (http://localhost:5173/node_modules/.vite/deps/axios.js?v=651d6f11:2930:41)
+    at async fetchCollection (http://localhost:5173/src/lib/api.ts?t=1784193963447:88:15)
+    at async http://localhost:5173/src/components/PageSectionsBuilder.tsx?t=1784193964352:91:22
+    at async Promise.all (index 0)
+[ 2790461ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/site_footer:0
+[ 2790461ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/hero_banners:0
+[ 2790462ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/hero_carousels:0
+[ 2790462ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/service_tiles:0
+[ 2790462ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/promo_grids:0
+[ 2790466ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/paragraphs:0
+[ 2790467ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/api/collections/info_boxes:0
+[ 2791253ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[ 2791392ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/auth/refresh:0
+[ 2791497ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) @ http://localhost:5173/login:0
+[ 2791502ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/auth/refresh:0
+[ 2960838ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[ 2960849ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/auth/refresh:0
+[ 2960852ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/auth/refresh:0
+[ 2960952ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) @ http://localhost:5173/login:0
+[ 3278158ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/src/components/PageSectionsBuilder.tsx?t=1784194452461:0
+[ 3278158ms] [ERROR] [vite] Failed to reload /src/components/PageSectionsBuilder.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:881
+[ 5474900ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:963
+[ 5475470ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[12231572ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:963
+[12232337ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[17389896ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:963
+[17390194ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[18012143ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:963
+[18012743ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[73133171ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[73427519ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:963
+[73428293ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[75328010ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:963
+[75328460ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[75335445ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:963
+[75335749ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608

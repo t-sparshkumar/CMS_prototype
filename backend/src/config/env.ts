@@ -10,6 +10,8 @@ const envSchema = z.object({
   DB_USER: z.string().optional(),
   DB_PASSWORD: z.string().optional(),
   DB_NAME: z.string().optional(),
+  DATABASE_URL: z.string().optional(),
+  DB_SSL: z.enum(['true', 'false']).optional(),
   SECRET_KEY: z.string().min(1, 'SECRET_KEY is required'),
   UPLOAD_DIR: z.string().default('./uploads'),
   ACCESS_TOKEN_TTL: z.string().default('15m'),

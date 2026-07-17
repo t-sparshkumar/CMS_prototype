@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import Modal from './Modal';
+import PolicyPermissionsMatrix from './PolicyPermissionsMatrix';
 import {
   createPolicy,
   fetchCollections,
@@ -9,8 +10,12 @@ import {
   type PolicyRule,
 } from '../lib/api';
 import { getApiErrorMessage } from '../lib/apiErrors';
-
-const ACTIONS = ['create', 'read', 'update', 'delete'] as const;
+import {
+  matrixToRules,
+  rulesToPerCollectionMatrix,
+  validateMatrix,
+  type MatrixState,
+} from '../lib/policyMatrix';
 
 interface PolicyFormModalProps {
   open: boolean;
@@ -19,32 +24,7 @@ interface PolicyFormModalProps {
   onSaved: (policy: PolicyMeta) => void;
 }
 
-function buildRulesFromMatrix(
-  collections: string[],
-  actions: Record<(typeof ACTIONS)[number], boolean>,
-): PolicyRule[] {
-  const rules: PolicyRule[] = [];
-  for (const collection of collections) {
-    for (const action of ACTIONS) {
-      if (actions[action]) {
-        rules.push({ collection, action, fields: '*' });
-      }
-    }
-  }
-  return rules;
-}
-
-function rulesToMatrix(rules: PolicyRule[]): {
-  collections: string[];
-  actions: Record<(typeof ACTIONS)[number], boolean>;
-} {
-  const collections = [...new Set(rules.map((r) => r.collection))];
-  const actions = { create: false, read: false, update: false, delete: false };
-  for (const rule of rules) {
-    actions[rule.action] = true;
-  }
-  return { collections, actions };
-}
+const EMPTY_MATRIX: MatrixState = {};
 
 export default function PolicyFormModal({ open, policy, onClose, onSaved }: PolicyFormModalProps) {
   const isEdit = Boolean(policy);
@@ -52,14 +32,8 @@ export default function PolicyFormModal({ open, policy, onClose, onSaved }: Poli
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [allCollections, setAllCollections] = useState(false);
-  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
-  const [actions, setActions] = useState<Record<(typeof ACTIONS)[number], boolean>>({
-    create: false,
-    read: true,
-    update: false,
-    delete: false,
-  });
+  const [matrix, setMatrix] = useState<MatrixState>(EMPTY_MATRIX);
+  const [existingRules, setExistingRules] = useState<PolicyRule[]>([]);
   const [collections, setCollections] = useState<CollectionMeta[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -68,9 +42,7 @@ export default function PolicyFormModal({ open, policy, onClose, onSaved }: Poli
     if (!open) return;
     void fetchCollections({ includeHidden: true }).then((list) =>
       setCollections(
-        list.filter(
-          (c) => !c.system && !c.collection.startsWith('cms_') && !c.collection.includes('_translations'),
-        ),
+        list.filter((c) => !c.system && !c.collection.startsWith('cms_')),
       ),
     );
   }, [open]);
@@ -82,24 +54,26 @@ export default function PolicyFormModal({ open, policy, onClose, onSaved }: Poli
     setError(null);
 
     if (policy?.rules?.length) {
-      const matrix = rulesToMatrix(policy.rules);
-      setAllCollections(matrix.collections.includes('*'));
-      setSelectedCollections(matrix.collections.filter((c) => c !== '*'));
-      setActions(matrix.actions);
+      setExistingRules(policy.rules);
+      setMatrix(rulesToPerCollectionMatrix(policy.rules));
     } else {
-      setAllCollections(false);
-      setSelectedCollections([]);
-      setActions({ create: false, read: true, update: false, delete: false });
+      setExistingRules([]);
+      setMatrix(EMPTY_MATRIX);
     }
   }, [open, policy]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setIsSaving(true);
     setError(null);
 
-    const targetCollections = allCollections ? ['*'] : selectedCollections;
-    const rules = buildRulesFromMatrix(targetCollections, actions);
+    const matrixError = validateMatrix(matrix);
+    if (matrixError) {
+      setError(matrixError);
+      return;
+    }
+
+    const rules = matrixToRules(matrix, existingRules);
+    setIsSaving(true);
 
     try {
       const saved =
@@ -107,7 +81,7 @@ export default function PolicyFormModal({ open, policy, onClose, onSaved }: Poli
           ? await updatePolicy(policy.id, {
               name: isSystem ? undefined : name,
               description,
-              rules: isSystem ? undefined : rules,
+              rules,
             })
           : await createPolicy({ name, description, rules });
 
@@ -120,18 +94,12 @@ export default function PolicyFormModal({ open, policy, onClose, onSaved }: Poli
     }
   }
 
-  function toggleCollection(collection: string) {
-    setSelectedCollections((prev) =>
-      prev.includes(collection) ? prev.filter((c) => c !== collection) : [...prev, collection],
-    );
-  }
-
   return (
     <Modal
       open={open}
       title={isEdit ? `Edit ${policy?.name ?? 'Policy'}` : 'Create Policy'}
       onClose={onClose}
-      size="lg"
+      size="xl"
       footer={
         <>
           <button type="button" onClick={onClose} className="btn-secondary">
@@ -167,60 +135,17 @@ export default function PolicyFormModal({ open, policy, onClose, onSaved }: Poli
           />
         </div>
 
-        {!isSystem && (
-          <>
-            <div>
-              <label className="label">Collections</label>
-              <label className="flex items-center gap-2 mb-3 text-sm text-slate-700">
-                <input
-                  type="checkbox"
-                  checked={allCollections}
-                  onChange={(e) => setAllCollections(e.target.checked)}
-                  className="rounded border-slate-300 text-brand-600"
-                />
-                All collections (wildcard)
-              </label>
-              {!allCollections && (
-                <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto rounded-xl border border-slate-200 p-3">
-                  {collections.map((c) => (
-                    <label key={c.collection} className="flex items-center gap-2 text-sm text-slate-700">
-                      <input
-                        type="checkbox"
-                        checked={selectedCollections.includes(c.collection)}
-                        onChange={() => toggleCollection(c.collection)}
-                        className="rounded border-slate-300 text-brand-600"
-                      />
-                      <code className="text-xs">{c.collection}</code>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div>
-              <label className="label">Allowed Actions</label>
-              <div className="flex flex-wrap gap-3">
-                {ACTIONS.map((action) => (
-                  <label key={action} className="flex items-center gap-2 text-sm capitalize text-slate-700">
-                    <input
-                      type="checkbox"
-                      checked={actions[action]}
-                      onChange={(e) => setActions((prev) => ({ ...prev, [action]: e.target.checked }))}
-                      className="rounded border-slate-300 text-brand-600"
-                    />
-                    {action}
-                  </label>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
         {isSystem && (
           <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm text-slate-600">
-            System policy rules are predefined. You can update the description only.
+            System policy name is read-only. You can update the description and collection permissions below.
           </div>
         )}
+
+        <PolicyPermissionsMatrix
+          matrix={matrix}
+          collections={collections}
+          onChange={setMatrix}
+        />
 
         {error && (
           <div className="rounded-xl bg-red-50 border border-red-200 px-3.5 py-2.5 text-sm text-red-700">

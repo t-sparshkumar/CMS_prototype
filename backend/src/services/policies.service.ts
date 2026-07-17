@@ -228,7 +228,7 @@ export async function createPolicy(db: Knex, input: CreatePolicyInput): Promise<
 }
 
 /**
- * Update a policy. System policy names and rules are protected.
+ * Update a policy. System policy names are protected; rules remain editable.
  */
 export async function updatePolicy(db: Knex, policyId: string, input: UpdatePolicyInput): Promise<PolicyMeta> {
   const row = await db<CmsPolicyRow>('cms_policies').where({ id: policyId }).first();
@@ -262,9 +262,6 @@ export async function updatePolicy(db: Knex, policyId: string, input: UpdatePoli
   }
 
   if (input.rules !== undefined) {
-    if (row.is_system) {
-      throw new AppError('System policy rules cannot be changed', 400, 'VALIDATION_ERROR');
-    }
     validateRules(input.rules);
     updates.rules = JSON.stringify(input.rules);
   }

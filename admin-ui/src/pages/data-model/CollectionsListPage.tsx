@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import AppLayout from '../../components/AppLayout';
 import DataModelCollectionList from '../../components/data-model/DataModelCollectionList';
 import ConfirmDialog from '../../components/data-model/ConfirmDialog';
+import Modal from '../../components/Modal';
 import SchemaDiffModal from '../../components/data-model/SchemaDiffModal';
-import CreateSubCollectionModal from '../../components/CreateSubCollectionModal';
+import CreateFolderModal from '../../components/data-model/CreateFolderModal';
+import CreateCollectionModal from '../../components/data-model/CreateCollectionModal';
 import DataModelGuide from '../../components/data-model/DataModelGuide';
 import Icon from '../../components/Icon';
+import { createCollectionTitle, createFolderTitle } from '../../lib/collectionLabels';
 import {
   applySchemaSnapshot,
   deleteCollection,
@@ -18,6 +20,8 @@ import {
   type SchemaDiff,
 } from '../../lib/api';
 
+type CreateModal = 'folder' | 'collection' | null;
+
 export default function CollectionsListPage() {
   const [collections, setCollections] = useState<CollectionMeta[]>([]);
   const [search, setSearch] = useState('');
@@ -25,10 +29,14 @@ export default function CollectionsListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [subCollectionParent, setSubCollectionParent] = useState<CollectionMeta | null>(null);
+  const [createModal, setCreateModal] = useState<CreateModal>(null);
+  const [createParent, setCreateParent] = useState<string | null>(null);
   const [pendingSnapshot, setPendingSnapshot] = useState<Record<string, unknown> | null>(null);
   const [schemaDiff, setSchemaDiff] = useState<SchemaDiff | null>(null);
+  const [importMeta, setImportMeta] = useState<{ source?: string; warnings?: string[]; stats?: Record<string, number> } | null>(null);
   const [diffOpen, setDiffOpen] = useState(false);
+  const [duplicateSource, setDuplicateSource] = useState<string | null>(null);
+  const [duplicateName, setDuplicateName] = useState('');
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -56,6 +64,16 @@ export default function CollectionsListPage() {
     ).length;
   }, [collections, search]);
 
+  function openCreate(type: 'folder' | 'collection', parent: string | null = null) {
+    setCreateParent(parent);
+    setCreateModal(type);
+  }
+
+  function closeCreate() {
+    setCreateModal(null);
+    setCreateParent(null);
+  }
+
   async function handleImportSchema() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -64,54 +82,52 @@ export default function CollectionsListPage() {
       const file = input.files?.[0];
       if (!file) return;
       const snapshot = JSON.parse(await file.text()) as Record<string, unknown>;
-      const diff = await diffSchemaSnapshot(snapshot);
+      const { diff, meta } = await diffSchemaSnapshot(snapshot);
       setPendingSnapshot(snapshot);
       setSchemaDiff(diff);
+      setImportMeta(meta ?? null);
       setDiffOpen(true);
     };
     input.click();
   }
 
   return (
-    <AppLayout title="Data Model" subtitle="Manage collections, fields, and schema">
+    <AppLayout
+      title="Data Model"
+      subtitle="Manage collections, fields, and schema"
+      breadcrumbs={[{ label: 'Data Model' }]}
+    >
       <>
         <div className="mb-5">
           <DataModelGuide />
         </div>
-        <div className="page-toolbar">
-          <div className="relative flex-1 min-w-[240px] max-w-lg">
-            <Icon
-              name="search"
-              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-            />
+        <div className="dm-toolbar">
+          <div className="collection-list-search">
+            <Icon name="search" className="collection-list-search-icon h-3.5 w-3.5" />
             <input
               type="search"
               placeholder="Search collections..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="input pl-10"
+              className="collection-list-search-input"
             />
           </div>
 
-          <span className="toolbar-divider" aria-hidden="true" />
-
-          <label className="flex items-center gap-2 text-sm font-medium text-slate-600 cursor-pointer whitespace-nowrap">
+          <label className="flex items-center gap-2 text-sm font-medium text-[var(--app-text-muted)] cursor-pointer whitespace-nowrap">
             <input
               type="checkbox"
               checked={showSystem}
               onChange={(e) => setShowSystem(e.target.checked)}
-              className="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
+              className="h-3.5 w-3.5 rounded border-[var(--app-border)] text-[var(--app-accent)] focus:ring-[var(--app-accent)]"
             />
             Show system
           </label>
 
-          <span className="toolbar-count">
+          <span className="collection-list-meta">
             {filteredCount} collection{filteredCount === 1 ? '' : 's'}
           </span>
 
-          <span className="toolbar-divider" aria-hidden="true" />
-
-          <div className="flex flex-wrap items-center gap-2 ml-auto">
+          <div className="dm-toolbar-actions">
             <button
               type="button"
               onClick={() =>
@@ -125,25 +141,29 @@ export default function CollectionsListPage() {
                   URL.revokeObjectURL(url);
                 })
               }
-              className="btn-secondary"
+              className="btn-secondary text-sm"
             >
               Export
             </button>
-            <button type="button" onClick={() => void handleImportSchema()} className="btn-secondary">
+            <button type="button" onClick={() => void handleImportSchema()} className="btn-secondary text-sm">
               Import
             </button>
-            <Link to="/settings/data-model/new" className="btn-primary">
+            <button type="button" onClick={() => openCreate('folder')} className="btn-secondary text-sm">
+              <Icon name="folder" className="h-4 w-4" />
+              {createFolderTitle()}
+            </button>
+            <button type="button" onClick={() => openCreate('collection')} className="btn-primary text-sm">
               <Icon name="plus" className="h-4 w-4" />
-              Create Collection
-            </Link>
+              {createCollectionTitle()}
+            </button>
           </div>
         </div>
 
         {error && <div className="alert-error">{error}</div>}
 
         {isLoading ? (
-          <div className="dm-collection-shell">
-            <div className="px-6 py-12 text-center text-sm text-slate-400">Loading collections...</div>
+          <div className="dm-shell">
+            <div className="dm-empty text-sm">Loading collections...</div>
           </div>
         ) : (
           <DataModelCollectionList
@@ -152,10 +172,11 @@ export default function CollectionsListPage() {
             search={search}
             onDelete={setDeleteTarget}
             onDuplicate={(name) => {
-              const target = window.prompt('Duplicate as collection name:', `${name}_copy`);
-              if (target) void duplicateCollection(name, target).then(load);
+              setDuplicateSource(name);
+              setDuplicateName(`${name}_copy`);
             }}
-            onAddSubCollection={setSubCollectionParent}
+            onAddFolder={(col) => openCreate('folder', col.collection)}
+            onAddCollection={(col) => openCreate('collection', col.collection)}
             onRefresh={() => void load()}
           />
         )}
@@ -174,30 +195,82 @@ export default function CollectionsListPage() {
         onCancel={() => setDeleteTarget(null)}
       />
 
-      {subCollectionParent && (
-        <CreateSubCollectionModal
-          parent={subCollectionParent}
-          onClose={() => setSubCollectionParent(null)}
-          onCreated={() => void load()}
+      {createModal === 'folder' && (
+        <CreateFolderModal
+          parent={createParent}
+          onClose={closeCreate}
+          onCreated={() => {
+            closeCreate();
+            void load();
+          }}
+        />
+      )}
+
+      {createModal === 'collection' && (
+        <CreateCollectionModal
+          parent={createParent}
+          onClose={closeCreate}
+          onCreated={() => {
+            closeCreate();
+            void load();
+          }}
         />
       )}
 
       <SchemaDiffModal
         open={diffOpen}
         diff={schemaDiff}
+        importMeta={importMeta}
         onCancel={() => {
           setDiffOpen(false);
           setPendingSnapshot(null);
+          setImportMeta(null);
         }}
         onConfirm={() => {
           if (!pendingSnapshot) return;
           void applySchemaSnapshot(pendingSnapshot).then(() => {
             setDiffOpen(false);
             setPendingSnapshot(null);
+            setImportMeta(null);
             return load();
           });
         }}
       />
+
+      <Modal
+        open={duplicateSource !== null}
+        title="Duplicate collection"
+        onClose={() => setDuplicateSource(null)}
+        footer={
+          <>
+            <button type="button" onClick={() => setDuplicateSource(null)} className="btn-secondary">
+              Cancel
+            </button>
+            <button
+              type="button"
+              disabled={!duplicateName.trim()}
+              onClick={() => {
+                if (!duplicateSource || !duplicateName.trim()) return;
+                void duplicateCollection(duplicateSource, duplicateName.trim())
+                  .then(load)
+                  .finally(() => setDuplicateSource(null));
+              }}
+              className="btn-primary"
+            >
+              Duplicate
+            </button>
+          </>
+        }
+      >
+        <label className="label">New collection name</label>
+        <input
+          autoFocus
+          value={duplicateName}
+          onChange={(e) => setDuplicateName(e.target.value)}
+          className="input"
+          placeholder="collection_name"
+        />
+      </Modal>
     </AppLayout>
   );
 }

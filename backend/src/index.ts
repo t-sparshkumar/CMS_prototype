@@ -15,6 +15,7 @@ import { relationsRouter } from './api/relations.routes.js';
 import { rolesRouter } from './api/roles.routes.js';
 import { policiesRouter } from './api/policies.routes.js';
 import { schemaRouter } from './api/schema.routes.js';
+import { flowsRouter, flowWebhooksRouter } from './api/flows.routes.js';
 import { createGraphqlYoga } from './api/graphql.routes.js';
 import { usersRouter } from './api/users.routes.js';
 import { getEnv } from './config/env.js';
@@ -62,6 +63,8 @@ app.use('/api/relations', relationsRouter);
 app.use('/api/roles', rolesRouter);
 app.use('/api/policies', policiesRouter);
 app.use('/api/schema', schemaRouter);
+app.use('/api/flows', flowsRouter);
+app.use('/flows/trigger', flowWebhooksRouter);
 
 const graphqlYoga = createGraphqlYoga();
 app.use('/graphql', graphqlYoga as unknown as RequestHandler);
@@ -69,12 +72,14 @@ app.use('/graphql', graphqlYoga as unknown as RequestHandler);
 app.use(errorHandler);
 
 import { repairWebsiteModule } from './services/website.service.js';
+import { refreshFlowSchedules } from './services/flows/cron-scheduler.js';
 
 async function start(): Promise<void> {
   const db = getDb();
   await db.raw('select 1');
   await ensureUploadDir();
   await repairWebsiteModule(db);
+  await refreshFlowSchedules(db);
 
   app.listen(env.PORT, () => {
     console.log(`CMS backend listening on http://localhost:${env.PORT}`);

@@ -1,5 +1,10 @@
+import { useState } from 'react';
 import ManyToManyPicker from './ManyToManyPicker';
 import ManyToAnyPicker from './ManyToAnyPicker';
+import PageSectionsBuilder, {
+  getPageSectionAllowedCollections,
+  isPageSectionsField,
+} from './PageSectionsBuilder';
 import OneToManyInlineEditor from './OneToManyInlineEditor';
 import RelationPicker from './RelationPicker';
 import FileUploadField from './FileUploadField';
@@ -10,6 +15,7 @@ import FieldReadonlyDisplay from './fields/FieldReadonlyDisplay';
 import FilesField from './fields/FilesField';
 import MarkdownField from './fields/MarkdownField';
 import RepeaterField from './fields/RepeaterField';
+import StructuredJsonField from './fields/StructuredJsonField';
 import SeoField from './fields/SeoField';
 import TagsField from './fields/TagsField';
 import ToggleField from './fields/ToggleField';
@@ -17,7 +23,7 @@ import TranslationsField from './fields/TranslationsField';
 import WysiwygField from './fields/WysiwygField';
 import { EmptyChoicesHint, FieldLabel, inputClassName } from './fields/fieldShared';
 import { resolveFieldState } from '../lib/conditions';
-import { getSelectChoices, isGroupContainer, slugify } from '../lib/fieldUtils';
+import { getSelectChoices, isGroupContainer, shouldUseStructuredJsonEditor, slugify } from '../lib/fieldUtils';
 import { ICON_OPTIONS } from '../lib/interfaceCatalog';
 import type { FieldMeta, ItemRecord } from '../lib/api';
 
@@ -131,6 +137,15 @@ export default function InterfaceRenderer({
   }
 
   if (field.interface === 'many-to-any') {
+    if (isPageSectionsField(field)) {
+      return (
+        <PageSectionsBuilder
+          value={value}
+          onChange={onChange}
+          allowedCollections={getPageSectionAllowedCollections(field)}
+        />
+      );
+    }
     return <ManyToAnyPicker field={fieldForLabel} value={value} onChange={onChange} />;
   }
 
@@ -153,8 +168,7 @@ export default function InterfaceRenderer({
   if (field.interface === 'file' || field.interface === 'file-image' || field.interface.startsWith('file-')) {
     return (
       <FileUploadField
-        label={field.field}
-        required={isRequired}
+        field={fieldForLabel}
         value={value}
         onChange={onChange}
         disabled={inputDisabled}
@@ -199,7 +213,20 @@ export default function InterfaceRenderer({
     return <SeoField field={fieldForLabel} value={value} onChange={onChange} disabled={inputDisabled} />;
   }
 
-  if (field.interface === 'code') {
+  if (field.interface === 'code' || field.interface === 'input-code') {
+    const language = typeof field.options?.language === 'string' ? field.options.language : '';
+    if (language === 'json' || field.type === 'json') {
+      if (shouldUseStructuredJsonEditor(field, value)) {
+        return (
+          <StructuredJsonField
+            field={fieldForLabel}
+            value={value}
+            onChange={onChange}
+            disabled={inputDisabled}
+          />
+        );
+      }
+    }
     return <CodeField field={fieldForLabel} value={value} onChange={onChange} disabled={inputDisabled} />;
   }
 
@@ -379,35 +406,23 @@ export default function InterfaceRenderer({
   }
 
   if (field.interface === 'json' || field.type === 'json') {
-    const textValue =
-      typeof value === 'string'
-        ? value
-        : value === undefined || value === null
-          ? ''
-          : JSON.stringify(value, null, 2);
-
-    return (
-      <div>
-        <FieldLabel field={fieldForLabel} />
-        <textarea
-          value={textValue}
+    if (shouldUseStructuredJsonEditor(field, value)) {
+      return (
+        <StructuredJsonField
+          field={fieldForLabel}
+          value={value}
+          onChange={onChange}
           disabled={inputDisabled}
-          rows={6}
-          onChange={(e) => {
-            const next = e.target.value;
-            if (!next.trim()) {
-              onChange(null);
-              return;
-            }
-            try {
-              onChange(JSON.parse(next) as unknown);
-            } catch {
-              onChange(next);
-            }
-          }}
-          className={`${inputClassName} font-mono text-xs`}
         />
-      </div>
+      );
+    }
+    return (
+      <JsonField
+        field={fieldForLabel}
+        value={value}
+        onChange={onChange}
+        disabled={inputDisabled}
+      />
     );
   }
 
@@ -601,6 +616,54 @@ export default function InterfaceRenderer({
         onChange={(e) => onChange(e.target.value)}
         className={inputClassName}
       />
+    </div>
+  );
+}
+
+function JsonField({
+  field,
+  value,
+  onChange,
+  disabled,
+}: {
+  field: FieldMeta;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  disabled?: boolean;
+}) {
+  const textValue =
+    typeof value === 'string'
+      ? value
+      : value === undefined || value === null
+        ? ''
+        : JSON.stringify(value, null, 2);
+  const [jsonError, setJsonError] = useState<string | null>(null);
+
+  return (
+    <div>
+      <FieldLabel field={field} />
+      <textarea
+        value={textValue}
+        disabled={disabled}
+        rows={6}
+        onChange={(e) => {
+          const next = e.target.value;
+          if (!next.trim()) {
+            setJsonError(null);
+            onChange(null);
+            return;
+          }
+          try {
+            onChange(JSON.parse(next) as unknown);
+            setJsonError(null);
+          } catch {
+            onChange(next);
+            setJsonError('Invalid JSON syntax');
+          }
+        }}
+        className={`${inputClassName} font-mono text-xs`}
+      />
+      {jsonError && <p className="mt-1 text-xs text-red-600">{jsonError}</p>}
     </div>
   );
 }

@@ -145,6 +145,7 @@ export async function createCollection(db: Knex, input: CreateCollectionInput): 
 
   const meta: CmsCollectionRow = {
     collection: input.collection,
+    display_name: input.display_name ?? null,
     icon: input.icon ?? null,
     color: input.color ?? null,
     display_template: input.display_template ?? null,
@@ -168,7 +169,10 @@ export async function createCollection(db: Knex, input: CreateCollectionInput): 
 
       if (!isGroup) {
         await createCollectionTable(trx, input.collection, tableOptions);
-        await insertSystemFields(trx, input.collection, { optionalSystemFields });
+        await insertSystemFields(trx, input.collection, {
+          optionalSystemFields,
+          primaryKeyType: tableOptions.primaryKeyType,
+        });
 
         if (optionalSystemFields.accountability) {
           await insertRelation(trx, {
@@ -407,6 +411,7 @@ export async function updateCollection(
   await getCollection(db, collectionName);
 
   const updates: Partial<CmsCollectionRow> = {};
+  if (input.display_name !== undefined) updates.display_name = input.display_name;
   if (input.icon !== undefined) updates.icon = input.icon;
   if (input.color !== undefined) updates.color = input.color;
   if (input.display_template !== undefined) updates.display_template = input.display_template;

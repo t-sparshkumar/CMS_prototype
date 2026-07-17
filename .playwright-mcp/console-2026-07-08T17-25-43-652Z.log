@@ -1,0 +1,54 @@
+[     719ms] [LOG] TrafficAgent: Initializing storage protection for internal items. @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[     719ms] [LOG] Client code is required to start Traffic Agent. Please provide it in the script tag or as a query param. @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[     720ms] [LOG] Force removing localStorage item with key: katalon_traffic_agent_pending_related_tab, bypassing protection. @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[     720ms] [WARNING] Client code is required to start Traffic Agent @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:2
+[    1821ms] [LOG] address=0 @ kameleoonGlobalScript.js:1
+[    1821ms] [LOG] mobilefijo=0 @ kameleoonGlobalScript.js:1
+[    2808ms] ReferenceError: setCookie is not defined
+    at <anonymous>:1:37
+    at https://www.googletagmanager.com/gtm.js?id=GTM-PZTKD2T:975:429
+    at pS (https://www.googletagmanager.com/gtm.js?id=GTM-PZTKD2T:977:31)
+    at https://www.googletagmanager.com/gtm.js?id=GTM-PZTKD2T:977:63
+[    2808ms] ReferenceError: setCookie is not defined
+    at <anonymous>:1:37
+    at https://www.googletagmanager.com/gtm.js?id=GTM-PZTKD2T:975:429
+    at pS (https://www.googletagmanager.com/gtm.js?id=GTM-PZTKD2T:977:31)
+    at https://www.googletagmanager.com/gtm.js?id=GTM-PZTKD2T:977:63
+[    3824ms] [LOG] %c[IND]%c You are running %c MacOS %c Operating system, %c Chrome %c browser, version: %c 149 color: White; background: #17384c; font-weight: bold; padding: 3px; border-radius:3px 0 0 3px; color: Black; background: #50e590; font-weight: bold; padding: 3px color: White; background: #17384c; font-weight: bold; padding: 3px; color: Black; background: #50e590; font-weight: bold; padding: 3px color: White; background: #17384c; font-weight: bold; padding: 3px; color: Black; background: #50e590; font-weight: bold; padding: 3px color: White; background: #17384c; font-weight: bold; padding: 3px; border-radius:0 3px 3px 0 @ https://cdn.equalweb.com/core/4.5.12/accessibility.js:0
+[    3825ms] [LOG] %c[IND]%c Version %c4.5.12%c color: White; background: #17384c; font-weight: bold; padding: 3px; border-radius:3px 0 0 3px; color: Black; background: #50e590; font-weight: bold; padding: 3px color: White; background: #17384c; font-weight: bold; padding: 3px; border-radius:0 3px 3px 0  @ https://cdn.equalweb.com/core/4.5.12/accessibility.js:0
+[    4356ms] [LOG] Clearing localStorage, preserving items: {katalon_traffic_agent_device: 4c0b9863-d9d3-4eba-b60b-580382441eb4} @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    4357ms] [LOG] Restoring localStorage items: {katalon_traffic_agent_device: 4c0b9863-d9d3-4eba-b60b-580382441eb4} @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    4357ms] [LOG] storedParams null URLSearchParams @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    4361ms] [LOG] [APP] ngOnInit - User data: null @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    4361ms] [LOG] storedParams null URLSearchParams @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    4375ms] [LOG] inside initKameleeon @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    4394ms] [LOG] Clearing localStorage, preserving items: {katalon_traffic_agent_device: 4c0b9863-d9d3-4eba-b60b-580382441eb4} @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    4394ms] [LOG] Restoring localStorage items: {katalon_traffic_agent_device: 4c0b9863-d9d3-4eba-b60b-580382441eb4} @ https://static.katalon.com/libs/traffic-agent/v1/traffic-agent.min.js:0
+[    4828ms] [LOG] address=0 @ kameleoonGlobalScript.js:1
+[    4828ms] [LOG] mobilefijo=0 @ kameleoonGlobalScript.js:1
+[    4831ms] [LOG] ReferenceError: Cannot access 'o' before initialization
+    at eval (kameleoonVariationJavaScriptCode-1278366.js:2:1741)
+    at d (kameleoonVariationJavaScriptCode-1278366.js:2:1747)
+    at h (kameleoonVariationJavaScriptCode-1278366.js:2:2542)
+    at p (kameleoonVariationJavaScriptCode-1278366.js:2:2724)
+    at eval (kameleoonVariationJavaScriptCode-1278366.js:2:434)
+    at eval (kameleoonVariationJavaScriptCode-1278366.js:2:5796)
+    at eval (kameleoonVariationJavaScriptCode-1278366.js:3:3)
+    at eval (<anonymous>)
+    at Utils.runProtectedScript (https://l7o02d2qwj.kameleoon.eu/engine.js:1:65697)
+    at Variation.applyJavascriptCode (https://l7o02d2qwj.kameleoon.eu/engine.js:1:165129) @ https://l7o02d2qwj.kameleoon.eu/engine.js:0
+[    5033ms] [LOG] Inside Cookie Consent Script @ https://www.libertypr.com/:260
+[    5383ms] [LOG] Los mejores servicios de internet, móvil, TV y teléfono | Liberty PR @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5383ms] [LOG] pr @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5385ms] [LOG]  @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5385ms] [LOG]  @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5386ms] [LOG] [MetaService] Setting page title to: Los mejores servicios de internet, móvil, TV y teléfono | Liberty PR @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5386ms] [LOG] [MetaService] Document title after setting: Los mejores servicios de internet, móvil, TV y teléfono | Liberty PR @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5510ms] [LOG] [InjectScriptsService] Injecting 0 src scripts @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5510ms] [LOG] [InjectScriptsService] Injecting 0 code scripts @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5728ms] [LOG] [Object, Object] es-ES @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5728ms] [LOG] [Object, Object] es-ES @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    5728ms] [LOG] {body_size: b3-regular, moduleTitle: null, title_size: H6, columns: Array(5), id: 169} @ https://www.libertypr.com/main.e29d4ec980065f41.js:0
+[    7328ms] [LOG] GTM Perf Tracker: Page Load Time captured 0 @ :2
+[316202912ms] [LOG] GTM Perf Tracker: LCP captured 5764 @ :0
+[316202912ms] [LOG] GTM Perf Tracker: CLS captured 92 @ :1

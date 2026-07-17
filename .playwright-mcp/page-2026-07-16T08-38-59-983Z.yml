@@ -1,0 +1,17 @@
+- generic [ref=f5e3]:
+  - generic [ref=f5e4]:
+    - generic [ref=f5e5]:
+      - link "Back to editor" [ref=f5e6] [cursor=pointer]:
+        - /url: /pages/69c33d66-a336-49dd-bd48-69b552b2b469/edit
+        - img [ref=f5e7]
+        - text: Back to editor
+      - generic [ref=f5e9]: "|"
+      - heading "Page Preview" [level=1] [ref=f5e10]
+    - generic [ref=f5e11]:
+      - button "Desktop" [ref=f5e12] [cursor=pointer]
+      - button "Mobile" [ref=f5e13] [cursor=pointer]
+      - link "Open in new tab" [ref=f5e14] [cursor=pointer]:
+        - /url: /pages/69c33d66-a336-49dd-bd48-69b552b2b469/preview
+        - img [ref=f5e15]
+        - text: Open in new tab
+  - paragraph [ref=f5e18]: Loading preview...
