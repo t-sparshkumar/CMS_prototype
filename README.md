@@ -1,379 +1,345 @@
 # CMS Prototype
 
-A Directus-style headless CMS with a visual admin dashboard, rich field interfaces, and auto-generated REST + GraphQL APIs.
+A Directus-style headless CMS with a visual admin dashboard, rich field interfaces, auto-generated REST + GraphQL APIs, and a built-in website/page builder.
 
 **Repository:** [github.com/t-sparshkumar/CMS_prototype](https://github.com/t-sparshkumar/CMS_prototype)
 
-## Features
+---
+
+## Table of contents
+
+1. [Overview](#overview)
+2. [Architecture](#architecture)
+3. [Prerequisites](#prerequisites)
+4. [Quick start (local development)](#quick-start-local-development)
+5. [Developer guide](#developer-guide)
+6. [Project structure](#project-structure)
+7. [Database, migrations & seeds](#database-migrations--seeds)
+8. [Scripts & testing](#scripts--testing)
+9. [Admin UI routes](#admin-ui-routes)
+10. [Field interfaces](#field-interfaces)
+11. [API reference](#api-reference)
+12. [Environment variables](#environment-variables)
+13. [Deployment](#deployment)
+14. [Troubleshooting](#troubleshooting)
+
+---
+
+## Overview
+
+This monorepo contains two workspaces:
+
+| Package | Purpose | Dev URL |
+|---------|---------|---------|
+| **`backend/`** | Express API, Knex ORM, GraphQL, auth, permissions, file storage | `http://localhost:8055` |
+| **`admin-ui/`** | React admin dashboard (Vite + Tailwind) | `http://localhost:5173` |
+
+### Features
 
 - **Data model** — Collections, fields, relations (M2O, O2M, M2M, M2A, translations), schema export/import, drag-reorder
 - **Field interfaces** — 40+ types (input, WYSIWYG, markdown, repeater, SEO, files, relations, groups, presentation fields) with live preview
 - **Content editing** — Filter, search, sort, archive, bulk actions, conditional fields, group layouts (accordion/tabs)
-- **Access control** — Roles, policies, field-level permissions, row-level filters
-- **Assets** — Upload, gallery, image transforms (Sharp)
-- **Website module** — Pages with M2A sections, reusable page block collections, site header/footer singletons**APIs** — REST items/collections/fields + dynamic GraphQL schema
-- **Admin UI** — CRM-style back-office shell (light sidebar, top bar, breadcrumbs, metric dashboard)
+- **Access control** — Roles, policies with per-collection CRUD matrix, field-level permissions, row-level filters
+- **Users** — Admin CRUD for user accounts
+- **Assets** — Google Drive–style gallery, folders, upload, image transforms (Sharp)
+- **Website module** — Pages with M2A sections, reusable block collections, site header/footer blocks, in-admin page preview
+- **Translations** — Multi-language content via `{collection}_translations` junction collections
+- **Flows / triggers** — Event-driven automation (webhooks, schedules, manual runs)
+- **APIs** — REST items/collections/fields + dynamic GraphQL schema
+- **Admin UI** — Themed back-office shell (5 themes), sidebar nav, breadcrumbs, dashboard
 
+---
 
+## Architecture
 
-## Tech Stack
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  admin-ui (React)                                               │
+│  InterfaceRenderer · PageSectionsBuilder · WebsiteComponentRenderer│
+└────────────────────────────┬────────────────────────────────────┘
+                             │ REST /auth /files /assets /graphql
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  backend (Express)                                              │
+│  routes → services → Knex → SQLite (dev) / PostgreSQL (prod)    │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+         ┌───────────────────┼───────────────────┐
+         ▼                   ▼                   ▼
+   cms_* meta tables   content tables      uploads/ + Sharp
+   (schema, auth,       (pages, hero_*,     (file storage)
+    permissions)        articles, …)
+```
 
+### How data is modeled
 
-| Layer        | Stack                                                           |
-| ------------ | --------------------------------------------------------------- |
-| **Backend**  | Node.js, TypeScript, Express, Knex, GraphQL Yoga                |
-| **Database** | SQLite (dev) / PostgreSQL (prod)                                |
-| **Frontend** | React 18, TypeScript, Vite, Tailwind CSS, Zustand, React Router |
+1. **Meta tables** (`cms_collections`, `cms_fields`, `cms_relations`, …) store schema definitions.
+2. **Content tables** are created dynamically when you add a collection in the Data Model.
+3. **Field interfaces** (e.g. `wysiwyg`, `repeater`, `many-to-any`) are UI/editor metadata stored on `cms_fields`; they do not change the underlying SQL column type.
+4. **Permissions** are evaluated on every `/api/items/*` request via roles and policies.
 
+### Auth flow
 
+```
+Login → access_token (JSON) + refresh_token (httpOnly cookie)
+       → Admin UI stores access_token in memory (Zustand)
+       → Page refresh → POST /auth/refresh (cookie) → new access_token
+```
 
+Production uses `SameSite=None; Secure` cookies so Vercel (admin) and Render (API) can share sessions cross-origin.
 
-## Quick Start
+---
+
+## Prerequisites
+
+- **Node.js** 20+ (LTS recommended)
+- **npm** 9+ (workspaces)
+- Optional: **Docker** for local PostgreSQL (`docker compose up -d postgres`)
+
+---
+
+## Quick start (local development)
 
 ```bash
-# Install dependencies (monorepo workspaces)
+# 1. Install dependencies (monorepo workspaces)
 npm install
 
-# Configure backend
+# 2. Configure backend
 cp backend/.env.example backend/.env
+# Edit SECRET_KEY if deploying; defaults are fine for local dev
 
-# Migrate + seed (admin user, sample collections, permissions)
+# 3. Create DB, run migrations, seed sample data
 npm run db:setup
 
-# Terminal 1 — API on http://localhost:8055
-npm run dev:backend
-
-# Terminal 2 — Admin UI on http://localhost:5173
-npm run dev:admin
+# 4. Start both apps (two terminals)
+npm run dev:backend   # → http://localhost:8055
+npm run dev:admin     # → http://localhost:5173
 ```
 
 **Default login (development only):**
 
+| Email | Password |
+|-------|----------|
+| `admin@example.com` | `admin` |
 
-| Email               | Password |
-| ------------------- | -------- |
-| `admin@example.com` | `admin`  |
+> **Important:** Do **not** set `VITE_API_URL` locally. The Vite dev proxy forwards `/api`, `/auth`, `/files`, `/assets`, `/users`, and `/server` to the backend.  
+> Vite uses `strictPort: true` on port **5173** — free that port before starting the admin UI.
 
+### Verify setup
 
-> Do **not** set `VITE_API_URL` locally — the Vite dev proxy forwards `/api`, `/auth`, `/files`, and `/assets` to the backend.  
-> Vite uses `strictPort: true` on **5173**; free that port before starting the admin UI.
+```bash
+# Health check
+curl http://localhost:8055/server/health
 
+# API smoke tests (backend must be running)
+npm run test:e2e:api
+```
 
-
-### Build
+### Build for production
 
 ```bash
 npm run build -w backend
 npm run build -w admin-ui
 ```
 
+---
 
+## Developer guide
 
-### Health check
+### Mental model: folders, collections, fields
+
+| Concept | `is_group` | Has items? | Example |
+|---------|------------|------------|---------|
+| **Folder** | `true` | No — organizes other collections | `website` |
+| **Collection** | `false` | Yes — holds content rows | `pages`, `hero_banners` |
+| **Field** | — | Column + interface metadata | `title` (input), `sections` (many-to-any) |
+
+Create flows in **Data Model** use modal dialogs with a categorized icon picker and optional color.
+
+### Where editing happens
+
+| Task | Primary code |
+|------|--------------|
+| Render any field in the content editor | `admin-ui/src/components/InterfaceRenderer.tsx` |
+| Individual field UIs | `admin-ui/src/components/fields/` |
+| Form layout / column spans | `admin-ui/src/components/FieldFormLayout.tsx` |
+| Repeater & structured JSON | `RepeaterField.tsx`, `StructuredJsonField.tsx` |
+| Responsive image groups | `ResponsiveImageGroupField.tsx` |
+| Page M2A sections list | `PageSectionsBuilder.tsx` |
+| Website block rendering (preview) | `admin-ui/src/components/website/` |
+| REST API business logic | `backend/src/services/` |
+| Block collection definitions | `backend/src/services/block-collections.service.ts` |
+| Website module repair on boot | `backend/src/services/website.service.ts` |
+
+### Content vs Pages vs Data Model
+
+| Admin area | Purpose |
+|------------|---------|
+| **Content** (`/content`) | Edit items in any collection — block collections appear at the root |
+| **Pages** (`/pages`) | Website pages dashboard + section builder (M2A) |
+| **Data Model** (`/settings/data-model`) | Define collections, fields, relations — schema design |
+
+For `pages`, the section list UI also appears when editing via **Content → pages** because both routes use the same `PageSectionsBuilder`.
+
+### Website module & block collections
+
+Block types are **real collections**, not JSON blobs. Authors create reusable block instances (e.g. a hero carousel row) in **Content**, then attach them to pages.
+
+**Registered block collections** (see `block-collections.service.ts`):
+
+`site_header`, `site_footer`, `hero_banners`, `hero_carousels`, `service_tiles`, `promo_grids`, `paragraphs`, `info_boxes`
+
+Pages compose layouts via the `sections` **many-to-any** field. Each section is a reference:
+
+```json
+{ "collection": "hero_carousels", "item": "<uuid>", "sort": 1 }
+```
+
+The page editor uses **Add Existing** to pick block rows. Edits to a shared block propagate to every page that references it.
+
+Legacy inline `pages.components` JSON is deprecated. Seed `006_migrate_page_sections` converts old JSON to block rows + M2A refs when needed.
+
+**Page preview:** `/pages/:id/preview` renders attached M2A sections only (header/footer come from referenced `site_header` / `site_footer` blocks, not duplicated).
+
+**Sample homepage:** Seed `005_liberty_homepage` populates a Liberty-style homepage with hero carousel, service tiles, promo grid, etc.
+
+### Responsive hero images
+
+`hero_banners` (and similar blocks) use three image fields grouped in the UI:
+
+| Field | Breakpoint |
+|-------|------------|
+| `image_mobile` | &lt; 640px |
+| `image_tablet` | 640px – 1023px |
+| `image_web` | ≥ 1024px |
+
+The admin UI renders these as a three-column dropzone via `ResponsiveImageGroupField`.
+
+### Permissions & policies
+
+- **Administrator** role has `admin_access: true` (full bypass).
+- **Policies** attach to roles and define per-collection create/read/update/delete rules.
+- The admin UI shows a **CRUD matrix** when creating or editing policies.
+- System policies are editable; rules round-trip through the matrix UI.
+
+### Translations
+
+Enable via the **translations** field interface on a collection. This creates a `{collection}_translations` junction. Manage languages under **Settings → Translations** (`/settings/translations`).
+
+### Flows / triggers
+
+Automation flows live under **Settings → Triggers** (`/settings/triggers`).
+
+| Trigger type | Entry point |
+|--------------|-------------|
+| Manual | Admin UI |
+| Webhook | `POST /flows/trigger/:flowId` |
+| Schedule | Cron via `node-cron` on backend boot |
+
+API: `GET/POST/PATCH/DELETE /api/flows` (admin only).
+
+### Theming
+
+Five admin themes: `light`, `dark`, `midnight`, `ocean`, `sunset`. Theme choice is stored in localStorage and applied via CSS variables in `admin-ui/src/styles/theme-tokens.css`. Switch themes from the user menu or **Project Settings**.
+
+### Asset gallery & Vite proxy
+
+The admin **Asset Gallery** route is `/assets` (SPA page). File serving uses `/assets/:id` (API).
+
+In local dev, `vite.config.ts` proxies `/assets/*` to the backend **except** the exact `/assets` path (gallery page). In production, the admin is static on Vercel and talks to Render directly — no conflict.
+
+### Directus schema import
+
+Convert a Directus snapshot to this CMS format:
 
 ```bash
-curl http://localhost:8055/server/health
+npm run schema:convert-directus -w backend -- path/to/snapshot.json
+```
+
+Run adapter tests:
+
+```bash
+npm run test:directus-adapter -w backend
 ```
 
 ---
 
-
-
-## Admin UI
-
-Split-panel **login** at `/login` (dark hero + form). All other pages use the shared **AppLayout** shell: light sidebar, top bar, breadcrumbs, and page header.
-
-### Navigation
-
-
-| Section              | Route                              | Description                                              |
-| -------------------- | ---------------------------------- | -------------------------------------------------------- |
-| **Dashboard**        | `/`                                | Control center — stats, platform services, quick actions |
-| **Content & schema** | `/content`                         | Collection picker (block collections at root)            |
-|                      | `/content/:collection`             | Item list (search, filter, reorder, bulk delete)         |
-|                      | `/content/:collection/:id`         | Item editor with field interfaces                        |
-|                      | `/pages`                           | Website pages dashboard (custom section builder)         |
-|                      | `/pages/new`, `/pages/:id/edit`    | Page builder (M2A sections)                              |
-| **Data Model**       | `/settings/data-model`             | Collection tree — create folders/collections, expand, reorder |
-|                      | `/settings/data-model/new`         | Redirects to Data Model + create modal (deep-link)         |
-|                      | `/settings/data-model/:collection` | Fields, setup, relations tabs                            |
-|                      | `…/fields/new`, `…/fields/:field`  | Interface picker + field editor with live preview        |
-| **People & access**  | `/settings/users`                  | User list                                                |
-|                      | `/settings/users/new`              | Create user                                              |
-|                      | `/settings/access-control`         | Roles & policies                                         |
-| **Project**          | `/settings/project`                | Project name, logo, locale (localStorage)                |
-|                      | `/assets`                          | Asset gallery + upload                                   |
-|                      | `/history`                         | Activity log                                             |
-
-
-Auth persists across page refresh via httpOnly refresh cookie + boot-time `/auth/refresh`.
-
-### Folders vs collections
-
-In the admin UI, **`is_group: true`** entities are labeled **Folders** (organize other collections, no items). **`is_group: false`** entities are **Collections** (hold content items). Create flows use modal dialogs with a categorized Material icon picker and color field.
-
-
-Editing is handled by `InterfaceRenderer` and specialized components under `admin-ui/src/components/fields/`:
-
-
-| Category       | Interfaces                                                                    |
-| -------------- | ----------------------------------------------------------------------------- |
-| **Text**       | input, textarea, wysiwyg, markdown, code, slug, tags                          |
-| **Structured** | json, repeater, block-editor, seo, map                                        |
-| **Selection**  | toggle, dropdown, radio, checkboxes, checkboxes-tree, slider, color, datetime |
-| **Files**      | file, file-image, files                                                       |
-| **Relations**  | many-to-one, one-to-many, many-to-many, many-to-any, translations, tree-view  |
-| **Layout**     | group-accordion, group-tabs, header, divider, notice                          |
-
-
-Readonly display uses `FieldReadonlyDisplay` (images, colors, labels, formatted dates). Group fields nest via `FieldFormLayout`.
-
-### Page components (Directus-style blocks)
-
-Block types are **real collections** at the **Content root** (e.g. `hero_banners`, `hero_carousels`, `paragraphs`). Authors create reusable block instances there with typed fields.
-
-Pages compose layouts via the `sections` many-to-any field: each section is a reference `{ collection, item, sort }` to an existing block row. The page editor uses **Add Existing** to pick blocks; edits to a shared block propagate to every page that references it.
-
-Legacy inline `pages.components` JSON is deprecated (hidden). Seed `006_migrate_page_sections` converts old JSON to block rows + M2A refs when needed.
-
----
-
-
-
-## Environment variables
-
-
-
-### Backend (`backend/.env`)
-
-
-| Variable       | Default                 | Description                                |
-| -------------- | ----------------------- | ------------------------------------------ |
-| `PORT`         | `8055`                  | HTTP port                                  |
-| `DB_CLIENT`    | `sqlite3`               | `sqlite3` or `pg`                          |
-| `DB_FILE`      | `./data/cms.db`         | SQLite path (dev)                          |
-| `DATABASE_URL` | —                       | Postgres connection string (prod / Render) |
-| `SECRET_KEY`   | —                       | JWT signing secret (**required**)          |
-| `ADMIN_UI_URL` | `http://localhost:5173` | CORS origin for admin UI                   |
-| `UPLOAD_DIR`   | `./uploads`             | File storage directory                     |
-
-
-See `backend/.env.example` for all options.
-
-### Admin UI (production only)
-
-
-| Variable       | Description                                                              |
-| -------------- | ------------------------------------------------------------------------ |
-| `VITE_API_URL` | Backend URL, e.g. `https://cms-backend.onrender.com` (no trailing slash) |
-
-
-See `admin-ui/.env.example`.
-
----
-
-
-
-## Deploy to Vercel + Render
-
-Full guide: **[DEPLOYMENT.md](./DEPLOYMENT.md)**
-
-
-| Part     | Platform                     | Config                                       |
-| -------- | ---------------------------- | -------------------------------------------- |
-| Admin UI | [Vercel](https://vercel.com) | Root: `admin-ui`, set `VITE_API_URL`         |
-| Backend  | [Render](https://render.com) | Root: `backend`, use `render.yaml` blueprint |
-
-
-1. Deploy backend on Render (Postgres + persistent disk for uploads)
-2. Deploy admin UI on Vercel
-3. Set `ADMIN_UI_URL` on Render to your Vercel URL → redeploy backend
-
----
-
-
-
-## Auth API
-
-
-| Endpoint        | Method | Description                                                  |
-| --------------- | ------ | ------------------------------------------------------------ |
-| `/auth/login`   | POST   | Returns `access_token`; sets `refresh_token` httpOnly cookie |
-| `/auth/refresh` | POST   | Exchanges refresh cookie for new access token                |
-| `/auth/logout`  | POST   | Invalidates session and clears cookie                        |
-| `/users/me`     | GET    | Current user profile (requires Bearer token)                 |
-
-
-Production cookies use `SameSite=None; Secure` for cross-origin Vercel ↔ Render auth.
-
----
-
-
-
-## Collections API
-
-
-| Endpoint                                    | Method | Auth   | Description                       |
-| ------------------------------------------- | ------ | ------ | --------------------------------- |
-| `/api/collections`                          | GET    | Bearer | List all collections              |
-| `/api/collections?include_hidden=true`      | GET    | Admin  | Include hidden/system collections |
-| `/api/collections`                          | POST   | Admin  | Create collection + SQL table     |
-| `/api/collections/:name`                    | GET    | Bearer | Get single collection             |
-| `/api/collections/:name`                    | PATCH  | Admin  | Update collection metadata        |
-| `/api/collections/:name`                    | DELETE | Admin  | Drop table and remove metadata    |
-| `/api/collections/:name/translations/setup` | POST   | Admin  | Create translations junction      |
-
-
----
-
-
-
-## Fields API
-
-
-| Endpoint                               | Method | Auth   | Description                                |
-| -------------------------------------- | ------ | ------ | ------------------------------------------ |
-| `/api/collections/:name/fields`        | GET    | Bearer | List fields (`?form_data=` for conditions) |
-| `/api/collections/:name/fields/:field` | GET    | Bearer | Get single field                           |
-| `/api/collections/:name/fields`        | POST   | Admin  | Add column + field metadata                |
-| `/api/collections/:name/fields/:field` | PATCH  | Admin  | Update metadata                            |
-| `/api/collections/:name/fields/:field` | DELETE | Admin  | Drop column                                |
-
-
-Supported SQL types: `string`, `text`, `integer`, `bigInteger`, `float`, `decimal`, `boolean`, `datetime`, `date`, `json`, `uuid`, `hash`, `time`, `csv`, `binary`
-
-Field metadata: `required`, `unique`, `nullable`, `is_indexed`, `searchable`, `conditions`, `validation`, `display`, `display_options`, `group`, `width`, `sort`.
-
----
-
-
-
-## Items API
-
-
-| Endpoint                         | Method | Auth   | Description                                   |
-| -------------------------------- | ------ | ------ | --------------------------------------------- |
-| `/api/items/:collection`         | GET    | Bearer | List items (filter, sort, search, pagination) |
-| `/api/items/:collection/:id`     | GET    | Bearer | Get single item                               |
-| `/api/items/:collection`         | POST   | Bearer | Create item                                   |
-| `/api/items/:collection/:id`     | PATCH  | Bearer | Update item                                   |
-| `/api/items/:collection/:id`     | DELETE | Bearer | Delete item                                   |
-| `/api/items/:collection/reorder` | POST   | Admin  | Reorder when `sort_field` is set              |
-
-
-Query params: `filter[field][_eq]`, `sort=-date_created,title`, `limit`, `offset`, `fields=id,title`, `search=keyword`, `include_archived=true`
-
----
-
-
-
-## Relationships
-
-
-| Interface      | Storage                     | Description                        |
-| -------------- | --------------------------- | ---------------------------------- |
-| `many-to-one`  | FK column (uuid)            | Points to related item             |
-| `one-to-many`  | Virtual field               | Related items where FK points back |
-| `many-to-many` | Junction table              | Auto-created; optional `with_sort` |
-| `many-to-any`  | Polymorphic junction        | Related collection + item per row  |
-| `translations` | `{collection}_translations` | Multi-language copies              |
-
-
-
-
-### Relations API
-
-
-| Endpoint             | Method | Auth  | Description                     |
-| -------------------- | ------ | ----- | ------------------------------- |
-| `/api/relations`     | GET    | Admin | List relations (`?collection=`) |
-| `/api/relations/:id` | GET    | Admin | Get relation by ID              |
-| `/api/relations/:id` | DELETE | Admin | Delete relation metadata        |
-
-
-Nested reads: `?fields=author,author.name,tags`
-
----
-
-
-
-## Schema API
-
-
-| Endpoint                 | Method | Auth  | Description                 |
-| ------------------------ | ------ | ----- | --------------------------- |
-| `/api/schema/snapshot`   | GET    | Admin | Export schema metadata      |
-| `/api/schema/diff`       | POST   | Admin | Diff snapshot vs live       |
-| `/api/schema/apply`      | POST   | Admin | Apply snapshot diff         |
-| `/api/schema/introspect` | POST   | Admin | List unregistered DB tables |
-
-
----
-
-
-
-## Permissions
-
-Role-based access on all `/api/items` endpoints via `cms_permissions`.
-
-
-| Role              | Behavior                                   |
-| ----------------- | ------------------------------------------ |
-| **Administrator** | Full access (`admin_access: true`)         |
-| **Public**        | Unauthenticated requests (no Bearer token) |
-| **Custom roles**  | Per-collection CRUD + field/row filters    |
-
-
-Management: `GET/POST/DELETE /api/permissions`, `GET/POST/PATCH/DELETE /api/roles`, `GET/POST/PATCH/DELETE /api/policies`
-
----
-
-
-
-## GraphQL API
-
-
-| Endpoint   | Method | Auth            | Description                            |
-| ---------- | ------ | --------------- | -------------------------------------- |
-| `/graphql` | POST   | Optional Bearer | Dynamic schema from collections/fields |
-
-
-Per collection: list query, `by_id`, create/update/delete mutations. Nested relations supported. Permissions match REST.
-
-GraphiQL in development: `http://localhost:8055/graphql`
-
-```graphql
-{
-  articles {
-    id
-    title
-    date_created
-  }
-}
+## Project structure
+
+```
+CMS_PROTOTYPE/
+├── admin-ui/                    # React admin dashboard (Vite)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── fields/          # Field interface components
+│   │   │   ├── data-model/      # Collection/field management UI
+│   │   │   └── website/         # Page preview block renderers
+│   │   ├── pages/               # Route-level pages
+│   │   ├── lib/                 # API client, interface catalog, field utils
+│   │   ├── stores/              # Zustand (auth, settings)
+│   │   └── styles/              # theme-tokens.css
+│   ├── vite.config.ts           # Dev proxy (see Asset gallery note)
+│   └── vercel.json
+├── backend/
+│   ├── src/
+│   │   ├── api/                 # Express route handlers
+│   │   ├── services/            # Business logic
+│   │   │   ├── flows/           # Flow engine
+│   │   │   ├── block-collections.service.ts
+│   │   │   └── website.service.ts
+│   │   ├── db/
+│   │   │   ├── migrations/      # Knex migrations (001–022+)
+│   │   │   └── seeds/           # Idempotent seed data
+│   │   ├── graphql/             # Dynamic GraphQL schema
+│   │   └── middleware/          # Auth, admin guard, errors
+│   ├── data/cms.db              # SQLite database (gitignored in prod)
+│   └── uploads/                 # Local file storage
+├── scripts/
+│   └── e2e-smoke.mjs            # API smoke tests
+├── render.yaml                  # Render blueprint
+├── docker-compose.yml           # Local Postgres
+├── DEPLOYMENT.md                # Vercel + Render guide
+└── package.json                 # Workspace root scripts
 ```
 
 ---
 
+## Database, migrations & seeds
 
+### Commands
 
-## Files API
+```bash
+# From repo root
+npm run db:setup                              # migrate + seed
 
+# From backend workspace
+npm run migrate:latest -w backend             # migrations only
+npm run migrate:rollback -w backend           # rollback last batch
+npm run seed:run -w backend                   # seeds only
+```
 
-| Endpoint      | Method | Auth   | Description                           |
-| ------------- | ------ | ------ | ------------------------------------- |
-| `/files`      | POST   | Bearer | Upload (multipart field `file`)       |
-| `/assets/:id` | GET    | Public | Serve file; optional image transforms |
+### Seeds (run in order)
 
+| Seed | Purpose |
+|------|---------|
+| `001_admin_user` | Admin role, public role, `admin@example.com` user |
+| `002_website_collections` | Pages, site chrome collections |
+| `003_sample_website_content` | Basic sample content |
+| `004_default_policies` | Default access policies |
+| `005_liberty_homepage` | Full Liberty-style homepage demo |
+| `006_migrate_page_sections` | Migrate legacy page JSON → M2A sections |
+| `007_languages` | Default languages for translations |
 
-Transform params: `width`, `height`, `fit` (`cover`, `contain`, …), `format` (`webp`, `jpeg`, `png`, `avif`)
+Seeds are **idempotent** — safe to re-run.
 
-Example: `/assets/{id}?width=400&height=300&fit=cover&format=webp`
+### Reset local database
 
----
+```bash
+rm backend/data/cms.db
+npm run db:setup
+```
 
-
-
-## PostgreSQL (local)
+### PostgreSQL (local)
 
 ```bash
 docker compose up -d postgres
@@ -388,45 +354,296 @@ DATABASE_URL=postgresql://cms:cms@localhost:5432/cms
 
 ---
 
+## Scripts & testing
 
+### Root scripts
 
-## Project structure
+| Script | Description |
+|--------|-------------|
+| `npm run dev:backend` | Start API with hot reload (`tsx watch`) |
+| `npm run dev:admin` | Start Vite dev server on port 5173 |
+| `npm run db:setup` | Run migrations + seeds |
+| `npm run test:e2e:api` | API smoke tests (requires running backend) |
 
+### Backend scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run build -w backend` | Compile TypeScript → `dist/` |
+| `npm run start:prod -w backend` | Migrate, seed, start (Render) |
+| `npm run test:directus-adapter -w backend` | Directus snapshot adapter tests |
+| `npm run schema:convert-directus -w backend` | Convert Directus snapshot JSON |
+
+### Smoke test coverage
+
+`scripts/e2e-smoke.mjs` verifies: health, login, collections, pages + sections, hero_banners, site_header nav_links repeater, policies, users, languages, CRUD paragraph, unauthorized rejection.
+
+Optional env overrides:
+
+```bash
+API_URL=http://localhost:8055 ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=admin npm run test:e2e:api
 ```
-CMS_PROTOTYPE/
-├── admin-ui/           # React admin dashboard (Vite)
-│   ├── src/
-│   │   ├── components/ # AppLayout, InterfaceRenderer, fields/
-│   │   ├── pages/      # Dashboard, content, data-model, settings
-│   │   └── lib/        # API client, interface catalog, field utils
-│   ├── vercel.json
-│   └── .env.example
-├── backend/            # Express API
-│   ├── src/
-│   │   ├── api/        # Route handlers
-│   │   ├── services/   # Business logic
-│   │   ├── db/         # Migrations & seeds
-│   │   └── graphql/    # Dynamic schema
-│   └── .env.example
-├── render.yaml         # Render blueprint (backend + Postgres + disk)
-├── DEPLOYMENT.md       # Vercel + Render guide
-├── docker-compose.yml  # Local Postgres
-└── package.json        # Workspace root scripts
+
+---
+
+## Admin UI routes
+
+Split-panel **login** at `/login`. All other pages use **AppLayout** (sidebar, top bar, breadcrumbs).
+
+| Section | Route | Description |
+|---------|-------|-------------|
+| **Dashboard** | `/` | Stats, platform services, quick actions |
+| **Content** | `/content` | Collection picker |
+| | `/content/:collection` | Item list (search, filter, reorder, bulk delete) |
+| | `/content/:collection/:id` | Item editor with field interfaces |
+| **Pages** | `/pages` | Website pages dashboard |
+| | `/pages/new`, `/pages/:id/edit` | Page builder (M2A sections) |
+| | `/pages/:id/preview` | Live page preview |
+| **Data Model** | `/settings/data-model` | Collection tree |
+| | `/settings/data-model/new` | Deep-link → create collection modal |
+| | `/settings/data-model/:collection` | Fields / setup / relations tabs |
+| | `…/fields/new` | Interface picker (choose field type) |
+| | `…/fields/:field` | Field editor with live preview |
+| **Triggers** | `/settings/triggers` | Flow automation |
+| **Translations** | `/settings/translations` | Language management |
+| **Users** | `/settings/users` | User list + CRUD |
+| **Access control** | `/settings/access-control` | Roles & policies (CRUD matrix) |
+| **Project** | `/settings/project` | Project name, logo, locale |
+| **Assets** | `/assets` | Asset gallery (folders + upload) |
+| **History** | `/history` | Activity log |
+
+Auth persists across refresh via httpOnly refresh cookie + boot-time `POST /auth/refresh`.
+
+---
+
+## Field interfaces
+
+Editing is handled by `InterfaceRenderer` and components under `admin-ui/src/components/fields/`. The interface catalog lives in `admin-ui/src/lib/interfaceCatalog.ts`.
+
+| Category | Interfaces |
+|----------|------------|
+| **Text & numbers** | input, textarea, wysiwyg, markdown, code, slug, tags, seo, number, json |
+| **Selection** | toggle, dropdown, radio, checkboxes, checkboxes-tree, slider, color, datetime, repeater, map |
+| **Files** | file, file-image, files |
+| **Relational** | many-to-one, one-to-many, many-to-many, many-to-any, translations, tree-view |
+| **Presentation** | header, divider, notice, buttons |
+| **Groups / layout** | group-accordion, group-tabs, group-raw, group-detail |
+
+Readonly display uses `FieldReadonlyDisplay`. Group fields nest via `FieldFormLayout`.
+
+---
+
+## API reference
+
+All JSON responses use `{ data: … }` or `{ errors: […] }` envelope (see `backend/src/core/response.ts`).
+
+### Auth
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/auth/login` | POST | Returns `access_token`; sets `refresh_token` httpOnly cookie |
+| `/auth/refresh` | POST | Exchanges refresh cookie for new access token |
+| `/auth/logout` | POST | Invalidates session and clears cookie |
+| `/users/me` | GET | Current user profile (Bearer token) |
+
+### Users (admin)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/users` | GET | List users |
+| `/users` | POST | Create user |
+| `/users/:id` | PATCH | Update user |
+| `/users/:id` | DELETE | Delete user |
+
+### Collections
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/collections` | GET | Bearer | List collections |
+| `/api/collections?include_hidden=true` | GET | Admin | Include hidden/system collections |
+| `/api/collections` | POST | Admin | Create collection + SQL table |
+| `/api/collections/:name` | GET/PATCH/DELETE | Admin | Get / update / delete collection |
+| `/api/collections/:name/translations/setup` | POST | Admin | Create translations junction |
+
+### Fields
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/collections/:name/fields` | GET | Bearer | List fields (`?form_data=` for conditions) |
+| `/api/collections/:name/fields/:field` | GET | Bearer | Get single field |
+| `/api/collections/:name/fields` | POST | Admin | Add column + field metadata |
+| `/api/collections/:name/fields/:field` | PATCH/DELETE | Admin | Update / delete field |
+
+Supported SQL types: `string`, `text`, `integer`, `bigInteger`, `float`, `decimal`, `boolean`, `datetime`, `date`, `json`, `uuid`, `hash`, `time`, `csv`, `binary`
+
+Field metadata includes: `required`, `unique`, `nullable`, `is_indexed`, `searchable`, `conditions`, `validation`, `display`, `display_options`, `group`, `width`, `sort`.
+
+### Items
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/items/:collection` | GET | Bearer | List (filter, sort, search, pagination) |
+| `/api/items/:collection/:id` | GET | Bearer | Get single item |
+| `/api/items/:collection` | POST | Bearer | Create item |
+| `/api/items/:collection/:id` | PATCH/DELETE | Bearer | Update / delete item |
+| `/api/items/:collection/reorder` | POST | Admin | Reorder when `sort_field` is set |
+
+Query params: `filter[field][_eq]`, `sort=-date_created,title`, `limit`, `offset`, `fields=id,title`, `search=keyword`, `include_archived=true`
+
+Nested reads: `?fields=author,author.name,tags`
+
+### Relationships
+
+| Interface | Storage | Description |
+|-----------|---------|-------------|
+| `many-to-one` | FK column (uuid) | Points to related item |
+| `one-to-many` | Virtual field | Related items where FK points back |
+| `many-to-many` | Junction table | Auto-created; optional `with_sort` |
+| `many-to-any` | Polymorphic junction | Related collection + item per row |
+| `translations` | `{collection}_translations` | Multi-language copies |
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/relations` | GET | Admin | List relations (`?collection=`) |
+| `/api/relations/:id` | GET/DELETE | Admin | Get / delete relation |
+
+### Schema
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/schema/snapshot` | GET | Admin | Export schema metadata |
+| `/api/schema/diff` | POST | Admin | Diff snapshot vs live |
+| `/api/schema/apply` | POST | Admin | Apply snapshot diff |
+| `/api/schema/introspect` | POST | Admin | List unregistered DB tables |
+
+### Permissions
+
+Role-based access on all `/api/items` endpoints via `cms_permissions`.
+
+| Role | Behavior |
+|------|----------|
+| **Administrator** | Full access (`admin_access: true`) |
+| **Public** | Unauthenticated requests (no Bearer token) |
+| **Custom roles** | Per-collection CRUD + field/row filters via policies |
+
+Management: `GET/POST/DELETE /api/permissions`, `GET/POST/PATCH/DELETE /api/roles`, `GET/POST/PATCH/DELETE /api/policies`
+
+### Flows
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/flows` | GET/POST | Admin | List / create flows |
+| `/api/flows/:id` | GET/PATCH/DELETE | Admin | Manage flow |
+| `/flows/trigger/:flowId` | POST | Varies | Webhook trigger |
+
+### GraphQL
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/graphql` | POST | Optional Bearer | Dynamic schema from collections/fields |
+
+GraphiQL in development: `http://localhost:8055/graphql`
+
+```graphql
+{
+  articles {
+    id
+    title
+    date_created
+  }
+}
 ```
 
+### Files
 
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/files` | POST | Bearer | Upload (multipart field `file`) |
+| `/assets/:id` | GET | Public | Serve file; optional image transforms |
 
-## Scripts (root)
+Transform params: `width`, `height`, `fit` (`cover`, `contain`, …), `format` (`webp`, `jpeg`, `png`, `avif`)
 
+Example: `/assets/{id}?width=400&height=300&fit=cover&format=webp`
 
-| Script                | Description               |
-| --------------------- | ------------------------- |
-| `npm run dev:backend` | Start API with hot reload |
-| `npm run dev:admin`   | Start Vite dev server     |
-| `npm run db:setup`    | Run migrations + seeds    |
+---
 
+## Environment variables
 
+### Backend (`backend/.env`)
 
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `8055` | HTTP port |
+| `NODE_ENV` | `development` | `production` on Render |
+| `DB_CLIENT` | `sqlite3` | `sqlite3` or `pg` |
+| `DB_FILE` | `./data/cms.db` | SQLite path (dev) |
+| `DATABASE_URL` | — | Postgres connection string (prod) |
+| `SECRET_KEY` | — | JWT signing secret (**required**) |
+| `ADMIN_UI_URL` | `http://localhost:5173` | CORS origin for admin UI |
+| `UPLOAD_DIR` | `./uploads` | File storage directory |
+| `ACCESS_TOKEN_TTL` | `15m` | Access token lifetime |
+| `REFRESH_TOKEN_TTL` | `7d` | Refresh token lifetime |
+
+See `backend/.env.example` for all options.
+
+### Admin UI (production only)
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_API_URL` | Backend URL, e.g. `https://cms-backend.onrender.com` (no trailing slash) |
+
+See `admin-ui/.env.example`. **Do not set locally** — use the Vite proxy instead.
+
+---
+
+## Deployment
+
+Full guide: **[DEPLOYMENT.md](./DEPLOYMENT.md)**
+
+| Part | Platform | Config |
+|------|----------|--------|
+| Admin UI | [Vercel](https://vercel.com) | Root: `admin-ui`, set `VITE_API_URL` |
+| Backend | [Render](https://render.com) | Root: `backend`, use `render.yaml` blueprint |
+
+1. Deploy backend on Render (Postgres + persistent disk for uploads)
+2. Deploy admin UI on Vercel
+3. Set `ADMIN_UI_URL` on Render to your Vercel URL → redeploy backend
+4. Change the default admin password after first login
+
+---
+
+## Troubleshooting
+
+### Port 5173 already in use
+
+Vite is configured with `strictPort: true`. Stop the other process or change the port in `admin-ui/vite.config.ts`.
+
+### Admin UI shows API errors / CORS
+
+- Local: ensure backend is running on `8055` and `VITE_API_URL` is **unset**
+- Production: `VITE_API_URL` on Vercel must match Render backend URL; `ADMIN_UI_URL` on Render must exactly match Vercel origin
+
+### `/assets` page shows "Cannot GET /assets"
+
+This happens when the Vite proxy forwards the SPA route to the backend. The fix is in `vite.config.ts` (`bypass` for exact `/assets` path). Ensure you have the latest config.
+
+### Login works but session lost on refresh
+
+Check that cookies are sent (`credentials: true` in axios) and `/auth/refresh` succeeds. In production, both hosts must use HTTPS.
+
+### Empty pages / missing sections after seed
+
+Re-run seeds or restart backend — `website.service.ts` repairs missing field metadata on boot. For a clean slate: delete `backend/data/cms.db` and run `npm run db:setup`.
+
+### Migrations out of sync
+
+```bash
+npm run migrate:latest -w backend
+```
+
+If developing a fresh clone, always run `npm run db:setup` before starting the backend.
+
+---
 
 ## License
 

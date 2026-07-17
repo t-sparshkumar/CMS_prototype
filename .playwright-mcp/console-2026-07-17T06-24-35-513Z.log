@@ -1,0 +1,343 @@
+[     177ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   12744ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   13380ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   13899ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   14629ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   15352ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   17007ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   18655ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   20281ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   21000ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   21733ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/assets:0
+[   63854ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   65983ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   68314ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[   70169ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/assets:0
+[   81205ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5173/assets:0
+[  243118ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[  771301ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:963
+[  771940ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:21608
+[ 1139674ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at updateSlot (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10202:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10298:30)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14340:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1139680ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at updateSlot (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10202:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10298:30)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14340:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1139681ms] [ERROR] The above error occurred in the <div> component:
+
+    at div
+    at div
+    at div
+    at div
+    at main
+    at div
+    at div
+    at AppLayout (http://localhost:5173/src/components/AppLayout.tsx:72:3)
+    at AssetGalleryPage (http://localhost:5173/src/pages/AssetGalleryPage.tsx?t=1784270615006:250:44)
+    at ProtectedRoute (http://localhost:5173/src/components/ProtectedRoute.tsx:21:42)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7604:3)
+    at App (http://localhost:5173/src/App.tsx?t=1784270166386:48:27)
+    at ThemeProvider (http://localhost:5173/src/components/ThemeProvider.tsx:21:41)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7543:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:10859:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14079
+[ 1139682ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at updateSlot (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10202:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10298:30)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14340:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 1140279ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1140283ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1140283ms] [ERROR] The above error occurred in the <div> component:
+
+    at div
+    at div
+    at div
+    at div
+    at main
+    at div
+    at div
+    at AppLayout (http://localhost:5173/src/components/AppLayout.tsx:72:3)
+    at AssetGalleryPage (http://localhost:5173/src/pages/AssetGalleryPage.tsx?t=1784270615627:250:44)
+    at ProtectedRoute (http://localhost:5173/src/components/ProtectedRoute.tsx:21:42)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7604:3)
+    at App (http://localhost:5173/src/App.tsx?t=1784270166386:48:27)
+    at ThemeProvider (http://localhost:5173/src/components/ThemeProvider.tsx:21:41)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7543:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:10859:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14079
+[ 1140283ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 1142307ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1142309ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1142310ms] [ERROR] The above error occurred in the <div> component:
+
+    at div
+    at div
+    at div
+    at div
+    at main
+    at div
+    at div
+    at AppLayout (http://localhost:5173/src/components/AppLayout.tsx:72:3)
+    at AssetGalleryPage (http://localhost:5173/src/pages/AssetGalleryPage.tsx?t=1784270617661:250:44)
+    at ProtectedRoute (http://localhost:5173/src/components/ProtectedRoute.tsx:21:42)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7604:3)
+    at App (http://localhost:5173/src/App.tsx?t=1784270166386:48:27)
+    at ThemeProvider (http://localhost:5173/src/components/ThemeProvider.tsx:21:41)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7543:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:10859:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14079
+[ 1142310ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 1143359ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1143361ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1143362ms] [ERROR] The above error occurred in the <div> component:
+
+    at div
+    at div
+    at div
+    at div
+    at main
+    at div
+    at div
+    at AppLayout (http://localhost:5173/src/components/AppLayout.tsx:72:3)
+    at AssetGalleryPage (http://localhost:5173/src/pages/AssetGalleryPage.tsx?t=1784270618702:250:44)
+    at ProtectedRoute (http://localhost:5173/src/components/ProtectedRoute.tsx:21:42)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7604:3)
+    at App (http://localhost:5173/src/App.tsx?t=1784270166386:48:27)
+    at ThemeProvider (http://localhost:5173/src/components/ThemeProvider.tsx:21:41)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7543:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:10859:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14079
+[ 1143362ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 1145074ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1145076ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1145077ms] [ERROR] The above error occurred in the <div> component:
+
+    at div
+    at div
+    at div
+    at div
+    at main
+    at div
+    at div
+    at AppLayout (http://localhost:5173/src/components/AppLayout.tsx:72:3)
+    at AssetGalleryPage (http://localhost:5173/src/pages/AssetGalleryPage.tsx?t=1784270620427:250:44)
+    at ProtectedRoute (http://localhost:5173/src/components/ProtectedRoute.tsx:21:42)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7604:3)
+    at App (http://localhost:5173/src/App.tsx?t=1784270166386:48:27)
+    at ThemeProvider (http://localhost:5173/src/components/ThemeProvider.tsx:21:41)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7543:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:10859:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14079
+[ 1145077ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)
+[ 1145709ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1145712ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at HTMLUnknownElement.callCallback2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3680:22)
+    at Object.invokeGuardedCallbackDev (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3705:24)
+    at invokeGuardedCallback (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:3739:39)
+[ 1145712ms] [ERROR] The above error occurred in the <div> component:
+
+    at div
+    at div
+    at div
+    at div
+    at main
+    at div
+    at div
+    at AppLayout (http://localhost:5173/src/components/AppLayout.tsx:72:3)
+    at AssetGalleryPage (http://localhost:5173/src/pages/AssetGalleryPage.tsx?t=1784270621064:250:44)
+    at ProtectedRoute (http://localhost:5173/src/components/ProtectedRoute.tsx:21:42)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:6669:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7604:3)
+    at App (http://localhost:5173/src/App.tsx?t=1784270166386:48:27)
+    at ThemeProvider (http://localhost:5173/src/components/ThemeProvider.tsx:21:41)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:7543:13)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=651d6f11:10859:3)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14079
+[ 1145712ms] Error: Objects are not valid as a React child (found: [object BarProp]). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:9981:17)
+    at createChild (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10157:15)
+    at reconcileChildrenArray (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10329:33)
+    at reconcileChildFibers2 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:10606:24)
+    at reconcileChildren (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14338:37)
+    at updateHostComponent (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:14855:11)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:15983:22)
+    at beginWork$1 (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19806:22)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19251:20)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/chunk-6I5JPKR6.js?v=651d6f11:19190:13)

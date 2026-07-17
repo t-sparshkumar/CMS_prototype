@@ -1,0 +1,184 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img "Paytm" [ref=e6]
+      - generic [ref=e7]:
+        - paragraph [ref=e8]: Paytm
+        - paragraph [ref=e9]: Admin
+    - navigation [ref=e10]:
+      - link "Dashboard" [ref=e11] [cursor=pointer]:
+        - /url: /
+        - img [ref=e12]
+        - generic [ref=e14]: Dashboard
+      - generic [ref=e15]:
+        - button "Content & schema" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+          - generic [ref=e19]: Content & schema
+          - img [ref=e20]
+        - generic [ref=e22]:
+          - link "Content" [ref=e23] [cursor=pointer]:
+            - /url: /content
+            - generic [ref=e25]: Content
+          - link "Pages" [ref=e26] [cursor=pointer]:
+            - /url: /pages
+            - generic [ref=e28]: Pages
+          - link "Data Model" [ref=e29] [cursor=pointer]:
+            - /url: /settings/data-model
+            - generic [ref=e31]: Data Model
+          - link "Triggers" [ref=e32] [cursor=pointer]:
+            - /url: /settings/triggers
+            - generic [ref=e34]: Triggers
+          - link "Translations" [ref=e35] [cursor=pointer]:
+            - /url: /settings/translations
+            - generic [ref=e37]: Translations
+      - generic [ref=e38]:
+        - button "People & access" [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+          - generic [ref=e42]: People & access
+          - img [ref=e43]
+        - generic [ref=e45]:
+          - link "Users" [ref=e46] [cursor=pointer]:
+            - /url: /settings/users
+            - generic [ref=e48]: Users
+          - link "Roles & Policies" [ref=e49] [cursor=pointer]:
+            - /url: /settings/access-control
+            - generic [ref=e51]: Roles & Policies
+      - generic [ref=e52]:
+        - button "Project" [ref=e53] [cursor=pointer]:
+          - img [ref=e54]
+          - generic [ref=e56]: Project
+          - img [ref=e57]
+        - generic [ref=e59]:
+          - link "Project Settings" [ref=e60] [cursor=pointer]:
+            - /url: /settings/project
+            - generic [ref=e62]: Project Settings
+          - link "Asset Gallery" [ref=e63] [cursor=pointer]:
+            - /url: /assets
+            - generic [ref=e65]: Asset Gallery
+          - link "History" [ref=e66] [cursor=pointer]:
+            - /url: /history
+            - generic [ref=e68]: History
+    - button "Sign out" [ref=e70] [cursor=pointer]:
+      - img [ref=e71]
+      - text: Sign out
+  - generic [ref=e73]:
+    - banner [ref=e74]:
+      - generic [ref=e75]:
+        - button "Toggle sidebar" [ref=e76] [cursor=pointer]:
+          - img [ref=e77]
+        - generic [ref=e79]:
+          - paragraph [ref=e80]: Environment
+          - paragraph [ref=e81]: Development
+      - generic [ref=e82]:
+        - button "AU · Super Admin · CMS-00000000" [ref=e84] [cursor=pointer]:
+          - generic [ref=e85]: AU · Super Admin · CMS-00000000
+          - img [ref=e86]
+        - generic "Admin User" [ref=e88]: AU
+    - generic [ref=e89]:
+      - navigation "Breadcrumb" [ref=e90]:
+        - link "Admin" [ref=e92] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e93]:
+          - img [ref=e94]
+          - generic [ref=e96]: Dashboard
+      - generic [ref=e98]:
+        - heading "Dashboard" [level=1] [ref=e99]
+        - paragraph [ref=e100]: Platform health at a glance. Open any tile or service for structured metrics and recent activity.
+    - main [ref=e101]:
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - heading "Control center" [level=2] [ref=e104]
+          - navigation "Breadcrumb" [ref=e105]:
+            - link "Admin" [ref=e107] [cursor=pointer]:
+              - /url: /
+            - generic [ref=e108]:
+              - img [ref=e109]
+              - generic [ref=e111]: Dashboard
+          - paragraph [ref=e112]: Workspace health at a glance. Open any tile or service for content metrics, schema status, dependencies, and recent signals.
+        - generic [ref=e113]:
+          - link "Page Groups 0 Active content groups" [ref=e114] [cursor=pointer]:
+            - /url: /content/page_groups
+            - generic [ref=e115]:
+              - img [ref=e117]
+              - img [ref=e119]
+            - paragraph [ref=e121]: Page Groups
+            - paragraph [ref=e122]: "0"
+            - paragraph [ref=e123]: Active content groups
+          - link "CMS Components 8 Reusable blocks in library" [ref=e124] [cursor=pointer]:
+            - /url: /content
+            - generic [ref=e125]:
+              - img [ref=e127]
+              - img [ref=e129]
+            - paragraph [ref=e131]: CMS Components
+            - paragraph [ref=e132]: "8"
+            - paragraph [ref=e133]: Reusable blocks in library
+          - link "CMS Users 2 Registered workspace members" [ref=e134] [cursor=pointer]:
+            - /url: /settings/users
+            - generic [ref=e135]:
+              - img [ref=e137]
+              - img [ref=e139]
+            - paragraph [ref=e141]: CMS Users
+            - paragraph [ref=e142]: "2"
+            - paragraph [ref=e143]: Registered workspace members
+          - link "Drafts Pending 0 1 total pages · review queue" [ref=e144] [cursor=pointer]:
+            - /url: /pages
+            - generic [ref=e145]:
+              - img [ref=e147]
+              - img [ref=e149]
+            - paragraph [ref=e151]: Drafts Pending
+            - paragraph [ref=e152]: "0"
+            - paragraph [ref=e153]: 1 total pages · review queue
+        - generic [ref=e154]:
+          - generic [ref=e156]:
+            - heading "Quick actions" [level=2] [ref=e157]
+            - paragraph [ref=e158]: Common tasks and shortcuts
+          - generic [ref=e159]:
+            - link "Create a new page" [ref=e160] [cursor=pointer]:
+              - /url: /pages/new
+              - img [ref=e162]
+              - generic [ref=e164]: Create a new page
+            - link "Build a component" [ref=e165] [cursor=pointer]:
+              - /url: /content/hero_banners
+              - img [ref=e167]
+              - generic [ref=e169]: Build a component
+            - link "Upload assets" [ref=e170] [cursor=pointer]:
+              - /url: /assets
+              - img [ref=e172]
+              - generic [ref=e174]: Upload assets
+            - link "Create a collection" [ref=e175] [cursor=pointer]:
+              - /url: /settings/data-model/new?type=collection
+              - img [ref=e177]
+              - generic [ref=e179]: Create a collection
+        - generic [ref=e180]:
+          - generic [ref=e181]:
+            - heading "Platform services" [level=2] [ref=e182]
+            - paragraph [ref=e183]: Core CMS infrastructure and integrations
+          - generic [ref=e184]:
+            - link "Content API Collections synced · 0 groups active Operational" [ref=e185] [cursor=pointer]:
+              - /url: /content
+              - generic [ref=e186]:
+                - paragraph [ref=e187]: Content API
+                - paragraph [ref=e188]: Collections synced · 0 groups active
+              - generic [ref=e189]: Operational
+              - img [ref=e190]
+            - link "Asset storage 9 files in gallery · CDN ready Operational" [ref=e192] [cursor=pointer]:
+              - /url: /assets
+              - generic [ref=e193]:
+                - paragraph [ref=e194]: Asset storage
+                - paragraph [ref=e195]: 9 files in gallery · CDN ready
+              - generic [ref=e196]: Operational
+              - img [ref=e197]
+            - link "Schema registry Data model definitions · field validation Operational" [ref=e199] [cursor=pointer]:
+              - /url: /settings/data-model
+              - generic [ref=e200]:
+                - paragraph [ref=e201]: Schema registry
+                - paragraph [ref=e202]: Data model definitions · field validation
+              - generic [ref=e203]: Operational
+              - img [ref=e204]
+            - link "Access control Roles, policies, and permissions Operational" [ref=e206] [cursor=pointer]:
+              - /url: /settings/access-control
+              - generic [ref=e207]:
+                - paragraph [ref=e208]: Access control
+                - paragraph [ref=e209]: Roles, policies, and permissions
+              - generic [ref=e210]: Operational
+              - img [ref=e211]

@@ -8,6 +8,7 @@
   "scripts": {
     "dev:backend": "npm run dev -w backend",
     "dev:admin": "npm run dev -w admin-ui",
-    "db:setup": "npm run db:setup -w backend"
+    "db:setup": "npm run db:setup -w backend",
+    "test:e2e:api": "node scripts/e2e-smoke.mjs"
   }
 }

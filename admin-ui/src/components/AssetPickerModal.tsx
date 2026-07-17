@@ -37,7 +37,7 @@ export default function AssetPickerModal({ open, onClose, onSelect }: AssetPicke
             <Icon name="close" className="h-5 w-5" />
           </button>
         </div>
-        <div className="overflow-auto p-4">
+        <div className="overflow-auto p-3 sm:p-4">
           <AssetGalleryPage pickerMode onSelect={handleSelect} />
         </div>
       </div>

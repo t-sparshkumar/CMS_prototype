@@ -75,6 +75,54 @@ interface FolderTreeProps {
   onOpen: (folderId: string | null) => void;
 }
 
+function LoadingSkeleton({ viewMode }: { viewMode: ViewMode }) {
+  if (viewMode === 'grid') {
+    return (
+      <div className="asset-gallery-grid" aria-hidden="true">
+        {Array.from({ length: 8 }, (_, index) => (
+          <div key={index} className="asset-gallery-skeleton-card">
+            <div className="asset-gallery-skeleton-preview" />
+            <div className="asset-gallery-skeleton-meta">
+              <div className="asset-gallery-skeleton-line asset-gallery-skeleton-line-title" />
+              <div className="asset-gallery-skeleton-line asset-gallery-skeleton-line-subtitle" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <table className="asset-gallery-table" aria-hidden="true">
+      <thead className="asset-gallery-table-head">
+        <tr>
+          <th>Name</th>
+          <th className="hidden sm:table-cell">Date modified</th>
+          <th className="hidden md:table-cell w-28">Size</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: 6 }, (_, index) => (
+          <tr key={index} className="asset-gallery-skeleton-row">
+            <td>
+              <div className="asset-gallery-skeleton-name">
+                <div className="asset-gallery-skeleton-thumb" />
+                <div className="asset-gallery-skeleton-line asset-gallery-skeleton-line-title" />
+              </div>
+            </td>
+            <td className="hidden sm:table-cell">
+              <div className="asset-gallery-skeleton-line asset-gallery-skeleton-line-date" />
+            </td>
+            <td className="hidden md:table-cell">
+              <div className="asset-gallery-skeleton-line asset-gallery-skeleton-line-size" />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 function FolderTree({ folders, parent, depth = 0, currentFolder, onOpen }: FolderTreeProps) {
   const children = sortByName(
     folders.filter((folder) => folder.parent === parent),
@@ -136,6 +184,7 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
   const [deleteFolderTarget, setDeleteFolderTarget] = useState<FolderMeta | null>(null);
   const [deleteFileTarget, setDeleteFileTarget] = useState<FileMeta | null>(null);
   const [openMenuKey, setOpenMenuKey] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -191,6 +240,9 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
     () => buildBreadcrumbPath(folders, currentFolder),
     [folders, currentFolder],
   );
+
+  const itemCount = childFolders.length + sortedFiles.length;
+  const hasSearch = search.trim().length > 0;
 
   async function handleCreateFolder() {
     if (!folderName.trim()) return;
@@ -258,6 +310,7 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
   function openFolder(folderId: string | null) {
     setCurrentFolder(folderId);
     setOpenMenuKey(null);
+    setSidebarOpen(false);
   }
 
   function openFile(file: FileMeta) {
@@ -270,8 +323,8 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
     setEditDescription(file.description ?? '');
   }
 
-  const toolbar = (
-    <div className="flex flex-wrap items-center gap-2">
+  const toolbarActions = (
+    <div className="asset-gallery-toolbar-actions">
       <button
         type="button"
         onClick={() => {
@@ -305,15 +358,19 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
     const isOpen = openMenuKey === key;
 
     return (
-      <div className="relative" ref={isOpen ? menuRef : undefined}>
+      <div
+        className={`relative asset-gallery-row-actions ${isOpen ? 'asset-gallery-row-actions-open' : ''}`}
+        ref={isOpen ? menuRef : undefined}
+      >
         <button
           type="button"
           onClick={(event) => {
             event.stopPropagation();
             setOpenMenuKey(isOpen ? null : key);
           }}
-          className="rounded-lg p-1.5 text-[var(--app-text-faint)] hover:bg-[var(--app-hover)] hover:text-[var(--app-text)]"
+          className="asset-gallery-row-menu-btn"
           aria-label="More actions"
+          aria-expanded={isOpen}
         >
           <Icon name="more" className="h-4 w-4" />
         </button>
@@ -394,12 +451,14 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
                     <span className="asset-gallery-row-icon asset-gallery-row-icon-folder">
                       <Icon name="folder" className="h-4 w-4" />
                     </span>
-                    <span className="truncate">{folder.name}</span>
+                    <span className="asset-gallery-row-label truncate" title={folder.name}>
+                      {folder.name}
+                    </span>
                   </button>
                 </td>
                 <td className="hidden sm:table-cell">{formatDate(folder.created_on)}</td>
                 <td className="hidden md:table-cell">—</td>
-                {!pickerMode && <td className="asset-gallery-row-actions">{renderRowMenu(target)}</td>}
+                {!pickerMode && <td>{renderRowMenu(target)}</td>}
               </tr>
             );
           })}
@@ -420,12 +479,17 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
                         <Icon name="file" className="h-4 w-4" />
                       </span>
                     )}
-                    <span className="truncate">{file.title ?? file.filename_download}</span>
+                    <span
+                      className="asset-gallery-row-label truncate"
+                      title={file.title ?? file.filename_download}
+                    >
+                      {file.title ?? file.filename_download}
+                    </span>
                   </button>
                 </td>
                 <td className="hidden sm:table-cell">{formatDate(file.uploaded_on)}</td>
                 <td className="hidden md:table-cell">{formatBytes(file.filesize)}</td>
-                {!pickerMode && <td className="asset-gallery-row-actions">{renderRowMenu(target)}</td>}
+                {!pickerMode && <td>{renderRowMenu(target)}</td>}
               </tr>
             );
           })}
@@ -442,13 +506,15 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
             key={folder.id}
             type="button"
             onClick={() => openFolder(folder.id)}
-            className="asset-gallery-grid-item"
+            className="asset-gallery-grid-item asset-gallery-grid-item-folder"
           >
             <div className="asset-gallery-grid-preview asset-gallery-grid-preview-folder">
-              <Icon name="folder" className="h-10 w-10" />
+              <Icon name="folder" className="h-9 w-9" />
             </div>
             <div className="asset-gallery-grid-meta">
-              <p className="asset-gallery-grid-title">{folder.name}</p>
+              <p className="asset-gallery-grid-title" title={folder.name}>
+                {folder.name}
+              </p>
               <p className="asset-gallery-grid-subtitle">Folder</p>
             </div>
           </button>
@@ -458,7 +524,7 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
             key={file.id}
             type="button"
             onClick={() => openFile(file)}
-            className="asset-gallery-grid-item"
+            className="asset-gallery-grid-item asset-gallery-grid-item-file"
           >
             <div className="asset-gallery-grid-preview">
               {isImage(file.type) ? (
@@ -471,7 +537,9 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
               )}
             </div>
             <div className="asset-gallery-grid-meta">
-              <p className="asset-gallery-grid-title">{file.title ?? file.filename_download}</p>
+              <p className="asset-gallery-grid-title" title={file.title ?? file.filename_download}>
+                {file.title ?? file.filename_download}
+              </p>
               <p className="asset-gallery-grid-subtitle">{formatBytes(file.filesize)}</p>
             </div>
           </button>
@@ -481,12 +549,21 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
   }
 
   const driveContent = (
-    <div className="asset-gallery">
+    <div className={`asset-gallery ${pickerMode ? 'asset-gallery-picker' : ''}`}>
+      {!pickerMode && sidebarOpen && (
+        <button
+          type="button"
+          className="asset-gallery-sidebar-backdrop"
+          aria-label="Close folders panel"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {!pickerMode && (
-        <aside className="asset-gallery-sidebar">
+        <aside className={`asset-gallery-sidebar ${sidebarOpen ? 'asset-gallery-sidebar-open' : ''}`}>
           <button
             type="button"
-            onClick={() => setCurrentFolder(null)}
+            onClick={() => openFolder(null)}
             className={`asset-gallery-sidebar-item ${
               currentFolder === null ? 'asset-gallery-sidebar-item-active' : ''
             }`}
@@ -494,6 +571,7 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
             <Icon name="image" className="h-4 w-4 shrink-0" />
             <span>My Drive</span>
           </button>
+          <p className="asset-gallery-sidebar-label">Folders</p>
           <FolderTree
             folders={folders}
             parent={null}
@@ -505,8 +583,20 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
 
       <div className="asset-gallery-main">
         <div className="asset-gallery-toolbar">
-          {!pickerMode && toolbar}
-          <div className={`asset-gallery-search ${pickerMode ? 'max-w-none flex-1' : ''}`}>
+          {!pickerMode && (
+            <button
+              type="button"
+              onClick={() => setSidebarOpen((open) => !open)}
+              className="asset-gallery-sidebar-toggle"
+              aria-label="Toggle folders"
+              aria-expanded={sidebarOpen}
+            >
+              <Icon name="menu" className="h-4 w-4" />
+            </button>
+          )}
+          {toolbarActions}
+          <div className="asset-gallery-toolbar-spacer" aria-hidden="true" />
+          <div className="asset-gallery-search">
             <Icon name="search" className="asset-gallery-search-icon h-4 w-4" />
             <input
               type="search"
@@ -514,7 +604,18 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="asset-gallery-search-input"
+              aria-label="Search assets"
             />
+            {hasSearch && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="asset-gallery-search-clear"
+                aria-label="Clear search"
+              >
+                <Icon name="close" className="h-4 w-4" />
+              </button>
+            )}
           </div>
           <div className="asset-gallery-view-toggle">
             <button
@@ -534,29 +635,35 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
               <Icon name="grid" className="h-4 w-4" />
             </button>
           </div>
-          {pickerMode && toolbar}
         </div>
 
         <nav className="asset-gallery-breadcrumb" aria-label="Breadcrumb">
-          <button type="button" onClick={() => setCurrentFolder(null)} className="asset-gallery-breadcrumb-link">
-            My Drive
-          </button>
-          {breadcrumbPath.map((folder, index) => (
-            <span key={folder.id} className="inline-flex items-center gap-1">
-              <Icon name="chevron-right" className="h-3.5 w-3.5 text-[var(--app-text-faint)]" />
-              {index === breadcrumbPath.length - 1 ? (
-                <span className="asset-gallery-breadcrumb-current">{folder.name}</span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setCurrentFolder(folder.id)}
-                  className="asset-gallery-breadcrumb-link"
-                >
-                  {folder.name}
-                </button>
-              )}
+          <div className="asset-gallery-breadcrumb-trail">
+            <button type="button" onClick={() => openFolder(null)} className="asset-gallery-breadcrumb-link">
+              My Drive
+            </button>
+            {breadcrumbPath.map((folder, index) => (
+              <span key={folder.id} className="asset-gallery-breadcrumb-segment">
+                <Icon name="chevron-right" className="asset-gallery-breadcrumb-chevron h-3.5 w-3.5" />
+                {index === breadcrumbPath.length - 1 ? (
+                  <span className="asset-gallery-breadcrumb-current">{folder.name}</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setCurrentFolder(folder.id)}
+                    className="asset-gallery-breadcrumb-link"
+                  >
+                    {folder.name}
+                  </button>
+                )}
+              </span>
+            ))}
+          </div>
+          {!isLoading && (
+            <span className="asset-gallery-breadcrumb-count" aria-label={`${itemCount} items`}>
+              {itemCount} {itemCount === 1 ? 'item' : 'items'}
             </span>
-          ))}
+          )}
         </nav>
 
         {error && (
@@ -567,19 +674,30 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
 
         <div className="asset-gallery-content">
           {isLoading ? (
-            <div className="asset-gallery-empty">
-              <p className="text-sm text-[var(--app-text-muted)]">Loading assets...</p>
+            <div className="asset-gallery-loading" aria-live="polite" aria-busy="true">
+              <div className="asset-gallery-loading-spinner" />
+              <LoadingSkeleton viewMode={viewMode} />
             </div>
           ) : childFolders.length === 0 && sortedFiles.length === 0 ? (
             <div className="asset-gallery-empty">
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--app-accent-light)] text-[var(--app-accent)]">
-                <Icon name="image" className="h-7 w-7" />
+              <span className="asset-gallery-empty-icon">
+                <Icon name={hasSearch ? 'search' : 'image'} className="h-7 w-7" />
               </span>
-              <h3 className="text-base font-semibold text-[var(--app-text)]">This folder is empty</h3>
+              <h3 className="text-base font-semibold text-[var(--app-text)]">
+                {hasSearch ? 'No matching assets' : 'This folder is empty'}
+              </h3>
               <p className="max-w-sm text-sm text-[var(--app-text-muted)]">
-                Upload files or create a folder to organize your assets, just like Google Drive.
+                {hasSearch
+                  ? 'Try a different keyword or clear the search.'
+                  : 'Upload files or create a folder to organize your assets, just like Google Drive.'}
               </p>
-              {toolbar}
+              {hasSearch ? (
+                <button type="button" onClick={() => setSearch('')} className="btn-secondary text-sm">
+                  Clear search
+                </button>
+              ) : (
+                toolbarActions
+              )}
             </div>
           ) : viewMode === 'list' ? (
             renderListView()

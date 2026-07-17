@@ -30,6 +30,13 @@ export default defineConfig({
       '/assets': {
         target: 'http://localhost:8055',
         changeOrigin: true,
+        bypass(req) {
+          // Let the SPA handle the Asset Gallery route; proxy only file/transform requests.
+          const path = req.url ?? '';
+          if (path === '/assets' || path.startsWith('/assets?')) {
+            return path;
+          }
+        },
       },
     },
   },

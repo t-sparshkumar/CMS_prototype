@@ -5,10 +5,16 @@ import {
   INTERFACE_CATALOG,
   INTERFACE_GROUP_ORDER,
   type InterfaceGroup,
+  type InterfaceIconId,
 } from '../../lib/interfaceCatalog';
 
 interface InterfacePickerGridProps {
   onSelect: (interfaceId: string) => void;
+}
+
+function resolvePreviewIcon(id: string, icon: InterfaceIconId): InterfaceIconId {
+  if (id === 'slug') return 'slug';
+  return icon;
 }
 
 export default function InterfacePickerGrid({ onSelect }: InterfacePickerGridProps) {
@@ -34,24 +40,36 @@ export default function InterfacePickerGrid({ onSelect }: InterfacePickerGridPro
   }, [search]);
 
   const hasResults = groups.size > 0;
+  const hasSearch = search.trim().length > 0;
 
   return (
     <div className="space-y-6">
-      <div className="relative">
-        <Icon name="search" className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <div className="interface-picker-search">
+        <Icon name="search" className="interface-picker-search-icon h-4 w-4" />
         <input
           type="search"
-          placeholder="Search Field..."
+          placeholder="Search interfaces…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="input pl-10"
+          className="interface-picker-search-input"
+          aria-label="Search field interfaces"
         />
+        {hasSearch && (
+          <button
+            type="button"
+            onClick={() => setSearch('')}
+            className="interface-picker-search-clear"
+            aria-label="Clear search"
+          >
+            <Icon name="close" className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {!hasResults && (
-        <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center">
-          <p className="text-sm font-medium text-slate-700">No interfaces match your search</p>
-          <p className="mt-1 text-xs text-slate-500">Try a different keyword or clear the search.</p>
+        <div className="interface-picker-empty">
+          <p className="interface-picker-empty-title">No interfaces match your search</p>
+          <p className="interface-picker-empty-hint">Try a different keyword or clear the search.</p>
         </div>
       )}
 
@@ -60,23 +78,28 @@ export default function InterfacePickerGrid({ onSelect }: InterfacePickerGridPro
         if (!items?.length) return null;
 
         return (
-          <section key={group}>
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">{group}</h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <section key={group} className="interface-picker-section">
+            <div className="interface-picker-section-header">
+              <h3 className="interface-picker-section-title">{group}</h3>
+              <span className="interface-picker-section-count" aria-label={`${items.length} interfaces`}>
+                {items.length}
+              </span>
+            </div>
+            <div className="interface-picker-grid">
               {items.map((item) => (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => onSelect(item.id)}
-                  className="card-interactive group flex flex-col overflow-hidden text-left active:scale-[0.98]"
+                  className="interface-picker-card group"
+                  aria-label={`${item.label}: ${item.description}`}
                 >
-                  <div className="border-b border-surface-border bg-surface-muted/60 px-3 py-3 transition-colors group-hover:bg-brand-50/40">
-                    <InterfacePickerIcon icon={item.icon} />
+                  <div className="interface-picker-card-preview">
+                    <InterfacePickerIcon icon={resolvePreviewIcon(item.id, item.icon)} />
                   </div>
-                  <div className="px-3 py-2.5">
-                    <p className="truncate text-sm font-semibold text-slate-900 group-hover:text-brand-700">
-                      {item.label}
-                    </p>
+                  <div className="interface-picker-card-body">
+                    <p className="interface-picker-card-label">{item.label}</p>
+                    <p className="interface-picker-card-desc">{item.description}</p>
                   </div>
                 </button>
               ))}
