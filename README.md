@@ -642,11 +642,13 @@ Full guide: **[DEPLOYMENT.md](./DEPLOYMENT.md)**
 |------|----------|--------|
 | Admin UI | [Vercel](https://vercel.com) | Root: `admin-ui`, set `VITE_API_URL` |
 | Backend | [Render](https://render.com) | Root: `backend`, use `render.yaml` blueprint |
+| Database | [Neon](https://neon.tech) | Free PostgreSQL — paste `DATABASE_URL` into Render |
 
-1. Deploy backend on Render (Postgres + persistent disk for uploads)
-2. Deploy admin UI on Vercel
-3. Set `ADMIN_UI_URL` on Render to your Vercel URL → redeploy backend
-4. Change the default admin password after first login
+1. Create a Neon project and copy the connection string
+2. Deploy backend on Render (Blueprint) — set `DATABASE_URL` from Neon
+3. Deploy admin UI on Vercel — set `VITE_API_URL` to Render URL
+4. Set `ADMIN_UI_URL` on Render to your Vercel URL → redeploy backend
+5. Login: `admin@example.com` / `admin` — change password after first login
 
 ---
 

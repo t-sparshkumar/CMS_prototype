@@ -49,10 +49,20 @@ async function patchExistingContentPolicies(knex: Knex): Promise<void> {
   }
 }
 
+async function ensureDisplayNameColumn(knex: Knex): Promise<void> {
+  const hasDisplayName = await knex.schema.hasColumn('cms_collections', 'display_name');
+  if (!hasDisplayName) {
+    await knex.schema.alterTable('cms_collections', (table) => {
+      table.string('display_name', 255).nullable();
+    });
+  }
+}
+
 /**
  * Bootstrap page_components block collections and pages.sections M2A field.
  */
 export async function up(knex: Knex): Promise<void> {
+  await ensureDisplayNameColumn(knex);
   await ensureBlockCollectionsModule(knex);
   await patchExistingContentPolicies(knex);
 }

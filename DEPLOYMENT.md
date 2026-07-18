@@ -1,76 +1,85 @@
-# Deployment Guide — Vercel (Admin UI) + Render (Backend)
-
-This CMS is split across two hosts:
+# Deployment Guide — Vercel (Admin UI) + Render (Backend) + Neon (Database)
 
 | Part | Platform | What it runs |
 |------|----------|--------------|
 | **Admin UI** | [Vercel](https://vercel.com) | React/Vite static app |
-| **Backend API** | [Render](https://render.com) | Node.js Express + SQLite (on persistent disk) |
+| **Backend API** | [Render](https://render.com) | Node.js Express API |
+| **Database** | [Neon](https://neon.tech) | PostgreSQL (free tier) |
+
+File uploads stay on a Render **persistent disk** (`/var/data/uploads`). Schema and content live in Neon.
 
 ---
 
 ## Prerequisites
 
-1. GitHub repo pushed with this code
-2. [Render](https://render.com) account
-3. [Vercel](https://vercel.com) account
-4. (Optional) [Neon](https://neon.tech) or Render Postgres if you prefer PostgreSQL over SQLite
+1. Code pushed to **GitHub**
+2. Free accounts: [Neon](https://neon.tech), [Render](https://render.com), [Vercel](https://vercel.com)
+
+You only paste **one external credential**: Neon’s `DATABASE_URL` into Render. Everything else is auto-generated or set from URLs.
 
 ---
 
-## Step 1 — Deploy backend on Render (SQLite — no Postgres)
+## Step 1 — Create a Neon database
 
-The default `render.yaml` uses **SQLite** stored on a **persistent disk** at `/var/data/cms.db`. No PostgreSQL setup required.
+1. Go to [console.neon.tech](https://console.neon.tech) → **New Project**
+2. Name it (e.g. `cms-prototype`) → pick a region close to your Render region
+3. After creation, open **Dashboard** → **Connection details**
+4. Copy the **connection string** (PostgreSQL)
+   - Use the **pooled** connection string if Neon offers it (recommended for serverless/Render)
+   - Ensure it includes SSL, e.g.:
+     ```
+     postgresql://user:pass@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
+     ```
+5. Keep this tab open — you’ll paste it into Render in Step 2
+
+> Neon free tier includes one project with plenty of storage for a prototype. No credit card required for the free tier in most regions.
+
+---
+
+## Step 2 — Deploy backend on Render
 
 ### Option A: Blueprint (recommended)
 
-1. Go to [Render Dashboard](https://dashboard.render.com) → **New** → **Blueprint**
+1. [Render Dashboard](https://dashboard.render.com) → **New** → **Blueprint**
 2. Connect your GitHub repo
-3. Render reads `render.yaml` at the repo root and creates:
-   - **cms-backend** web service
-   - **Persistent disk** at `/var/data` (database + uploads)
-4. After deploy starts, open **cms-backend** → **Environment** and set:
+3. Render reads `render.yaml` and creates **cms-backend** with:
+   - `DB_CLIENT=pg`
+   - Persistent disk at `/var/data` (uploads only)
+   - `SECRET_KEY` auto-generated
+4. Before or right after apply, open **cms-backend** → **Environment** and set:
 
    | Variable | Value |
    |----------|-------|
-   | `ADMIN_UI_URL` | Your Vercel URL (set after Step 2), e.g. `https://cms-admin.vercel.app` |
+   | `DATABASE_URL` | Paste Neon connection string from Step 1 |
+   | `ADMIN_UI_URL` | Leave blank until Step 4 (Vercel URL) |
 
-5. Wait for deploy to finish. Copy the backend URL, e.g. `https://cms-backend.onrender.com`
+5. **Remove** these if present from an older SQLite deploy:
+   - `DB_FILE`
+   - Any `DB_CLIENT=sqlite3`
 
-### Option B: Manual web service (SQLite)
+6. Wait for deploy. First boot runs migrations + seeds (creates admin user).
 
-1. **New** → **Web Service** → connect repo
-2. Settings:
+### Option B: Manual web service
 
-   | Setting | Value |
-   |---------|-------|
-   | **Root Directory** | `backend` |
-   | **Build Command** | `npm install --include=dev && npm run build` |
-   | **Start Command** | `npm run start:prod` |
-   | **Health Check Path** | `/server/health` |
+| Setting | Value |
+|---------|-------|
+| **Root Directory** | `backend` |
+| **Build Command** | `npm install --include=dev && npm run build` |
+| **Start Command** | `npm run start:prod` |
+| **Health Check Path** | `/server/health` |
 
-3. **Disks** → Add disk:
-   - **Mount path:** `/var/data`
-   - **Size:** 1 GB (or more)
+**Disks** → Add disk: mount `/var/data`, 1 GB (uploads)
 
-4. **Environment** variables:
+**Environment:**
 
-   ```env
-   NODE_ENV=production
-   DB_CLIENT=sqlite3
-   DB_FILE=/var/data/cms.db
-   SECRET_KEY=<long random string>
-   ADMIN_UI_URL=https://your-app.vercel.app
-   UPLOAD_DIR=/var/data/uploads
-   ```
-
-   > **Do not set** `DATABASE_URL` or `DB_CLIENT=pg` when using SQLite.
-
-5. **Remove** any existing `DATABASE_URL` variable if you previously tried Postgres.
-
-### Option C: PostgreSQL (optional)
-
-If you prefer Postgres instead of SQLite, see [Using PostgreSQL](#using-postgresql-optional) below.
+```env
+NODE_ENV=production
+DB_CLIENT=pg
+DATABASE_URL=<Neon connection string with ?sslmode=require>
+SECRET_KEY=<long random string, or use Generate>
+ADMIN_UI_URL=https://your-app.vercel.app
+UPLOAD_DIR=/var/data/uploads
+```
 
 ### Verify backend
 
@@ -82,11 +91,10 @@ Expected: `{"data":{"status":"ok","db":"connected"}}`
 
 ---
 
-## Step 2 — Deploy admin UI on Vercel
+## Step 3 — Deploy admin UI on Vercel
 
-1. Go to [Vercel Dashboard](https://vercel.com/new)
-2. Import your GitHub repo
-3. Configure project:
+1. [Vercel](https://vercel.com/new) → Import GitHub repo
+2. Configure:
 
    | Setting | Value |
    |---------|-------|
@@ -95,132 +103,140 @@ Expected: `{"data":{"status":"ok","db":"connected"}}`
    | **Build Command** | `npm run build` |
    | **Output Directory** | `dist` |
 
-4. Add environment variable:
+3. Environment variable:
 
    | Name | Value |
    |------|-------|
    | `VITE_API_URL` | `https://your-backend.onrender.com` (no trailing slash) |
 
-5. Deploy
-
-6. Copy your Vercel URL (e.g. `https://cms-admin.vercel.app`)
+4. Deploy → copy Vercel URL
 
 ---
 
-## Step 3 — Link frontend ↔ backend
+## Step 4 — Link frontend ↔ backend
 
-1. **Render** → cms-backend → **Environment** → set `ADMIN_UI_URL` to your Vercel URL
-2. **Redeploy** the backend (required for CORS + cookies)
-3. Open your Vercel URL → login with:
-   - **Email:** `admin@example.com`
-   - **Password:** `admin`
+1. **Render** → **cms-backend** → **Environment** → set `ADMIN_UI_URL` to your Vercel URL (no trailing slash)
+2. **Manual Deploy** → redeploy backend (CORS + cookies)
+3. Open Vercel URL → login:
 
-> Change the admin password immediately after first login in production.
+   | Email | Password |
+   |-------|----------|
+   | `admin@example.com` | `admin` |
+
+Change the admin password after first login.
 
 ---
 
 ## Environment variables reference
 
-### Backend (Render) — SQLite (default)
+### Neon
+
+| Item | Notes |
+|------|-------|
+| **Connection string** | From Neon dashboard → Connection details |
+| **SSL** | Append `?sslmode=require` if not already present |
+| **Pooled URL** | Prefer Neon’s pooler endpoint for Render |
+
+### Backend (Render)
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `NODE_ENV` | Yes | `production` |
-| `DB_CLIENT` | Yes | `sqlite3` |
-| `DB_FILE` | Yes | `/var/data/cms.db` (must be on persistent disk) |
-| `SECRET_KEY` | Yes | JWT signing secret (32+ random chars) |
-| `ADMIN_UI_URL` | Yes | Full Vercel URL, e.g. `https://cms-admin.vercel.app` |
+| `DB_CLIENT` | Yes | `pg` |
+| `DATABASE_URL` | Yes | Neon PostgreSQL URL |
+| `SECRET_KEY` | Yes | JWT secret (auto-generated in Blueprint) |
+| `ADMIN_UI_URL` | Yes | Full Vercel URL |
 | `UPLOAD_DIR` | Yes | `/var/data/uploads` |
-| `PORT` | Auto | Set by Render automatically |
+| `PORT` | Auto | Set by Render |
 
-Persistent disk **required** — mount at `/var/data` so SQLite DB and uploads survive redeploys.
+Do **not** set `DB_FILE` when using Neon.
 
 ### Admin UI (Vercel)
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `VITE_API_URL` | Yes | Render backend URL, e.g. `https://cms-backend.onrender.com` |
+| `VITE_API_URL` | Yes | Render backend URL |
 
 ---
 
-## Using PostgreSQL (optional)
+## Local development with Neon (optional)
 
-Replace SQLite with Postgres if you need multi-instance scaling or external DB hosting.
+Use Neon for local dev too so you match production:
 
-1. Create a **PostgreSQL** database on Render (or [Neon](https://neon.tech))
-2. On **cms-backend** → **Environment**:
+```bash
+cp backend/.env.example backend/.env
+```
 
-   ```env
-   DB_CLIENT=pg
-   DATABASE_URL=<internal or external postgres URL>
-   ```
+```env
+DB_CLIENT=pg
+DATABASE_URL=postgresql://...@ep-xxx.neon.tech/neondb?sslmode=require
+SECRET_KEY=local-dev-secret
+ADMIN_UI_URL=http://localhost:5173
+```
 
-3. **Remove** `DB_FILE` (not used with Postgres)
-4. Redeploy
+```bash
+npm run db:setup -w backend
+npm run dev:backend
+npm run dev:admin
+```
 
-For Neon, append `?sslmode=require` to the connection string.
+---
+
+## SQLite alternative (local only)
+
+For offline local dev without Neon, keep defaults in `.env`:
+
+```env
+DB_CLIENT=sqlite3
+DB_FILE=./data/cms.db
+```
+
+See README for `npm run db:setup`.
 
 ---
 
 ## Troubleshooting
 
-### `ECONNREFUSED` during `knex migrate:latest`
+### `DATABASE_URL is required in production when DB_CLIENT=pg`
 
-**If you want SQLite (no Postgres):** you still have `DB_CLIENT=pg` set. Switch to SQLite:
+Set `DATABASE_URL` on Render to your Neon connection string and redeploy.
 
-| Variable | Value |
-|----------|-------|
-| `DB_CLIENT` | `sqlite3` |
-| `DB_FILE` | `/var/data/cms.db` |
-| `UPLOAD_DIR` | `/var/data/uploads` |
+### `ECONNREFUSED` or SSL errors during migrate
 
-Delete `DATABASE_URL` if present. Add a **persistent disk** mounted at `/var/data`. Redeploy.
-
-**If you want Postgres:** `DATABASE_URL` is missing or wrong — see [Using PostgreSQL](#using-postgresql-optional).
-
-### `tsx: not found` or Render runs `npm run dev:backend`
-
-Render is using the **wrong start command**. `dev:backend` is for local development only.
-
-In **Render → your web service → Settings**:
-
-| Setting | Correct value |
-|---------|---------------|
-| **Root Directory** | `backend` |
-| **Build Command** | `npm install --include=dev && npm run build` |
-| **Start Command** | `npm run start:prod` |
-
-Do **not** use repo root with `npm run dev:backend`. Save settings and **Manual Deploy → Deploy latest**.
-
-Recommended: delete the misconfigured service and redeploy via **Blueprint** (`render.yaml` at repo root) — it sets these values automatically.
+- Confirm `?sslmode=require` on the Neon URL
+- Use Neon’s **direct** or **pooled** string from the dashboard (don’t truncate the host)
+- Check Neon project is not suspended (free tier idle limits)
 
 ### Login fails on Vercel
-- Confirm `VITE_API_URL` is set on Vercel and redeployed
-- Confirm `ADMIN_UI_URL` on Render exactly matches Vercel URL (no trailing slash)
+
+- `VITE_API_URL` set on Vercel and redeployed
+- `ADMIN_UI_URL` on Render exactly matches Vercel URL
 - Redeploy backend after changing `ADMIN_UI_URL`
 
 ### CORS errors
-- `ADMIN_UI_URL` must match the exact origin (scheme + host)
 
-### Cookies / session not persisting
-- Backend uses `SameSite=None; Secure` cookies in production for cross-origin auth
+`ADMIN_UI_URL` must match the exact origin (scheme + host, no trailing slash).
 
 ### File uploads disappear after redeploy
-- Attach a Render persistent disk and set `UPLOAD_DIR=/var/data/uploads`
+
+Ensure Render disk is mounted at `/var/data` and `UPLOAD_DIR=/var/data/uploads`.
 
 ### Cold starts on Render
-- First request after idle may take 30–60 seconds on starter tier
+
+First request after idle may take 30–60 seconds on starter tier.
+
+### Reset Neon database
+
+In Neon SQL Editor: drop and recreate the database, or create a new branch, then update `DATABASE_URL` on Render and redeploy (migrations + seeds run on startup).
 
 ---
 
-## Local development (unchanged)
+## Quick checklist
 
-```bash
-npm install
-cp backend/.env.example backend/.env
-npm run db:setup
-npm run dev:backend   # http://localhost:8055
-npm run dev:admin     # http://localhost:5173
-```
-
-Do **not** set `VITE_API_URL` locally — the Vite dev proxy handles API routing.
+- [ ] Neon project created, connection string copied
+- [ ] Render backend deployed with `DB_CLIENT=pg` + `DATABASE_URL`
+- [ ] Render disk mounted at `/var/data` for uploads
+- [ ] `/server/health` returns `db: connected`
+- [ ] Vercel deployed with `VITE_API_URL`
+- [ ] `ADMIN_UI_URL` set on Render, backend redeployed
+- [ ] Login works with `admin@example.com` / `admin`

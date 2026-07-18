@@ -1,5 +1,6 @@
-# SQLite on persistent disk — no PostgreSQL required.
-# DB + uploads live under /var/data so they survive redeploys.
+# Backend on Render + PostgreSQL on Neon (free tier).
+# Set DATABASE_URL in Render from Neon dashboard after creating the database.
+# Persistent disk is only for file uploads (DB lives in Neon).
 services:
   - type: web
     name: cms-backend
@@ -13,9 +14,9 @@ services:
       - key: NODE_ENV
         value: production
       - key: DB_CLIENT
-        value: sqlite3
-      - key: DB_FILE
-        value: /var/data/cms.db
+        value: pg
+      - key: DATABASE_URL
+        sync: false
       - key: SECRET_KEY
         generateValue: true
       - key: ADMIN_UI_URL
@@ -23,6 +24,6 @@ services:
       - key: UPLOAD_DIR
         value: /var/data/uploads
     disk:
-      name: cms-data
+      name: cms-uploads
       mountPath: /var/data
       sizeGB: 1

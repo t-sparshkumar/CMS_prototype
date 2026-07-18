@@ -12,9 +12,12 @@ const BLOCK_DISPLAY_NAMES: Record<string, string> = {
 };
 
 export async function up(knex: Knex): Promise<void> {
-  await knex.schema.alterTable('cms_collections', (table) => {
-    table.string('display_name', 255).nullable();
-  });
+  const hasDisplayName = await knex.schema.hasColumn('cms_collections', 'display_name');
+  if (!hasDisplayName) {
+    await knex.schema.alterTable('cms_collections', (table) => {
+      table.string('display_name', 255).nullable();
+    });
+  }
 
   for (const [collection, displayName] of Object.entries(BLOCK_DISPLAY_NAMES)) {
     await knex('cms_collections').where({ collection }).update({ display_name: displayName });
@@ -22,7 +25,10 @@ export async function up(knex: Knex): Promise<void> {
 }
 
 export async function down(knex: Knex): Promise<void> {
-  await knex.schema.alterTable('cms_collections', (table) => {
-    table.dropColumn('display_name');
-  });
+  const hasDisplayName = await knex.schema.hasColumn('cms_collections', 'display_name');
+  if (hasDisplayName) {
+    await knex.schema.alterTable('cms_collections', (table) => {
+      table.dropColumn('display_name');
+    });
+  }
 }
