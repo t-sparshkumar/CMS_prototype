@@ -14,6 +14,11 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
+  const pagesCollection = await knex('cms_collections').where({ collection: 'pages' }).first();
+  if (!pagesCollection) {
+    return;
+  }
+
   const existing = await knex('cms_fields').where({ collection: 'pages', field: 'use_global_layout' }).first();
   if (!existing) {
     await knex('cms_fields').insert({

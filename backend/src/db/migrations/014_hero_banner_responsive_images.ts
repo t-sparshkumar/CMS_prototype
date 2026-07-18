@@ -43,6 +43,11 @@ export async function up(knex: Knex): Promise<void> {
     }
   }
 
+  const heroBannersCollection = await knex('cms_collections').where({ collection: 'hero_banners' }).first();
+  if (!heroBannersCollection) {
+    return;
+  }
+
   for (const { field, note, sort } of RESPONSIVE_IMAGE_FIELDS) {
     const existing = await knex('cms_fields').where({ collection: 'hero_banners', field }).first();
     if (!existing) {
