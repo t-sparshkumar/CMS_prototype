@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import Icon from './Icon';
@@ -6,14 +6,12 @@ import CollectionMaterialIcon from './CollectionMaterialIcon';
 import {
   childCollectionsLabel,
   folderBadgeLabel,
-  nestedCollectionBadgeLabel,
   nestedCollectionsHeading,
   nestedUnderLabel,
   openFolderLabel,
 } from '../lib/collectionLabels';
 import { reorderCollections, type CollectionMeta } from '../lib/api';
 import { getCollectionDisplayName } from '../lib/collectionDisplay';
-import { isSubCollection } from './SubCollectionHighlight';
 
 export interface BreadcrumbItem {
   collection: string;
@@ -26,6 +24,7 @@ interface ContentCollectionListProps {
   breadcrumbs?: BreadcrumbItem[];
   inFolderContext?: boolean;
   parentName?: string;
+  headerActions?: ReactNode;
   onReorder?: () => void;
 }
 
@@ -173,16 +172,8 @@ function GripIcon() {
 }
 
 function CollectionMetaBadges({ col }: { col: CollectionMeta }) {
-  const isSub = isSubCollection(col);
-
   return (
     <div className="collection-list-badges">
-      {isSub && (
-        <span className="collection-list-sub-badge">
-          <Icon name="component" className="h-2.5 w-2.5" />
-          {nestedCollectionBadgeLabel()}
-        </span>
-      )}
       {col.is_group && <span className="collection-list-badge">{folderBadgeLabel()}</span>}
       {col.singleton && <span className="collection-list-badge">Singleton</span>}
       {col.is_group ? (
@@ -201,6 +192,7 @@ export default function ContentCollectionList({
   breadcrumbs = [],
   inFolderContext = false,
   parentName,
+  headerActions,
   onReorder,
 }: ContentCollectionListProps) {
   const [search, setSearch] = useState('');
@@ -266,16 +258,19 @@ export default function ContentCollectionList({
     : null;
 
   return (
-    <div className={`space-y-3 ${inFolderContext ? 'collection-list-nested-wrap' : ''}`}>
+    <div className="space-y-3">
       {inFolderContext && parentName && (
-        <div className="collection-list-folder-header">
-          <span className="collection-list-folder-icon">
-            <Icon name="folder" className="h-3.5 w-3.5" />
-          </span>
-          <div>
-            <h2 className="text-sm font-semibold text-[var(--app-text)]">{nestedCollectionsHeading()}</h2>
-            <p className="text-xs text-[var(--app-text-muted)]">{nestedUnderLabel(parentName)}</p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="collection-list-folder-header mb-0">
+            <span className="collection-list-folder-icon">
+              <Icon name="folder" className="h-3.5 w-3.5" />
+            </span>
+            <div>
+              <h2 className="text-sm font-semibold text-[var(--app-text)]">{nestedCollectionsHeading()}</h2>
+              <p className="text-xs text-[var(--app-text-muted)]">{nestedUnderLabel(parentName)}</p>
+            </div>
           </div>
+          {headerActions ? <div className="flex flex-wrap items-center gap-2">{headerActions}</div> : null}
         </div>
       )}
 
@@ -291,7 +286,7 @@ export default function ContentCollectionList({
         </nav>
       )}
 
-      <div className="collection-list-header">
+      <div className="page-toolbar collection-list-toolbar">
         <div className="collection-list-search">
           <Icon name="search" className="collection-list-search-icon h-3.5 w-3.5" />
           <input
@@ -329,14 +324,13 @@ export default function ContentCollectionList({
         ) : (
           <ul>
             {filtered.map((col, index) => {
-              const isSub = isSubCollection(col);
               const isDragging = dragIndex === index;
               const displayName = getCollectionDisplayName(col);
 
               return (
                 <li
                   key={col.collection}
-                  className={`collection-list-row group ${isSub ? 'is-nested' : ''} ${isDragging ? 'opacity-40' : ''}`}
+                  className={`collection-list-row group ${isDragging ? 'opacity-40' : ''}`}
                   onDragOver={(e) => {
                     if (canReorder) e.preventDefault();
                   }}
@@ -369,9 +363,6 @@ export default function ContentCollectionList({
                     <CollectionIcon collection={col} />
                     <div className="min-w-0 flex-1">
                       <p className="collection-list-title">{displayName}</p>
-                      {isSub && col.parent && (
-                        <p className="collection-list-note">Under {col.parent}</p>
-                      )}
                       {col.note && <p className="collection-list-note">{col.note}</p>}
                     </div>
                     <CollectionMetaBadges col={col} />

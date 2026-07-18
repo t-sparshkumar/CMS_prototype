@@ -10,7 +10,6 @@ import {
   addFolderLabel,
   childCollectionsLabel,
   folderBadgeLabel,
-  nestedCollectionBadgeLabel,
   nestedCollectionsHeading,
   nestedUnderLabel,
   noCollectionsInFolder,
@@ -18,7 +17,7 @@ import {
   openFolderLabel,
 } from '../../lib/collectionLabels';
 import { reorderCollections, type CollectionMeta } from '../../lib/api';
-import { isSubCollection } from '../SubCollectionHighlight';
+import { getCollectionDisplayName } from '../../lib/collectionDisplay';
 
 interface DataModelSubCollectionsSectionProps {
   collections: CollectionMeta[];
@@ -76,16 +75,8 @@ function CollectionIcon({ collection }: { collection: CollectionMeta }) {
 }
 
 function CollectionMetaBadges({ col }: { col: CollectionMeta }) {
-  const isSub = isSubCollection(col);
-
   return (
     <div className="collection-list-badges">
-      {isSub && (
-        <span className="collection-list-sub-badge">
-          <Icon name="component" className="h-2.5 w-2.5" />
-          {nestedCollectionBadgeLabel()}
-        </span>
-      )}
       {col.is_group && <span className="collection-list-badge">{folderBadgeLabel()}</span>}
       {col.singleton && <span className="collection-list-badge">Singleton</span>}
       {col.is_group ? (
@@ -286,7 +277,7 @@ export default function DataModelSubCollectionsSection({
     : null;
 
   return (
-    <section className="collection-list-nested-wrap space-y-3">
+    <section className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="collection-list-folder-header mb-0">
           <span className="collection-list-folder-icon">
@@ -309,7 +300,7 @@ export default function DataModelSubCollectionsSection({
         </div>
       </div>
 
-      <div className="collection-list-header">
+      <div className="page-toolbar collection-list-toolbar">
         <div className="collection-list-search">
           <Icon name="search" className="collection-list-search-icon h-3.5 w-3.5" />
           <input
@@ -355,11 +346,12 @@ export default function DataModelSubCollectionsSection({
           <ul>
             {filtered.map((col, index) => {
               const isDragging = dragIndex === index;
+              const displayName = getCollectionDisplayName(col);
 
               return (
                 <li
                   key={col.collection}
-                  className={`collection-list-row group is-nested ${isDragging ? 'opacity-40' : ''}`}
+                  className={`collection-list-row group ${isDragging ? 'opacity-40' : ''}`}
                   onDragOver={(e) => {
                     if (canReorder) e.preventDefault();
                   }}
@@ -371,7 +363,7 @@ export default function DataModelSubCollectionsSection({
                   <button
                     type="button"
                     draggable={canReorder}
-                    aria-label={`Reorder ${col.collection}`}
+                    aria-label={`Reorder ${displayName}`}
                     aria-disabled={!canReorder}
                     onDragStart={(e) => {
                       if (!canReorder) {
@@ -391,10 +383,7 @@ export default function DataModelSubCollectionsSection({
                   <Link to={`/settings/data-model/${col.collection}`} className="collection-list-link">
                     <CollectionIcon collection={col} />
                     <div className="min-w-0 flex-1">
-                      <p className="collection-list-title">{col.collection}</p>
-                      {col.parent && (
-                        <p className="collection-list-note">Under {col.parent}</p>
-                      )}
+                      <p className="collection-list-title">{displayName}</p>
                       {col.note && <p className="collection-list-note">{col.note}</p>}
                     </div>
                     <CollectionMetaBadges col={col} />
@@ -402,7 +391,7 @@ export default function DataModelSubCollectionsSection({
 
                   <button
                     type="button"
-                    aria-label={`Actions for ${col.collection}`}
+                    aria-label={`Actions for ${displayName}`}
                     aria-expanded={openMenu?.collection === col.collection}
                     aria-haspopup="menu"
                     onClick={(e) => {

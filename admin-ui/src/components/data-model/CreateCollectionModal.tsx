@@ -8,6 +8,7 @@ import {
   failedToCreateCollection,
 } from '../../lib/collectionLabels';
 import { createCollection, type CollectionMeta } from '../../lib/api';
+import { getApiErrorMessage } from '../../lib/apiErrors';
 
 interface CreateCollectionModalProps {
   parent?: string | null;
@@ -55,8 +56,8 @@ export default function CreateCollectionModal({
       });
       onCreated(created);
       onClose();
-    } catch {
-      setError(failedToCreateCollection());
+    } catch (err) {
+      setError(getApiErrorMessage(err, failedToCreateCollection()));
       setIsSaving(false);
     }
   }

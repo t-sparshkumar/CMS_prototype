@@ -35,6 +35,15 @@ export function getEnv(): Env {
     const messages = result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`);
     throw new Error(`Invalid environment configuration:\n${messages.join('\n')}`);
   }
-  cachedEnv = result.data;
+  const env = result.data;
+  const usesPostgres = env.DB_CLIENT === 'pg' || env.DB_CLIENT === 'postgresql';
+  if (usesPostgres && !env.DATABASE_URL && env.NODE_ENV === 'production') {
+    throw new Error(
+      'DATABASE_URL is required in production when DB_CLIENT=pg. ' +
+        'On Render: create a PostgreSQL database and link DATABASE_URL to your web service ' +
+        '(Blueprint does this automatically via render.yaml).',
+    );
+  }
+  cachedEnv = env;
   return cachedEnv;
 }

@@ -25,6 +25,17 @@ import { filterReadableFields, filterWritableInput } from './permissions.service
 import { logActivity } from './activity.service.js';
 import { syncM2aRelations } from './m2a.service.js';
 
+async function resolveFlowAccountability(
+  db: Knex,
+  userId: string | null,
+): Promise<{ user: string | null; role: string | null }> {
+  if (!userId) {
+    return { user: null, role: null };
+  }
+  const userRow = await db('cms_users').where({ id: userId }).first<{ role: string }>();
+  return { user: userId, role: userRow?.role ?? null };
+}
+
 async function runItemEventFlows(
   db: Knex,
   context: {
@@ -35,17 +46,18 @@ async function runItemEventFlows(
     payload?: Record<string, unknown>;
     userId: string | null;
   },
-): Promise<Record<string, unknown> | undefined> {
+): Promise<{ payload?: Record<string, unknown>; blocked?: boolean }> {
   const { runEventFlows } = await import('./flows/trigger.service.js');
+  const accountability = await resolveFlowAccountability(db, context.userId);
   const result = await runEventFlows(db, {
     collection: context.collection,
     event: context.event,
     hook: context.hook,
     keys: context.keys,
     payload: context.payload,
-    accountability: { user: context.userId, role: null },
+    accountability,
   });
-  return result.payload;
+  return result;
 }
 
 const SYSTEM_AUTO_FIELDS = new Set(['id', 'date_created', 'date_updated', 'user_created', 'user_updated']);
@@ -190,13 +202,17 @@ export async function createItem(
   validateItemInput(fields, sanitizedInput, true);
   await validateFileFields(db, fields, sanitizedInput);
 
-  const filteredPayload = await runItemEventFlows(db, {
+  const filterResult = await runItemEventFlows(db, {
     collection: collectionName,
     event: 'create',
     hook: 'filter',
     payload: sanitizedInput as Record<string, unknown>,
     userId,
   });
+  if (filterResult.blocked) {
+    throw new AppError('Create blocked by flow filter', 403, 'FORBIDDEN');
+  }
+  const filteredPayload = filterResult.payload;
   const flowInput = (filteredPayload ?? sanitizedInput) as CreateItemInput;
 
   if (collection.singleton) {
@@ -268,7 +284,7 @@ export async function updateItem(
     throw new AppError(`Item "${itemId}" not found in "${collectionName}"`, 404, 'NOT_FOUND');
   }
 
-  const filteredPayload = await runItemEventFlows(db, {
+  const filterResult = await runItemEventFlows(db, {
     collection: collectionName,
     event: 'update',
     hook: 'filter',
@@ -276,6 +292,10 @@ export async function updateItem(
     payload: sanitizedInput as Record<string, unknown>,
     userId,
   });
+  if (filterResult.blocked) {
+    throw new AppError('Update blocked by flow filter', 403, 'FORBIDDEN');
+  }
+  const filteredPayload = filterResult.payload;
   const flowInput = (filteredPayload ?? sanitizedInput) as UpdateItemInput;
 
   const payload = buildItemPayload(flowInput, fields, userId, false);
@@ -351,7 +371,7 @@ export async function deleteItem(
     throw new AppError(`Item "${itemId}" not found in "${collectionName}"`, 404, 'NOT_FOUND');
   }
 
-  await runItemEventFlows(db, {
+  const filterResult = await runItemEventFlows(db, {
     collection: collectionName,
     event: 'delete',
     hook: 'filter',
@@ -359,6 +379,10 @@ export async function deleteItem(
     payload: normalizeItemRow(existing as ItemRecord),
     userId,
   });
+
+  if (filterResult.blocked) {
+    throw new AppError('Delete blocked by flow filter', 403, 'FORBIDDEN');
+  }
 
   await enforceSchemaOnDelete(db, collectionName, itemId);
   await logActivity(db, {

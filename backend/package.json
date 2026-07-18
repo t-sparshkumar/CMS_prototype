@@ -14,7 +14,7 @@
     "seed:run": "NODE_OPTIONS='--import tsx' knex seed:run --knexfile knexfile.ts",
     "db:setup": "npm run migrate:latest && npm run seed:run",
     "schema:convert-directus": "NODE_OPTIONS='--import tsx' tsx src/scripts/convert-directus-snapshot.ts",
-    "test:directus-adapter": "NODE_OPTIONS='--import tsx' tsx src/services/directus-snapshot.adapter.test.ts"
+    "test:flows": "NODE_OPTIONS='--import tsx' tsx src/services/flows/flows.service.test.ts && NODE_OPTIONS='--import tsx' tsx src/services/flows/trigger.service.test.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -33,6 +33,7 @@
     "nodemailer": "^9.0.3",
     "pg": "^8.13.1",
     "sharp": "^0.35.2",
+    "tsx": "^4.19.2",
     "uuid": "^11.0.5",
     "zod": "^3.24.1"
   },
@@ -46,7 +47,6 @@
     "@types/node": "^22.10.5",
     "@types/node-cron": "^3.0.11",
     "@types/nodemailer": "^8.0.1",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
 }

@@ -5,7 +5,7 @@ This CMS is split across two hosts:
 | Part | Platform | What it runs |
 |------|----------|--------------|
 | **Admin UI** | [Vercel](https://vercel.com) | React/Vite static app |
-| **Backend API** | [Render](https://render.com) | Node.js Express + PostgreSQL |
+| **Backend API** | [Render](https://render.com) | Node.js Express + SQLite (on persistent disk) |
 
 ---
 
@@ -14,11 +14,13 @@ This CMS is split across two hosts:
 1. GitHub repo pushed with this code
 2. [Render](https://render.com) account
 3. [Vercel](https://vercel.com) account
-4. (Optional) [Neon](https://neon.tech) if you prefer external Postgres instead of Render DB
+4. (Optional) [Neon](https://neon.tech) or Render Postgres if you prefer PostgreSQL over SQLite
 
 ---
 
-## Step 1 — Deploy backend on Render
+## Step 1 — Deploy backend on Render (SQLite — no Postgres)
+
+The default `render.yaml` uses **SQLite** stored on a **persistent disk** at `/var/data/cms.db`. No PostgreSQL setup required.
 
 ### Option A: Blueprint (recommended)
 
@@ -26,8 +28,7 @@ This CMS is split across two hosts:
 2. Connect your GitHub repo
 3. Render reads `render.yaml` at the repo root and creates:
    - **cms-backend** web service
-   - **cms-db** PostgreSQL database
-   - Persistent disk for file uploads (`/var/data/uploads`)
+   - **Persistent disk** at `/var/data` (database + uploads)
 4. After deploy starts, open **cms-backend** → **Environment** and set:
 
    | Variable | Value |
@@ -36,26 +37,40 @@ This CMS is split across two hosts:
 
 5. Wait for deploy to finish. Copy the backend URL, e.g. `https://cms-backend.onrender.com`
 
-### Option B: Manual web service
+### Option B: Manual web service (SQLite)
 
 1. **New** → **Web Service** → connect repo
 2. Settings:
-   - **Root Directory:** `backend`
-   - **Build Command:** `npm install --include=dev && npm run build`
-   - **Start Command:** `npm run start:prod`
-   - **Health Check Path:** `/server/health`
-3. Add a **PostgreSQL** database and set env vars:
+
+   | Setting | Value |
+   |---------|-------|
+   | **Root Directory** | `backend` |
+   | **Build Command** | `npm install --include=dev && npm run build` |
+   | **Start Command** | `npm run start:prod` |
+   | **Health Check Path** | `/server/health` |
+
+3. **Disks** → Add disk:
+   - **Mount path:** `/var/data`
+   - **Size:** 1 GB (or more)
+
+4. **Environment** variables:
 
    ```env
    NODE_ENV=production
-   DB_CLIENT=pg
-   DATABASE_URL=<postgres connection string>
+   DB_CLIENT=sqlite3
+   DB_FILE=/var/data/cms.db
    SECRET_KEY=<long random string>
    ADMIN_UI_URL=https://your-app.vercel.app
    UPLOAD_DIR=/var/data/uploads
    ```
 
-4. (Recommended) Add a **Persistent Disk** mounted at `/var/data` so uploads survive redeploys.
+   > **Do not set** `DATABASE_URL` or `DB_CLIENT=pg` when using SQLite.
+
+5. **Remove** any existing `DATABASE_URL` variable if you previously tried Postgres.
+
+### Option C: PostgreSQL (optional)
+
+If you prefer Postgres instead of SQLite, see [Using PostgreSQL](#using-postgresql-optional) below.
 
 ### Verify backend
 
@@ -106,17 +121,19 @@ Expected: `{"data":{"status":"ok","db":"connected"}}`
 
 ## Environment variables reference
 
-### Backend (Render)
+### Backend (Render) — SQLite (default)
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `NODE_ENV` | Yes | `production` |
-| `DB_CLIENT` | Yes | `pg` |
-| `DATABASE_URL` | Yes* | Postgres connection string |
+| `DB_CLIENT` | Yes | `sqlite3` |
+| `DB_FILE` | Yes | `/var/data/cms.db` (must be on persistent disk) |
 | `SECRET_KEY` | Yes | JWT signing secret (32+ random chars) |
 | `ADMIN_UI_URL` | Yes | Full Vercel URL, e.g. `https://cms-admin.vercel.app` |
-| `UPLOAD_DIR` | Yes | `/var/data/uploads` with persistent disk |
+| `UPLOAD_DIR` | Yes | `/var/data/uploads` |
 | `PORT` | Auto | Set by Render automatically |
+
+Persistent disk **required** — mount at `/var/data` so SQLite DB and uploads survive redeploys.
 
 ### Admin UI (Vercel)
 
@@ -126,20 +143,56 @@ Expected: `{"data":{"status":"ok","db":"connected"}}`
 
 ---
 
-## Using Neon instead of Render Postgres
+## Using PostgreSQL (optional)
 
-1. Create a project at [neon.tech](https://neon.tech)
-2. Copy the connection string
-3. On Render backend, set:
+Replace SQLite with Postgres if you need multi-instance scaling or external DB hosting.
+
+1. Create a **PostgreSQL** database on Render (or [Neon](https://neon.tech))
+2. On **cms-backend** → **Environment**:
 
    ```env
    DB_CLIENT=pg
-   DATABASE_URL=postgresql://user:pass@host/db?sslmode=require
+   DATABASE_URL=<internal or external postgres URL>
    ```
+
+3. **Remove** `DB_FILE` (not used with Postgres)
+4. Redeploy
+
+For Neon, append `?sslmode=require` to the connection string.
 
 ---
 
 ## Troubleshooting
+
+### `ECONNREFUSED` during `knex migrate:latest`
+
+**If you want SQLite (no Postgres):** you still have `DB_CLIENT=pg` set. Switch to SQLite:
+
+| Variable | Value |
+|----------|-------|
+| `DB_CLIENT` | `sqlite3` |
+| `DB_FILE` | `/var/data/cms.db` |
+| `UPLOAD_DIR` | `/var/data/uploads` |
+
+Delete `DATABASE_URL` if present. Add a **persistent disk** mounted at `/var/data`. Redeploy.
+
+**If you want Postgres:** `DATABASE_URL` is missing or wrong — see [Using PostgreSQL](#using-postgresql-optional).
+
+### `tsx: not found` or Render runs `npm run dev:backend`
+
+Render is using the **wrong start command**. `dev:backend` is for local development only.
+
+In **Render → your web service → Settings**:
+
+| Setting | Correct value |
+|---------|---------------|
+| **Root Directory** | `backend` |
+| **Build Command** | `npm install --include=dev && npm run build` |
+| **Start Command** | `npm run start:prod` |
+
+Do **not** use repo root with `npm run dev:backend`. Save settings and **Manual Deploy → Deploy latest**.
+
+Recommended: delete the misconfigured service and redeploy via **Blueprint** (`render.yaml` at repo root) — it sets these values automatically.
 
 ### Login fails on Vercel
 - Confirm `VITE_API_URL` is set on Vercel and redeployed

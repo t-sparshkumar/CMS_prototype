@@ -127,7 +127,14 @@ export async function createCollection(db: Knex, input: CreateCollectionInput): 
 
   const tableExists = await db.schema.hasTable(input.collection);
   if (tableExists) {
-    throw new AppError(`Table "${input.collection}" already exists`, 409, 'TABLE_EXISTS');
+    const metaExists = await db<CmsCollectionRow>('cms_collections')
+      .where({ collection: input.collection })
+      .first();
+    if (metaExists) {
+      throw new AppError(`Collection "${input.collection}" already exists`, 409, 'COLLECTION_EXISTS');
+    }
+    // Recover from a previous failed create that left an orphan SQL table.
+    await db.schema.dropTableIfExists(input.collection);
   }
 
   const isGroup = Boolean(input.is_group);

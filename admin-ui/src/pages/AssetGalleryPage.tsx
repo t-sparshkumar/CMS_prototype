@@ -561,16 +561,6 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
 
       {!pickerMode && (
         <aside className={`asset-gallery-sidebar ${sidebarOpen ? 'asset-gallery-sidebar-open' : ''}`}>
-          <button
-            type="button"
-            onClick={() => openFolder(null)}
-            className={`asset-gallery-sidebar-item ${
-              currentFolder === null ? 'asset-gallery-sidebar-item-active' : ''
-            }`}
-          >
-            <Icon name="image" className="h-4 w-4 shrink-0" />
-            <span>My Drive</span>
-          </button>
           <p className="asset-gallery-sidebar-label">Folders</p>
           <FolderTree
             folders={folders}

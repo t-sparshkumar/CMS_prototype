@@ -14,6 +14,7 @@ import AddExistingBlockModal, {
   type PageSectionRef,
 } from './AddExistingBlockModal';
 import Icon from './Icon';
+import { withReturnTo } from '../lib/returnTo';
 
 export type { PageSectionRef };
 export { BLOCK_COLLECTION_LABELS };
@@ -68,10 +69,21 @@ export function parsePageSections(value: unknown): PageSectionRef[] {
     }));
 }
 
+/** Strip enriched block data before sending sections to the API. */
+export function serializePageSectionsForSave(value: unknown): PageSectionRef[] {
+  return parsePageSections(value).map(({ collection, item, sort }) => ({
+    collection,
+    item,
+    sort,
+  }));
+}
+
 interface PageSectionsBuilderProps {
   value: unknown;
   onChange: (value: PageSectionRef[]) => void;
   allowedCollections: string[];
+  /** When set, block edit links include ?returnTo= so save can navigate back to the page builder. */
+  returnTo?: string;
 }
 
 function SectionGripIcon() {
@@ -114,6 +126,7 @@ export default function PageSectionsBuilder({
   value,
   onChange,
   allowedCollections,
+  returnTo,
 }: PageSectionsBuilderProps) {
   const sections = parsePageSections(value);
   const [showModal, setShowModal] = useState(false);
@@ -228,7 +241,10 @@ export default function PageSectionsBuilder({
 
                   <div className="min-w-0 flex-1 truncate text-sm">
                     <span className="section-list-type">{typeLabel}:</span>{' '}
-                    <Link to={`/content/${ref.collection}/${ref.item}`} className="section-list-value">
+                    <Link
+                      to={withReturnTo(`/content/${ref.collection}/${ref.item}`, returnTo)}
+                      className="section-list-value"
+                    >
                       {label}
                     </Link>
                     {status === 'published' && (

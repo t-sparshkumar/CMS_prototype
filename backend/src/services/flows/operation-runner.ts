@@ -1,10 +1,12 @@
 import vm from 'node:vm';
 import type { Knex } from 'knex';
 import type { AccessContext, PermissionAction } from '../../types/permission.js';
-import type { DataChain, FlowOperationRow, OperationRunResult } from '../../types/flow.js';
+import type { AuthenticatedUser } from '../../types/user.js';
+import type { DataChain, FlowAccountability, FlowOperationRow, OperationRunResult } from '../../types/flow.js';
 import { evaluateConditionFilter } from './condition-evaluator.js';
 import { parseTemplates } from './data-chain.js';
 import { getEnv } from '../../config/env.js';
+import { resolveAccess } from '../permissions.service.js';
 
 const SCRIPT_TIMEOUT_MS = 5_000;
 
@@ -20,10 +22,46 @@ function systemAccess(collection: string, action: PermissionAction): AccessConte
   };
 }
 
+async function resolveItemAccess(
+  db: Knex,
+  collection: string,
+  action: PermissionAction,
+  mode: FlowAccountability,
+  accountability: { user: string | null; role: string | null },
+): Promise<AccessContext> {
+  if (mode !== 'accountability' && mode !== 'activity') {
+    return systemAccess(collection, action);
+  }
+
+  let user: AuthenticatedUser | null = null;
+  if (accountability.user) {
+    const { getUserById } = await import('../auth.service.js');
+    user = await getUserById(db, accountability.user);
+  } else if (accountability.role) {
+    user = {
+      id: '',
+      first_name: '',
+      last_name: '',
+      email: '',
+      role: accountability.role,
+      status: 'active',
+      admin_access: false,
+      app_access: true,
+    };
+  }
+
+  const access = await resolveAccess(db, user, collection, action);
+  if (!access.allowed) {
+    throw new Error(`Accountability denied ${action} on "${collection}"`);
+  }
+  return access;
+}
+
 async function runItemRead(
   db: Knex,
   options: Record<string, unknown>,
   chain: DataChain,
+  access: AccessContext,
 ): Promise<unknown> {
   const collection = String(options.collection ?? '');
   const parsed = parseTemplates(options, chain) as Record<string, unknown>;
@@ -31,7 +69,7 @@ async function runItemRead(
   if (parsed.id || parsed.key) {
     const id = String(parsed.id ?? parsed.key);
     const { getItem } = await import('../items.service.js');
-    return getItem(db, collection, id, null, null, systemAccess(collection, 'read'));
+    return getItem(db, collection, id, null, null, access);
   }
 
   const query = (parsed.query ?? {}) as Record<string, unknown>;
@@ -50,7 +88,7 @@ async function runItemRead(
       search: null,
       includeArchived: true,
     },
-    systemAccess(collection, 'read'),
+    access,
   );
   return result.items;
 }
@@ -60,12 +98,13 @@ async function runItemCreate(
   options: Record<string, unknown>,
   chain: DataChain,
   userId: string | null,
+  access: AccessContext,
 ): Promise<unknown> {
   const parsed = parseTemplates(options, chain) as Record<string, unknown>;
   const collection = String(parsed.collection ?? '');
   const payload = (parsed.payload ?? {}) as Record<string, unknown>;
   const { createItem } = await import('../items.service.js');
-  return createItem(db, collection, payload, userId, systemAccess(collection, 'create'));
+  return createItem(db, collection, payload, userId, access);
 }
 
 async function runItemUpdate(
@@ -73,13 +112,14 @@ async function runItemUpdate(
   options: Record<string, unknown>,
   chain: DataChain,
   userId: string | null,
+  access: AccessContext,
 ): Promise<unknown> {
   const parsed = parseTemplates(options, chain) as Record<string, unknown>;
   const collection = String(parsed.collection ?? '');
   const key = String(parsed.key ?? parsed.id ?? '');
   const payload = (parsed.payload ?? {}) as Record<string, unknown>;
   const { updateItem } = await import('../items.service.js');
-  return updateItem(db, collection, key, payload, userId, systemAccess(collection, 'update'));
+  return updateItem(db, collection, key, payload, userId, access);
 }
 
 async function runItemDelete(
@@ -87,12 +127,13 @@ async function runItemDelete(
   options: Record<string, unknown>,
   chain: DataChain,
   userId: string | null,
+  access: AccessContext,
 ): Promise<unknown> {
   const parsed = parseTemplates(options, chain) as Record<string, unknown>;
   const collection = String(parsed.collection ?? '');
   const key = String(parsed.key ?? parsed.id ?? '');
   const { deleteItem } = await import('../items.service.js');
-  await deleteItem(db, collection, key, userId, systemAccess(collection, 'delete'));
+  await deleteItem(db, collection, key, userId, access);
   return { deleted: key };
 }
 
@@ -194,11 +235,15 @@ export async function executeOperation(
   chain: DataChain,
   context: {
     userId: string | null;
+    accountabilityMode?: FlowAccountability;
+    triggerAccountability?: { user: string | null; role: string | null };
     triggerFlow: (flowId: string, payload: Record<string, unknown>) => Promise<unknown>;
   },
 ): Promise<OperationRunResult> {
   const options = (operation.options ?? {}) as Record<string, unknown>;
   const parsedOptions = parseTemplates(options, chain) as Record<string, unknown>;
+  const accountability = context.triggerAccountability ?? { user: context.userId, role: null };
+  const mode = context.accountabilityMode ?? 'all';
 
   try {
     switch (operation.type) {
@@ -213,22 +258,30 @@ export async function executeOperation(
       }
 
       case 'item-read': {
-        const output = await runItemRead(db, parsedOptions, chain);
+        const collection = String(parsedOptions.collection ?? '');
+        const access = await resolveItemAccess(db, collection, 'read', mode, accountability);
+        const output = await runItemRead(db, parsedOptions, chain, access);
         return { success: true, output, branch: 'resolve' };
       }
 
       case 'item-create': {
-        const output = await runItemCreate(db, parsedOptions, chain, context.userId);
+        const collection = String(parsedOptions.collection ?? '');
+        const access = await resolveItemAccess(db, collection, 'create', mode, accountability);
+        const output = await runItemCreate(db, parsedOptions, chain, context.userId, access);
         return { success: true, output, branch: 'resolve' };
       }
 
       case 'item-update': {
-        const output = await runItemUpdate(db, parsedOptions, chain, context.userId);
+        const collection = String(parsedOptions.collection ?? '');
+        const access = await resolveItemAccess(db, collection, 'update', mode, accountability);
+        const output = await runItemUpdate(db, parsedOptions, chain, context.userId, access);
         return { success: true, output, branch: 'resolve' };
       }
 
       case 'item-delete': {
-        const output = await runItemDelete(db, parsedOptions, chain, context.userId);
+        const collection = String(parsedOptions.collection ?? '');
+        const access = await resolveItemAccess(db, collection, 'delete', mode, accountability);
+        const output = await runItemDelete(db, parsedOptions, chain, context.userId, access);
         return { success: true, output, branch: 'resolve' };
       }
 
@@ -248,7 +301,15 @@ export async function executeOperation(
       }
 
       case 'trigger': {
-        const flowId = String(parsedOptions.flow ?? '');
+        const flowId = String(parsedOptions.flow ?? '').trim();
+        if (!flowId) {
+          return {
+            success: false,
+            output: null,
+            branch: 'reject',
+            error: 'Trigger Flow operation requires a target flow',
+          };
+        }
         const payload = (parsedOptions.payload ?? chain.$trigger) as Record<string, unknown>;
         const iterationMode = String(parsedOptions.iterationMode ?? 'serial');
         const batch = parsedOptions.batch;

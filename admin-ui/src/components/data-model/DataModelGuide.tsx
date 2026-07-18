@@ -46,23 +46,26 @@ export default function DataModelGuide() {
     <details className="card group">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-5 [&::-webkit-details-marker]:hidden">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+          <span className="stat-card-icon">
             <Icon name="database" className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-sm font-bold text-slate-900">Data model guide</p>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="section-title text-sm">Data model guide</p>
+            <p className="section-subtitle">
               Covers collection, field, and relationship workflows for this CMS.
             </p>
           </div>
         </div>
-        <Icon name="chevron-right" className="h-4 w-4 text-slate-400 transition-transform group-open:rotate-90" />
+        <Icon name="chevron-right" className="h-4 w-4 text-[var(--app-text-faint)] transition-transform group-open:rotate-90" />
       </summary>
-      <div className="border-t border-surface-border px-5 pb-5 pt-4 grid gap-4 sm:grid-cols-2">
+      <div className="border-t border-[var(--app-border)] px-5 pb-5 pt-4 grid gap-4 sm:grid-cols-2">
         {CASES.map((section) => (
-          <div key={section.title} className="rounded-xl border border-surface-border bg-surface-muted/30 p-4">
-            <h3 className="text-sm font-semibold text-slate-900">{section.title}</h3>
-            <ol className="mt-2 space-y-1.5 text-xs text-slate-600 list-decimal list-inside">
+          <div
+            key={section.title}
+            className="rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-muted)] p-4"
+          >
+            <h3 className="section-title text-sm">{section.title}</h3>
+            <ol className="mt-2 space-y-1.5 text-xs text-[var(--app-text-secondary)] list-decimal list-inside">
               {section.steps.map((step) => (
                 <li key={step}>{step}</li>
               ))}

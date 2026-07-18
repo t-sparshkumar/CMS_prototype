@@ -6,9 +6,17 @@ interface InterfacePickerIconProps {
   className?: string;
 }
 
-function Box({ children, className = '' }: { children: ReactNode; className?: string }) {
+function Box({
+  children,
+  className = '',
+  style,
+}: {
+  children: ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
   return (
-    <div className={`interface-preview-frame ${className}`}>
+    <div className={`interface-preview-frame ${className}`} style={style}>
       {children}
     </div>
   );

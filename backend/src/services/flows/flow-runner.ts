@@ -36,6 +36,11 @@ export class FlowRunner {
     if (!flow || flow.status !== 'active') {
       throw new Error(`Flow "${flowId}" is not active`);
     }
+    if (trigger.type === 'operation' && flow.trigger_type !== 'operation') {
+      throw new Error(
+        `Flow "${flow.name}" must use the "Another Flow" trigger type to be invoked from another flow`,
+      );
+    }
 
     const operations = await getFlowOperations(this.db, flowId);
     const operationMap = new Map(operations.map((op) => [op.id, op]));
@@ -59,13 +64,22 @@ export class FlowRunner {
     });
 
     const env = loadAllowedEnv();
+    let accountability = trigger.accountability ?? { user: userId, role: null as string | null };
+    if (userId && !accountability.role) {
+      const userRow = await this.db('cms_users').where({ id: userId }).first<{ role: string }>();
+      if (userRow?.role) {
+        accountability = { ...accountability, role: userRow.role };
+      }
+    }
+
     let chain: DataChain = createDataChain(
       {
         ...trigger,
-        accountability: trigger.accountability ?? { user: userId, role: null },
+        accountability,
       },
       env,
     );
+    chain.$accountability = accountability;
 
     let currentId: string | null = entryId;
     let steps = 0;
@@ -96,6 +110,8 @@ export class FlowRunner {
         const stepStarted = Date.now();
         const result = await executeOperation(this.db, operation, chain, {
           userId,
+          accountabilityMode: flow.accountability,
+          triggerAccountability: accountability,
           triggerFlow: async (nestedFlowId, payload) => {
             const nested = new FlowRunner(this.db, this.depth + 1);
             const nestedResult = await nested.run(
@@ -115,6 +131,7 @@ export class FlowRunner {
           operation_key: operation.key,
           operation_type: operation.type,
           status: result.success ? 'success' : 'failed',
+          branch: result.branch,
           input: (operation.options ?? {}) as Record<string, unknown>,
           output: result.output,
           error: result.error,

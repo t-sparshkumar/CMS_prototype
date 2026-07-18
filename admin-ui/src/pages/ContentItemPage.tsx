@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import ContentTranslationsSection from '../components/ContentTranslationsSection';
 import type { BreadcrumbItem } from '../components/Breadcrumbs';
@@ -8,6 +8,7 @@ import PageSectionsBuilder, {
   getPageSectionAllowedCollections,
   isPageSectionsField,
   parsePageSections,
+  serializePageSectionsForSave,
 } from '../components/PageSectionsBuilder';
 import { applyFieldConditions } from '../lib/conditions';
 import {
@@ -21,6 +22,8 @@ import {
   type TranslationsConfig,
 } from '../lib/api';
 import { isAxiosError } from 'axios';
+import { getApiErrorMessage } from '../lib/apiErrors';
+import { getSafeReturnTo } from '../lib/returnTo';
 
 function buildEmptyTranslations(enabledLanguages: string[]): Record<string, Record<string, unknown>> {
   return Object.fromEntries(enabledLanguages.map((key) => [key, {}]));
@@ -60,6 +63,8 @@ function mergeTranslationsIntoBaseFields(
 export default function ContentItemPage() {
   const { collection = '', id } = useParams<{ collection: string; id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTo = getSafeReturnTo(searchParams.get('returnTo'));
   const isNew = id === 'new';
 
   const [fields, setFields] = useState<FieldMeta[]>([]);
@@ -241,17 +246,18 @@ export default function ContentItemPage() {
     if (collection === 'pages') {
       payload = {
         ...payload,
-        sections: parsePageSections(payload.sections),
+        sections: serializePageSectionsForSave(payload.sections),
       };
+      delete payload.components;
     }
 
     try {
       if (isNew) {
         const created = await createItem(collection, payload);
-        navigate(`/content/${collection}/${String(created.id)}`);
+        navigate(returnTo ?? `/content/${collection}/${String(created.id)}`);
       } else if (id) {
         await updateItem(collection, id, payload);
-        navigate(`/content/${collection}`);
+        navigate(returnTo ?? `/content/${collection}`);
       }
     } catch (err) {
       if (isAxiosError(err) && Array.isArray(err.response?.data?.errors)) {
@@ -268,8 +274,9 @@ export default function ContentItemPage() {
         setFieldErrors(mapped);
         setError(messages[0] ?? 'Failed to save item');
       } else {
-        setError('Failed to save item');
+        setError(getApiErrorMessage(err, 'Failed to save item'));
       }
+    } finally {
       setIsSaving(false);
     }
   }
@@ -307,6 +314,9 @@ export default function ContentItemPage() {
                   value={formData.sections}
                   onChange={(sections) => setFormData((prev) => ({ ...prev, sections }))}
                   allowedCollections={getPageSectionAllowedCollections(sectionsField)}
+                  returnTo={
+                    !isNew && id ? `/content/${collection}/${id}` : undefined
+                  }
                 />
               </section>
             )}
@@ -329,7 +339,7 @@ export default function ContentItemPage() {
               <button type="submit" disabled={isSaving} className="btn-primary">
                 {isSaving ? 'Saving...' : 'Save'}
               </button>
-              <Link to={`/content/${collection}`} className="btn-secondary">
+              <Link to={returnTo ?? `/content/${collection}`} className="btn-secondary">
                 Cancel
               </Link>
             </div>

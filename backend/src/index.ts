@@ -21,7 +21,8 @@ import { usersRouter } from './api/users.routes.js';
 import { getEnv } from './config/env.js';
 import { ensureUploadDir } from './core/storage.js';
 import { success } from './core/response.js';
-import { getDb } from './db/knex.js';
+import { destroyDb, getDb, initDb } from './db/knex.js';
+import { getSqliteDbPath } from './core/sqlite.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 dotenv.config();
@@ -42,9 +43,15 @@ app.use(cookieParser());
 
 app.get('/server/health', async (_req, res, next) => {
   try {
+    await initDb();
     const db = getDb();
     await db.raw('select 1');
-    res.json(success({ status: 'ok', db: 'connected' }));
+    const env = getEnv();
+    const payload: Record<string, string> = { status: 'ok', db: 'connected' };
+    if (env.DB_CLIENT === 'sqlite3') {
+      payload.db_path = getSqliteDbPath();
+    }
+    res.json(success(payload));
   } catch (err) {
     next(err);
   }
@@ -75,6 +82,7 @@ import { repairWebsiteModule } from './services/website.service.js';
 import { refreshFlowSchedules } from './services/flows/cron-scheduler.js';
 
 async function start(): Promise<void> {
+  await initDb();
   const db = getDb();
   await db.raw('select 1');
   await ensureUploadDir();

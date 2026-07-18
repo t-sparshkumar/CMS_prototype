@@ -6,11 +6,9 @@ import {
   addFolderLabel,
   childCollectionsLabel,
   folderBadgeLabel,
-  nestedCollectionBadgeLabel,
   openCollectionLabel,
   openFolderLabel,
 } from '../../lib/collectionLabels';
-import { isSubCollection } from '../SubCollectionHighlight';
 import type { CollectionMeta } from '../../lib/api';
 import { getCollectionDisplayName } from '../../lib/collectionDisplay';
 
@@ -20,7 +18,6 @@ interface CollectionCardProps {
   onDuplicate?: (name: string) => void;
   onAddFolder?: (collection: CollectionMeta) => void;
   onAddCollection?: (collection: CollectionMeta) => void;
-  highlightAsSubCollection?: boolean;
 }
 
 export default function CollectionCard({
@@ -29,10 +26,8 @@ export default function CollectionCard({
   onDuplicate,
   onAddFolder,
   onAddCollection,
-  highlightAsSubCollection = false,
 }: CollectionCardProps) {
   const color = collection.color ?? 'var(--app-accent)';
-  const isSub = highlightAsSubCollection || isSubCollection(collection);
   const displayName = getCollectionDisplayName(collection);
 
   const metaText = collection.is_group
@@ -40,7 +35,7 @@ export default function CollectionCard({
     : `${collection.field_count} field${collection.field_count === 1 ? '' : 's'}`;
 
   return (
-    <article className={`dm-item-card group ${isSub ? 'is-nested' : ''}`}>
+    <article className="dm-item-card group">
       <div className="dm-item-card-body">
         <div className="dm-item-card-header">
           <span
@@ -63,9 +58,6 @@ export default function CollectionCard({
             >
               {displayName}
             </Link>
-            {isSub && collection.parent && (
-              <p className="collection-list-note">Under {collection.parent}</p>
-            )}
             {collection.note ? (
               <p className="collection-list-note">{collection.note}</p>
             ) : (
@@ -75,12 +67,6 @@ export default function CollectionCard({
         </div>
 
         <div className="flex flex-wrap gap-1 mt-3">
-          {isSub && (
-            <span className="dm-badge-neutral dm-badge">
-              <Icon name="component" className="h-2.5 w-2.5" />
-              {nestedCollectionBadgeLabel()}
-            </span>
-          )}
           {collection.is_group && <span className="dm-badge">{folderBadgeLabel()}</span>}
           {collection.singleton && <span className="dm-badge">Singleton</span>}
           {collection.system && <span className="dm-badge-neutral dm-badge">System</span>}

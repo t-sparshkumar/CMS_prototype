@@ -10,7 +10,6 @@ import {
   childCollectionsLabel,
   folderBadgeLabel,
   manageFolderSubtitle,
-  nestedCollectionBadgeLabel,
 } from '../../lib/collectionLabels';
 import { fetchCollection, fetchCollections, type CollectionMeta } from '../../lib/api';
 
@@ -143,15 +142,7 @@ export default function DataModelLayout() {
               </span>
               <div>
                 <h1 className="dm-panel-title">{meta.collection}</h1>
-                {meta.parent && (
-                  <p className="collection-list-note">Under {meta.parent}</p>
-                )}
                 <div className="dm-panel-meta">
-                  {meta.parent && (
-                    <span className="dm-badge-neutral dm-badge">
-                      {nestedCollectionBadgeLabel()}
-                    </span>
-                  )}
                   {meta.is_group && <span className="dm-badge">{folderBadgeLabel()}</span>}
                   {meta.singleton && <span className="dm-badge">Singleton</span>}
                   {meta.hidden && <span className="dm-badge-neutral dm-badge">Hidden</span>}

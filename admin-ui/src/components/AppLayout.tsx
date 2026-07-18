@@ -28,16 +28,19 @@ interface NavSection {
 }
 
 const dashboardNav: NavItem = { to: '/', label: 'Dashboard', icon: 'dashboard' };
+const dataModelNav: NavItem = { to: '/settings/data-model', label: 'Data Model', icon: 'database' };
+const assetGalleryNav: NavItem = { to: '/assets', label: 'Asset Gallery', icon: 'image' };
+const triggersNav: NavItem = { to: '/settings/triggers', label: 'Triggers', icon: 'bolt' };
+const projectSettingsNav: NavItem = { to: '/settings/project', label: 'Project Settings', icon: 'settings' };
+const historyNav: NavItem = { to: '/history', label: 'History and Audit Trail', icon: 'history' };
 
 const navSections: NavSection[] = [
   {
-    title: 'Content & schema',
+    title: 'Content',
     icon: 'content',
     items: [
       { to: '/content', label: 'Content', icon: 'content' },
       { to: '/pages', label: 'Pages', icon: 'pages' },
-      { to: '/settings/data-model', label: 'Data Model', icon: 'database' },
-      { to: '/settings/triggers', label: 'Triggers', icon: 'bolt' },
       { to: '/settings/translations', label: 'Translations', icon: 'translate' },
     ],
   },
@@ -47,15 +50,6 @@ const navSections: NavSection[] = [
     items: [
       { to: '/settings/users', label: 'Users', icon: 'users' },
       { to: '/settings/access-control', label: 'Roles & Policies', icon: 'shield' },
-    ],
-  },
-  {
-    title: 'Project',
-    icon: 'settings',
-    items: [
-      { to: '/settings/project', label: 'Project Settings', icon: 'settings' },
-      { to: '/assets', label: 'Asset Gallery', icon: 'image' },
-      { to: '/history', label: 'History', icon: 'history' },
     ],
   },
 ];
@@ -139,6 +133,66 @@ export default function AppLayout({
   }
 
   const dashboardActive = isActive(location.pathname, dashboardNav.to);
+  const dataModelActive = isActive(location.pathname, dataModelNav.to);
+  const assetGalleryActive = isActive(location.pathname, assetGalleryNav.to);
+  const triggersActive = isActive(location.pathname, triggersNav.to);
+  const projectSettingsActive = isActive(location.pathname, projectSettingsNav.to);
+  const historyActive = isActive(location.pathname, historyNav.to);
+
+  function renderTopNavLink(item: NavItem, active: boolean) {
+    return (
+      <Link
+        to={item.to}
+        className={`nav-item ${active ? 'nav-item-active' : 'nav-item-idle'}`}
+      >
+        <Icon name={item.icon} className="nav-item-icon" />
+        <span className="flex-1 truncate">{item.label}</span>
+      </Link>
+    );
+  }
+
+  function renderNavSection(section: NavSection) {
+    const expanded = expandedSections[section.title] ?? true;
+    const sectionActive = sectionHasActive(location.pathname, section);
+
+    return (
+      <div>
+        <button
+          type="button"
+          onClick={() => toggleSection(section.title)}
+          className={`nav-section-trigger ${sectionActive ? 'text-slate-800' : ''}`}
+        >
+          <Icon name={section.icon} className="h-[18px] w-[18px] shrink-0 text-slate-400" />
+          <span className="flex-1 truncate text-left">{section.title}</span>
+          <Icon
+            name="chevron-down"
+            className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          />
+        </button>
+
+        {expanded && (
+          <div className="mt-0.5 space-y-0.5 pl-2">
+            {section.items.map((item) => {
+              const active = isActive(location.pathname, item.to);
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`nav-item nav-item-nested ${active ? 'nav-item-active' : 'nav-item-idle'}`}
+                >
+                  <span className={`nav-bullet ${active ? 'nav-bullet-active' : ''}`} />
+                  <span className="flex-1 truncate">{item.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const contentSection = navSections.find((section) => section.title === 'Content');
+  const peopleSection = navSections.find((section) => section.title === 'People & access');
 
   const logoMark = adminLogoSrc ? (
     <img
@@ -192,54 +246,17 @@ export default function AppLayout({
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          <Link
-            to={dashboardNav.to}
-            className={`nav-item ${dashboardActive ? 'nav-item-active' : 'nav-item-idle'}`}
-          >
-            <Icon name={dashboardNav.icon} className="nav-item-icon" />
-            <span className="flex-1 truncate">{dashboardNav.label}</span>
-          </Link>
-
-          {navSections.map((section) => {
-            const expanded = expandedSections[section.title] ?? true;
-            const sectionActive = sectionHasActive(location.pathname, section);
-
-            return (
-              <div key={section.title} className="pt-2">
-                <button
-                  type="button"
-                  onClick={() => toggleSection(section.title)}
-                  className={`nav-section-trigger ${sectionActive ? 'text-slate-800' : ''}`}
-                >
-                  <Icon name={section.icon} className="h-[18px] w-[18px] shrink-0 text-slate-400" />
-                  <span className="flex-1 truncate text-left">{section.title}</span>
-                  <Icon
-                    name="chevron-down"
-                    className={`h-4 w-4 shrink-0 text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
-                  />
-                </button>
-
-                {expanded && (
-                  <div className="mt-0.5 space-y-0.5 pl-2">
-                    {section.items.map((item) => {
-                      const active = isActive(location.pathname, item.to);
-                      return (
-                        <Link
-                          key={item.to}
-                          to={item.to}
-                          className={`nav-item nav-item-nested ${active ? 'nav-item-active' : 'nav-item-idle'}`}
-                        >
-                          <span className={`nav-bullet ${active ? 'nav-bullet-active' : ''}`} />
-                          <span className="flex-1 truncate">{item.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
+          <div className="sidebar-nav-modules">
+            {renderTopNavLink(dashboardNav, dashboardActive)}
+            {renderTopNavLink(dataModelNav, dataModelActive)}
+            {contentSection && renderNavSection(contentSection)}
+            {renderTopNavLink(triggersNav, triggersActive)}
+            {peopleSection && renderNavSection(peopleSection)}
+            {renderTopNavLink(assetGalleryNav, assetGalleryActive)}
+            {renderTopNavLink(projectSettingsNav, projectSettingsActive)}
+            {renderTopNavLink(historyNav, historyActive)}
+          </div>
         </nav>
 
         <div className="border-t border-sidebar-border p-3">

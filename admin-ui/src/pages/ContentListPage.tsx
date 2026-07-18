@@ -297,10 +297,13 @@ export default function ContentListPage() {
         subtitle={currentCollectionMeta.note ?? browseFolderSubtitle()}
         breadcrumbs={layoutBreadcrumbs}
       >
-        <div className="space-y-4">
-          <div className="page-toolbar">
-            <h2 className="section-title mr-auto">Collections</h2>
-            <div className="flex flex-wrap items-center gap-2">
+        <ContentCollectionList
+          collections={visibleCollections}
+          isLoading={collectionsLoading}
+          inFolderContext
+          parentName={getCollectionDisplayName(currentCollectionMeta)}
+          headerActions={
+            <>
               <button type="button" onClick={() => setCreateModal('folder')} className="btn-secondary">
                 <Icon name="folder" className="h-4 w-4" />
                 {createFolderTitle()}
@@ -309,17 +312,10 @@ export default function ContentListPage() {
                 <Icon name="plus" className="h-4 w-4" />
                 {createCollectionTitle()}
               </button>
-            </div>
-          </div>
-
-          <ContentCollectionList
-            collections={visibleCollections}
-            isLoading={collectionsLoading}
-            inFolderContext
-            parentName={getCollectionDisplayName(currentCollectionMeta)}
-            onReorder={() => void loadCollections()}
-          />
-        </div>
+            </>
+          }
+          onReorder={() => void loadCollections()}
+        />
 
         {createModal === 'folder' && (
           <CreateFolderModal

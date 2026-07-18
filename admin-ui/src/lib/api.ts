@@ -5,6 +5,7 @@ import { API_BASE_URL, apiUrl } from './apiBase';
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
+  timeout: 60_000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -922,12 +923,13 @@ export async function deleteUser(id: string): Promise<void> {
 }
 
 export interface DashboardStats {
-  page_groups: number;
+  collections: number;
   components: number;
   users: number;
   drafts_pending: number;
   assets: number;
   pages: number;
+  flows: number;
 }
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
@@ -937,6 +939,18 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
 
 export type FlowStatus = 'active' | 'inactive';
 export type FlowTriggerType = 'event' | 'webhook' | 'schedule' | 'manual' | 'operation';
+
+export type FlowOperationType =
+  | 'condition'
+  | 'item-read'
+  | 'item-create'
+  | 'item-update'
+  | 'item-delete'
+  | 'request'
+  | 'exec'
+  | 'mail'
+  | 'trigger'
+  | 'log';
 
 export interface FlowSummary {
   id: string;
@@ -955,10 +969,24 @@ export interface FlowOperation {
   flow: string;
   name: string | null;
   key: string;
-  type: string;
+  type: FlowOperationType;
   options: Record<string, unknown> | null;
   resolve: string | null;
   reject: string | null;
+  position_x: number;
+  position_y: number;
+}
+
+export interface FlowOperationLogEntry {
+  operation_id: string;
+  operation_key: string;
+  operation_type: FlowOperationType;
+  status: 'success' | 'failed' | 'skipped';
+  input: Record<string, unknown> | null;
+  output: unknown;
+  error?: string;
+  duration_ms: number;
+  branch?: 'resolve' | 'reject' | 'none';
 }
 
 export interface FlowLogEntry {
@@ -980,12 +1008,41 @@ export interface CreateFlowInput {
   accountability?: string;
   operations?: Array<{
     key: string;
-    type: string;
+    type: FlowOperationType;
     name?: string;
     options?: Record<string, unknown> | null;
     resolve?: string | null;
     reject?: string | null;
+    position_x?: number;
+    position_y?: number;
   }>;
+}
+
+export interface SaveFlowGraphInput {
+  flow?: {
+    name?: string;
+    status?: FlowStatus;
+    trigger_type?: FlowTriggerType;
+    trigger_options?: Record<string, unknown> | null;
+    accountability?: string;
+    operation?: string | null;
+  };
+  operations: Array<{
+    id?: string;
+    key: string;
+    name?: string | null;
+    type: FlowOperationType;
+    options?: Record<string, unknown> | null;
+    resolve?: string | null;
+    reject?: string | null;
+    position_x: number;
+    position_y: number;
+  }>;
+  entry_operation?: string | null;
+}
+
+export interface FlowLogDetail extends FlowLogEntry {
+  operations_log: FlowOperationLogEntry[] | null;
 }
 
 export async function fetchFlows(): Promise<FlowSummary[]> {
@@ -1019,6 +1076,22 @@ export async function fetchFlowLogs(id: string): Promise<FlowLogEntry[]> {
 
 export async function triggerFlow(id: string, payload: Record<string, unknown> = {}): Promise<unknown> {
   const res = await api.post<ApiSuccess<unknown>>(`/api/flows/${id}/trigger`, payload);
+  return res.data.data;
+}
+
+export async function saveFlowGraph(
+  id: string,
+  input: SaveFlowGraphInput,
+): Promise<{ flow: FlowSummary; operations: FlowOperation[] }> {
+  const res = await api.put<ApiSuccess<{ flow: FlowSummary; operations: FlowOperation[] }>>(
+    `/api/flows/${id}/graph`,
+    input,
+  );
+  return res.data.data;
+}
+
+export async function fetchFlowLogDetail(flowId: string, logId: string): Promise<FlowLogDetail> {
+  const res = await api.get<ApiSuccess<FlowLogDetail>>(`/api/flows/${flowId}/logs/${logId}`);
   return res.data.data;
 }
 

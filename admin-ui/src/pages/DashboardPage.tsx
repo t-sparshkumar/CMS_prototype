@@ -36,11 +36,11 @@ export default function DashboardPage() {
 
   const statCards: StatCard[] = [
     {
-      label: 'Page Groups',
-      value: stats?.page_groups != null ? String(stats.page_groups) : '—',
-      subtext: 'Active content groups',
-      to: '/content/page_groups',
-      icon: 'group',
+      label: 'Collections',
+      value: stats?.collections != null ? String(stats.collections) : '—',
+      subtext: 'Content types in data model',
+      to: '/settings/data-model',
+      icon: 'database',
     },
     {
       label: 'CMS Components',
@@ -68,9 +68,15 @@ export default function DashboardPage() {
   const services: ServiceRow[] = [
     {
       name: 'Content API',
-      detail: `Collections synced · ${stats?.page_groups ?? '—'} groups active`,
+      detail: `${stats?.collections ?? '—'} collections · ${stats?.components ?? '—'} block items`,
       status: 'operational',
       to: '/content',
+    },
+    {
+      name: 'Data model',
+      detail: 'Collections, fields, and relations',
+      status: stats ? 'operational' : 'degraded',
+      to: '/settings/data-model',
     },
     {
       name: 'Asset storage',
@@ -79,10 +85,10 @@ export default function DashboardPage() {
       to: '/assets',
     },
     {
-      name: 'Schema registry',
-      detail: 'Data model definitions · field validation',
-      status: stats ? 'operational' : 'degraded',
-      to: '/settings/data-model',
+      name: 'Triggers',
+      detail: `${stats?.flows ?? '—'} automation flows configured`,
+      status: 'operational',
+      to: '/settings/triggers',
     },
     {
       name: 'Access control',
@@ -90,13 +96,19 @@ export default function DashboardPage() {
       status: 'operational',
       to: '/settings/access-control',
     },
+    {
+      name: 'History and Audit Trail',
+      detail: 'Activity log and change tracking',
+      status: 'operational',
+      to: '/history',
+    },
   ];
 
   const quickActions = [
     { label: 'Create a new page', to: '/pages/new', icon: 'pages' as IconName },
-    { label: 'Build a component', to: '/content/hero_banners', icon: 'component' as IconName },
+    { label: 'Add a content block', to: '/content/paragraphs', icon: 'component' as IconName },
     { label: 'Upload assets', to: '/assets', icon: 'upload' as IconName },
-    { label: 'Create a collection', to: '/settings/data-model/new?type=collection', icon: 'database' as IconName },
+    { label: 'Create a collection', to: '/settings/data-model/new', icon: 'database' as IconName },
   ];
 
   const statusClass = {
@@ -153,17 +165,11 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {quickActions.map((action) => (
-            <Link
-              key={action.to}
-              to={action.to}
-              className="group flex items-center gap-3 rounded-xl border border-surface-border bg-surface-muted/60 px-4 py-3 transition-all hover:border-brand-200 hover:bg-brand-50/40"
-            >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600 group-hover:bg-brand-600 group-hover:text-white">
+            <Link key={action.to} to={action.to} className="quick-action-card">
+              <span className="quick-action-icon">
                 <Icon name={action.icon} className="h-[18px] w-[18px]" />
               </span>
-              <span className="text-sm font-semibold text-slate-800 group-hover:text-brand-700">
-                {action.label}
-              </span>
+              <span className="quick-action-label">{action.label}</span>
             </Link>
           ))}
         </div>

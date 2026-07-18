@@ -63,6 +63,7 @@ export interface FlowOperationLogEntry {
   operation_key: string;
   operation_type: FlowOperationType;
   status: 'success' | 'failed' | 'skipped';
+  branch?: string;
   input: Record<string, unknown> | null;
   output: unknown;
   error?: string;

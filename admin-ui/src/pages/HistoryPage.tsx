@@ -73,7 +73,7 @@ export default function HistoryPage() {
 
   return (
     <AppLayout
-      title="History & Audit Trail"
+      title="History and Audit Trail"
       subtitle="Track all changes, deletions, and uploads across the CMS"
       actions={
         isAdmin ? (

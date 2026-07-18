@@ -8,6 +8,7 @@ import {
   folderKeyLabel,
 } from '../../lib/collectionLabels';
 import { createCollection, type CollectionMeta } from '../../lib/api';
+import { getApiErrorMessage } from '../../lib/apiErrors';
 
 interface CreateFolderModalProps {
   parent?: string | null;
@@ -43,8 +44,8 @@ export default function CreateFolderModal({
       });
       onCreated(created);
       onClose();
-    } catch {
-      setError(failedToCreateFolder());
+    } catch (err) {
+      setError(getApiErrorMessage(err, failedToCreateFolder()));
       setIsSaving(false);
     }
   }

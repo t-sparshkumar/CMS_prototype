@@ -230,13 +230,51 @@ Enable via the **translations** field interface on a collection. This creates a 
 
 Automation flows live under **Settings → Triggers** (`/settings/triggers`).
 
+| Route | Purpose |
+|-------|---------|
+| `/settings/triggers` | List, search, create, activate/deactivate, delete |
+| `/settings/triggers/:id` | Visual flow editor (canvas, trigger config, operation inspectors, logs) |
+
 | Trigger type | Entry point |
 |--------------|-------------|
-| Manual | Admin UI |
-| Webhook | `POST /flows/trigger/:flowId` |
+| Manual | Admin UI **Run** button or `POST /api/flows/:id/trigger` |
+| Webhook | `POST /flows/trigger/:flowId` (see auth below) |
 | Schedule | Cron via `node-cron` on backend boot |
+| Event Hook | Item create/update/delete on configured collections |
+| Another Flow | Invoked by a **Trigger Flow** operation |
 
-API: `GET/POST/PATCH/DELETE /api/flows` (admin only).
+#### Visual editor walkthrough
+
+1. Create a flow from **Settings → Triggers → New Flow**, then click **Edit** (or open `/settings/triggers/:id`).
+2. Configure the **Trigger** node (left panel when trigger is selected): event collections/scopes, webhook secret, or cron schedule.
+3. Add operations from the palette and connect the trigger’s output to your **entry operation**.
+4. Chain steps with green **resolve** edges; condition nodes also expose a red **reject** path for waterfall logic.
+5. Click an operation to edit its config in the bottom panel (collection pickers, filter rules, templates, JSON payloads).
+6. **Save** persists the full graph via `PUT /api/flows/:id/graph`. Use the **Logs** tab to inspect per-step input/output and re-run manual flows.
+
+#### Webhook authentication
+
+For webhook triggers, set a **secret token** in the trigger inspector. Requests must include either:
+
+- Header: `Authorization: Bearer <secret>`
+- Query: `?token=<secret>`
+
+#### Environment variables (`FLOW_ENV_*`)
+
+Operations can reference env vars in templates as `{{$env.VAR_NAME}}`. Convention: prefix flow-specific secrets and URLs with `FLOW_ENV_`, for example `FLOW_ENV_WEBHOOK_URL` or `FLOW_ENV_API_KEY`. These are loaded from the backend process environment into the flow data chain at runtime.
+
+#### Template variables
+
+| Variable | Description |
+|----------|-------------|
+| `{{$trigger.type}}` | Trigger type (`manual`, `event`, `webhook`, …) |
+| `{{$trigger.collection}}` | Collection name (event hooks) |
+| `{{$trigger.keys}}` | Affected item keys |
+| `{{$trigger.payload.*}}` | Trigger payload fields |
+| `{{$last}}` / `{{$last.field}}` | Output of the previous operation |
+| `{{$env.VAR_NAME}}` | Environment variable (e.g. `FLOW_ENV_*`) |
+
+API: `GET/POST/PATCH/DELETE /api/flows`, `PUT /api/flows/:id/graph`, `GET /api/flows/:id/logs/:logId` (admin only).
 
 ### Theming
 

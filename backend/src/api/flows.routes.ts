@@ -8,13 +8,19 @@ import {
   createFlow,
   deleteFlow,
   getFlowById,
+  getFlowLogById,
   getFlowOperations,
   listFlowLogs,
   listFlows,
+  saveFlowGraph,
   updateFlow,
 } from '../services/flows/flows.service.js';
 import { refreshFlowSchedules } from '../services/flows/cron-scheduler.js';
-import { runManualFlow, runWebhookFlow } from '../services/flows/trigger.service.js';
+import {
+  isWebhookMethodAllowed,
+  runManualFlow,
+  runWebhookFlow,
+} from '../services/flows/trigger.service.js';
 
 export const flowsRouter = Router();
 
@@ -79,6 +85,27 @@ flowsRouter.delete('/:id', async (req: Request, res: Response, next: NextFunctio
   }
 });
 
+flowsRouter.put('/:id/graph', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const db = getDb();
+    const result = await saveFlowGraph(db, String(req.params.id), req.body, req.user?.id ?? null);
+    await refreshFlowSchedules(db);
+    res.json(success(result));
+  } catch (err) {
+    next(err);
+  }
+});
+
+flowsRouter.get('/:id/logs/:logId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const db = getDb();
+    const log = await getFlowLogById(db, String(req.params.id), String(req.params.logId));
+    res.json(success(log));
+  } catch (err) {
+    next(err);
+  }
+});
+
 flowsRouter.get('/:id/logs', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const db = getDb();
@@ -109,7 +136,30 @@ export const flowWebhooksRouter = Router();
 flowWebhooksRouter.all('/:flowId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const db = getDb();
-    const result = await runWebhookFlow(db, String(req.params.flowId), {
+    const flowId = String(req.params.flowId);
+    const flow = await getFlowById(db, flowId);
+    if (!flow || flow.status !== 'active' || flow.trigger_type !== 'webhook') {
+      res.status(404).json({ errors: [{ message: 'Webhook flow not found or inactive' }] });
+      return;
+    }
+
+    const secret = flow.trigger_options?.secret;
+    if (typeof secret === 'string' && secret.length > 0) {
+      const authHeader = req.headers.authorization ?? '';
+      const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+      const token = typeof req.query.token === 'string' ? req.query.token : '';
+      if (bearer !== secret && token !== secret) {
+        res.status(401).json({ errors: [{ message: 'Invalid webhook secret' }] });
+        return;
+      }
+    }
+
+    if (!isWebhookMethodAllowed(req.method, flow.trigger_options ?? undefined)) {
+      res.status(405).json({ errors: [{ message: `HTTP method ${req.method} is not allowed for this webhook` }] });
+      return;
+    }
+
+    const result = await runWebhookFlow(db, flowId, {
       method: req.method,
       body: req.body,
       query: req.query as Record<string, string>,

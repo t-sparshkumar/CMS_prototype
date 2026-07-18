@@ -1,0 +1,198 @@
+- generic [ref=f35e3]:
+  - complementary [ref=f35e4]:
+    - generic [ref=f35e5]:
+      - img "Paytm" [ref=f35e6]
+      - generic [ref=f35e7]:
+        - paragraph [ref=f35e8]: Paytm
+        - paragraph [ref=f35e9]: Admin
+    - navigation [ref=f35e10]:
+      - generic [ref=f35e11]:
+        - link "Dashboard" [ref=f35e12] [cursor=pointer]:
+          - /url: /
+          - img [ref=f35e13]
+          - generic [ref=f35e15]: Dashboard
+        - link "Data Model" [ref=f35e16] [cursor=pointer]:
+          - /url: /settings/data-model
+          - img [ref=f35e17]
+          - generic [ref=f35e19]: Data Model
+        - generic [ref=f35e20]:
+          - button "Content" [ref=f35e21] [cursor=pointer]:
+            - img [ref=f35e22]
+            - generic [ref=f35e24]: Content
+            - img [ref=f35e25]
+          - generic [ref=f35e27]:
+            - link "Content" [ref=f35e28] [cursor=pointer]:
+              - /url: /content
+              - generic [ref=f35e30]: Content
+            - link "Pages" [ref=f35e31] [cursor=pointer]:
+              - /url: /pages
+              - generic [ref=f35e33]: Pages
+            - link "Translations" [ref=f35e34] [cursor=pointer]:
+              - /url: /settings/translations
+              - generic [ref=f35e36]: Translations
+        - link "Triggers" [ref=f35e37] [cursor=pointer]:
+          - /url: /settings/triggers
+          - img [ref=f35e38]
+          - generic [ref=f35e40]: Triggers
+        - generic [ref=f35e41]:
+          - button "People & access" [ref=f35e42] [cursor=pointer]:
+            - img [ref=f35e43]
+            - generic [ref=f35e45]: People & access
+            - img [ref=f35e46]
+          - generic [ref=f35e48]:
+            - link "Users" [ref=f35e49] [cursor=pointer]:
+              - /url: /settings/users
+              - generic [ref=f35e51]: Users
+            - link "Roles & Policies" [ref=f35e52] [cursor=pointer]:
+              - /url: /settings/access-control
+              - generic [ref=f35e54]: Roles & Policies
+        - link "Asset Gallery" [ref=f35e55] [cursor=pointer]:
+          - /url: /assets
+          - img [ref=f35e56]
+          - generic [ref=f35e58]: Asset Gallery
+        - link "Project Settings" [ref=f35e59] [cursor=pointer]:
+          - /url: /settings/project
+          - img [ref=f35e60]
+          - generic [ref=f35e62]: Project Settings
+        - link "History and Audit Trail" [ref=f35e63] [cursor=pointer]:
+          - /url: /history
+          - img [ref=f35e64]
+          - generic [ref=f35e66]: History and Audit Trail
+    - button "Sign out" [ref=f35e68] [cursor=pointer]:
+      - img [ref=f35e69]
+      - text: Sign out
+  - generic [ref=f35e71]:
+    - banner [ref=f35e72]:
+      - generic [ref=f35e73]:
+        - button "Toggle sidebar" [ref=f35e74] [cursor=pointer]:
+          - img [ref=f35e75]
+        - generic [ref=f35e77]:
+          - paragraph [ref=f35e78]: Environment
+          - paragraph [ref=f35e79]: Development
+      - generic [ref=f35e80]:
+        - button "AU · Super Admin · CMS-00000000" [ref=f35e82] [cursor=pointer]:
+          - generic [ref=f35e83]: AU · Super Admin · CMS-00000000
+          - img [ref=f35e84]
+        - generic "Admin User" [ref=f35e86]: AU
+    - generic [ref=f35e87]:
+      - navigation "Breadcrumb" [ref=f35e88]:
+        - link "Admin" [ref=f35e90] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f35e91]:
+          - img [ref=f35e92]
+          - generic [ref=f35e94]: Dashboard
+      - generic [ref=f35e96]:
+        - heading "Dashboard" [level=1] [ref=f35e97]
+        - paragraph [ref=f35e98]: Platform health at a glance. Open any tile or service for structured metrics and recent activity.
+    - main [ref=f35e99]:
+      - generic [ref=f35e100]:
+        - generic [ref=f35e101]:
+          - heading "Control center" [level=2] [ref=f35e102]
+          - navigation "Breadcrumb" [ref=f35e103]:
+            - link "Admin" [ref=f35e105] [cursor=pointer]:
+              - /url: /
+            - generic [ref=f35e106]:
+              - img [ref=f35e107]
+              - generic [ref=f35e109]: Dashboard
+          - paragraph [ref=f35e110]: Workspace health at a glance. Open any tile or service for content metrics, schema status, dependencies, and recent signals.
+        - generic [ref=f35e111]:
+          - link "Collections 12 Content types in data model" [ref=f35e112] [cursor=pointer]:
+            - /url: /settings/data-model
+            - generic [ref=f35e113]:
+              - img [ref=f35e115]
+              - img [ref=f35e117]
+            - paragraph [ref=f35e119]: Collections
+            - paragraph [ref=f35e120]: "12"
+            - paragraph [ref=f35e121]: Content types in data model
+          - link "CMS Components 7 Reusable blocks in library" [ref=f35e122] [cursor=pointer]:
+            - /url: /content
+            - generic [ref=f35e123]:
+              - img [ref=f35e125]
+              - img [ref=f35e127]
+            - paragraph [ref=f35e129]: CMS Components
+            - paragraph [ref=f35e130]: "7"
+            - paragraph [ref=f35e131]: Reusable blocks in library
+          - link "CMS Users 2 Registered workspace members" [ref=f35e132] [cursor=pointer]:
+            - /url: /settings/users
+            - generic [ref=f35e133]:
+              - img [ref=f35e135]
+              - img [ref=f35e137]
+            - paragraph [ref=f35e139]: CMS Users
+            - paragraph [ref=f35e140]: "2"
+            - paragraph [ref=f35e141]: Registered workspace members
+          - link "Drafts Pending 0 1 total pages · review queue" [ref=f35e142] [cursor=pointer]:
+            - /url: /pages
+            - generic [ref=f35e143]:
+              - img [ref=f35e145]
+              - img [ref=f35e147]
+            - paragraph [ref=f35e149]: Drafts Pending
+            - paragraph [ref=f35e150]: "0"
+            - paragraph [ref=f35e151]: 1 total pages · review queue
+        - generic [ref=f35e152]:
+          - generic [ref=f35e154]:
+            - heading "Quick actions" [level=2] [ref=f35e155]
+            - paragraph [ref=f35e156]: Common tasks and shortcuts
+          - generic [ref=f35e157]:
+            - link "Create a new page" [ref=f35e158] [cursor=pointer]:
+              - /url: /pages/new
+              - img [ref=f35e160]
+              - generic [ref=f35e162]: Create a new page
+            - link "Add a content block" [ref=f35e163] [cursor=pointer]:
+              - /url: /content/paragraphs
+              - img [ref=f35e165]
+              - generic [ref=f35e167]: Add a content block
+            - link "Upload assets" [ref=f35e168] [cursor=pointer]:
+              - /url: /assets
+              - img [ref=f35e170]
+              - generic [ref=f35e172]: Upload assets
+            - link "Create a collection" [ref=f35e173] [cursor=pointer]:
+              - /url: /settings/data-model/new
+              - img [ref=f35e175]
+              - generic [ref=f35e177]: Create a collection
+        - generic [ref=f35e178]:
+          - generic [ref=f35e179]:
+            - heading "Platform services" [level=2] [ref=f35e180]
+            - paragraph [ref=f35e181]: Core CMS infrastructure and integrations
+          - generic [ref=f35e182]:
+            - link "Content API 12 collections · 7 block items Operational" [ref=f35e183] [cursor=pointer]:
+              - /url: /content
+              - generic [ref=f35e184]:
+                - paragraph [ref=f35e185]: Content API
+                - paragraph [ref=f35e186]: 12 collections · 7 block items
+              - generic [ref=f35e187]: Operational
+              - img [ref=f35e188]
+            - link "Data model Collections, fields, and relations Operational" [ref=f35e190] [cursor=pointer]:
+              - /url: /settings/data-model
+              - generic [ref=f35e191]:
+                - paragraph [ref=f35e192]: Data model
+                - paragraph [ref=f35e193]: Collections, fields, and relations
+              - generic [ref=f35e194]: Operational
+              - img [ref=f35e195]
+            - link "Asset storage 10 files in gallery · CDN ready Operational" [ref=f35e197] [cursor=pointer]:
+              - /url: /assets
+              - generic [ref=f35e198]:
+                - paragraph [ref=f35e199]: Asset storage
+                - paragraph [ref=f35e200]: 10 files in gallery · CDN ready
+              - generic [ref=f35e201]: Operational
+              - img [ref=f35e202]
+            - link "Triggers 1 automation flows configured Operational" [ref=f35e204] [cursor=pointer]:
+              - /url: /settings/triggers
+              - generic [ref=f35e205]:
+                - paragraph [ref=f35e206]: Triggers
+                - paragraph [ref=f35e207]: 1 automation flows configured
+              - generic [ref=f35e208]: Operational
+              - img [ref=f35e209]
+            - link "Access control Roles, policies, and permissions Operational" [ref=f35e211] [cursor=pointer]:
+              - /url: /settings/access-control
+              - generic [ref=f35e212]:
+                - paragraph [ref=f35e213]: Access control
+                - paragraph [ref=f35e214]: Roles, policies, and permissions
+              - generic [ref=f35e215]: Operational
+              - img [ref=f35e216]
+            - link "History and Audit Trail Activity log and change tracking Operational" [ref=f35e218] [cursor=pointer]:
+              - /url: /history
+              - generic [ref=f35e219]:
+                - paragraph [ref=f35e220]: History and Audit Trail
+                - paragraph [ref=f35e221]: Activity log and change tracking
+              - generic [ref=f35e222]: Operational
+              - img [ref=f35e223]

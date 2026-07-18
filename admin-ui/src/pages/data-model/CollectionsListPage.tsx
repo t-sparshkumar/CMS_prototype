@@ -101,7 +101,7 @@ export default function CollectionsListPage() {
         <div className="mb-5">
           <DataModelGuide />
         </div>
-        <div className="dm-toolbar">
+        <div className="page-toolbar dm-toolbar">
           <div className="collection-list-search">
             <Icon name="search" className="collection-list-search-icon h-3.5 w-3.5" />
             <input
@@ -113,7 +113,7 @@ export default function CollectionsListPage() {
             />
           </div>
 
-          <label className="flex items-center gap-2 text-sm font-medium text-[var(--app-text-muted)] cursor-pointer whitespace-nowrap">
+          <label className="dm-toolbar-toggle flex items-center gap-2 text-sm font-medium text-[var(--app-text-muted)] cursor-pointer whitespace-nowrap">
             <input
               type="checkbox"
               checked={showSystem}
@@ -123,11 +123,13 @@ export default function CollectionsListPage() {
             Show system
           </label>
 
-          <span className="collection-list-meta">
+          <span className="dm-toolbar-divider" aria-hidden="true" />
+
+          <span className="collection-list-meta dm-toolbar-meta">
             {filteredCount} collection{filteredCount === 1 ? '' : 's'}
           </span>
 
-          <div className="dm-toolbar-actions">
+          <div className="dm-toolbar-buttons">
             <button
               type="button"
               onClick={() =>

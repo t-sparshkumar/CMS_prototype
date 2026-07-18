@@ -24,6 +24,7 @@ import CollectionRelationsPage from './pages/data-model/CollectionRelationsPage'
 import FieldDetailPage from './pages/data-model/FieldDetailPage';
 import NewFieldPage from './pages/data-model/NewFieldPage';
 import TriggersPage from './pages/TriggersPage';
+import FlowEditorPage from './pages/FlowEditorPage';
 import TranslationsPage from './pages/TranslationsPage';
 import { useAuthStore } from './stores/authStore';
 
@@ -131,6 +132,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <TriggersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/triggers/:id"
+        element={
+          <ProtectedRoute>
+            <FlowEditorPage />
           </ProtectedRoute>
         }
       />

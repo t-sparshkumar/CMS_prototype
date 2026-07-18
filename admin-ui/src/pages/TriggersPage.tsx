@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import ConfirmDialog from '../components/data-model/ConfirmDialog';
 import Modal from '../components/Modal';
@@ -6,11 +7,8 @@ import Icon from '../components/Icon';
 import {
   createFlow,
   deleteFlow,
-  fetchFlowLogs,
   fetchFlows,
-  triggerFlow,
   updateFlow,
-  type FlowLogEntry,
   type FlowSummary,
   type FlowTriggerType,
 } from '../lib/api';
@@ -35,9 +33,6 @@ const TRIGGER_LABELS: Record<FlowTriggerType, string> = {
 const STATUS_BADGE: Record<string, string> = {
   active: 'badge-green',
   inactive: 'badge-gray',
-  completed: 'badge-green',
-  failed: 'badge-red',
-  running: 'badge-amber',
 };
 
 function formatDate(iso: string): string {
@@ -55,9 +50,6 @@ export default function TriggersPage() {
   const [error, setError] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<FlowSummary | null>(null);
-  const [selectedFlow, setSelectedFlow] = useState<FlowSummary | null>(null);
-  const [logs, setLogs] = useState<FlowLogEntry[]>([]);
-  const [logsLoading, setLogsLoading] = useState(false);
 
   const [newName, setNewName] = useState('');
   const [newTriggerType, setNewTriggerType] = useState<FlowTriggerType>('manual');
@@ -93,26 +85,13 @@ export default function TriggersPage() {
     );
   }, [flows, search]);
 
-  async function loadLogs(flow: FlowSummary) {
-    setSelectedFlow(flow);
-    setLogsLoading(true);
-    try {
-      setLogs(await fetchFlowLogs(flow.id));
-    } catch {
-      setError('Failed to load flow logs');
-    } finally {
-      setLogsLoading(false);
-    }
-  }
-
-  async function handleToggleStatus(flow: FlowSummary) {
+  async function handleToggleStatus(flow: FlowSummary, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
     try {
       const next = flow.status === 'active' ? 'inactive' : 'active';
       await updateFlow(flow.id, { status: next });
       await load();
-      if (selectedFlow?.id === flow.id) {
-        setSelectedFlow({ ...flow, status: next });
-      }
     } catch {
       setError('Failed to update flow status');
     }
@@ -143,6 +122,8 @@ export default function TriggersPage() {
             type: 'log',
             name: 'Log trigger',
             options: { message: 'Flow triggered: {{$trigger.type}}' },
+            position_x: 280,
+            position_y: 120,
           },
         ],
       });
@@ -160,23 +141,10 @@ export default function TriggersPage() {
     if (!deleteTarget) return;
     try {
       await deleteFlow(deleteTarget.id);
-      if (selectedFlow?.id === deleteTarget.id) {
-        setSelectedFlow(null);
-        setLogs([]);
-      }
       setDeleteTarget(null);
       await load();
     } catch {
       setError('Failed to delete flow');
-    }
-  }
-
-  async function handleManualTrigger(flow: FlowSummary) {
-    try {
-      await triggerFlow(flow.id, { source: 'admin-ui', timestamp: new Date().toISOString() });
-      await loadLogs(flow);
-    } catch {
-      setError('Failed to trigger flow');
     }
   }
 
@@ -215,166 +183,85 @@ export default function TriggersPage() {
         </span>
       </div>
 
-      <div className="grid w-full grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,1fr)]">
-        <section className="dm-shell min-h-[28rem]">
-          <div className="dm-shell-header">
-            <span>Flows</span>
-            <span className="text-slate-400">
-              {selectedFlow ? `Selected: ${selectedFlow.name}` : 'Select a flow to view logs'}
+      <section className="dm-shell min-h-[28rem]">
+        <div className="dm-shell-header">
+          <span>Flows</span>
+          <span className="text-slate-400">Open a flow to edit its visual graph</span>
+        </div>
+
+        {isLoading ? (
+          <div className="dm-empty text-sm">Loading flows…</div>
+        ) : filteredFlows.length === 0 ? (
+          <div className="dm-empty">
+            <span className="dm-empty-icon">
+              <Icon name="bolt" className="h-5 w-5" />
             </span>
+            <p className="text-sm font-medium text-slate-700">No flows yet</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Create a flow to automate item events, webhooks, or scheduled tasks.
+            </p>
+            <button type="button" className="btn-primary mt-4 text-sm" onClick={() => setCreateOpen(true)}>
+              <Icon name="plus" className="h-4 w-4" />
+              New Flow
+            </button>
           </div>
-
-          {isLoading ? (
-            <div className="dm-empty text-sm">Loading flows…</div>
-          ) : filteredFlows.length === 0 ? (
-            <div className="dm-empty">
-              <span className="dm-empty-icon">
-                <Icon name="bolt" className="h-5 w-5" />
-              </span>
-              <p className="text-sm font-medium text-slate-700">No flows yet</p>
-              <p className="mt-1 text-sm text-slate-500">
-                Create a flow to automate item events, webhooks, or scheduled tasks.
-              </p>
-              <button type="button" className="btn-primary mt-4 text-sm" onClick={() => setCreateOpen(true)}>
-                <Icon name="plus" className="h-4 w-4" />
-                New Flow
-              </button>
-            </div>
-          ) : (
-            <div>
-              {filteredFlows.map((flow) => {
-                const selected = selectedFlow?.id === flow.id;
-                return (
-                  <div
-                    key={flow.id}
-                    className={`border-b border-surface-border px-4 py-4 transition-colors last:border-b-0 sm:px-5 ${
-                      selected ? 'bg-brand-50/50' : 'hover:bg-slate-50/80'
-                    }`}
-                  >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <button
-                        type="button"
-                        className="min-w-0 flex-1 text-left"
-                        onClick={() => void loadLogs(flow)}
-                      >
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
-                            <Icon name="bolt" className="h-4 w-4" />
-                          </span>
-                          <span className="truncate text-sm font-semibold text-slate-900">{flow.name}</span>
-                          <span className={`badge ${STATUS_BADGE[flow.status] ?? 'badge-gray'}`}>
-                            {flow.status}
-                          </span>
-                          <span className="badge badge-blue">{TRIGGER_LABELS[flow.trigger_type]}</span>
-                        </div>
-                        <p className="mt-2 text-sm text-slate-500">
-                          Updated {formatDate(flow.date_updated)}
-                        </p>
-                        {flow.trigger_type === 'webhook' ? (
-                          <code className="mt-2 block break-all rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs text-slate-600 ring-1 ring-inset ring-slate-200">
-                            {webhookUrl(flow.id)}
-                          </code>
-                        ) : null}
-                      </button>
-
-                      <div className="flex shrink-0 flex-wrap items-center gap-2">
-                        {flow.trigger_type === 'manual' ? (
-                          <button
-                            type="button"
-                            className="btn-secondary text-sm"
-                            onClick={() => void handleManualTrigger(flow)}
-                          >
-                            Run
-                          </button>
-                        ) : null}
-                        <button
-                          type="button"
-                          className="btn-secondary text-sm"
-                          onClick={() => void handleToggleStatus(flow)}
-                        >
-                          {flow.status === 'active' ? 'Deactivate' : 'Activate'}
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-danger text-sm"
-                          onClick={() => setDeleteTarget(flow)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        <section className="dm-shell flex min-h-[28rem] flex-col">
-          <div className="dm-shell-header">
-            <span>Execution logs</span>
-            {selectedFlow ? (
-              <span className="truncate text-slate-400">{selectedFlow.name}</span>
-            ) : null}
-          </div>
-
-          <div className="flex flex-1 flex-col p-4 sm:p-5">
-            {selectedFlow?.trigger_type === 'webhook' ? (
-              <div className="mb-4 rounded-xl border border-surface-border bg-slate-50/80 px-3.5 py-3">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  Webhook URL
-                </p>
-                <code className="mt-1.5 block break-all text-xs text-slate-700">
-                  {webhookUrl(selectedFlow.id)}
-                </code>
-              </div>
-            ) : null}
-
-            {logsLoading ? (
-              <div className="dm-empty flex-1 text-sm">Loading logs…</div>
-            ) : !selectedFlow ? (
-              <div className="dm-empty flex-1">
-                <span className="dm-empty-icon">
-                  <Icon name="history" className="h-5 w-5" />
-                </span>
-                <p className="text-sm text-slate-500">Select a flow to view execution history.</p>
-              </div>
-            ) : logs.length === 0 ? (
-              <div className="dm-empty flex-1">
-                <span className="dm-empty-icon">
-                  <Icon name="history" className="h-5 w-5" />
-                </span>
-                <p className="text-sm text-slate-500">No executions recorded yet.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {logs.map((log) => (
-                  <div
-                    key={log.id}
-                    className="rounded-xl border border-surface-border bg-white px-4 py-3.5 shadow-sm"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className={`badge ${STATUS_BADGE[log.status] ?? 'badge-gray'}`}>
-                        {log.status}
+        ) : (
+          <div>
+            {filteredFlows.map((flow) => (
+              <div
+                key={flow.id}
+                className="border-b border-surface-border px-4 py-4 transition-colors last:border-b-0 hover:bg-slate-50/80 sm:px-5"
+              >
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <Link to={`/settings/triggers/${flow.id}`} className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+                        <Icon name="bolt" className="h-4 w-4" />
                       </span>
-                      <span className="text-xs text-slate-500">{formatDate(log.started_at)}</span>
+                      <span className="truncate text-sm font-semibold text-slate-900 group-hover:text-brand-700">
+                        {flow.name}
+                      </span>
+                      <span className={`badge ${STATUS_BADGE[flow.status] ?? 'badge-gray'}`}>
+                        {flow.status}
+                      </span>
+                      <span className="badge badge-blue">{TRIGGER_LABELS[flow.trigger_type]}</span>
                     </div>
-                    {log.execution_time !== null ? (
-                      <p className="mt-2 text-xs text-slate-500">{log.execution_time} ms</p>
+                    <p className="mt-2 text-sm text-slate-500">Updated {formatDate(flow.date_updated)}</p>
+                    {flow.trigger_type === 'webhook' ? (
+                      <code className="mt-2 block break-all rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs text-slate-600 ring-1 ring-inset ring-slate-200">
+                        {webhookUrl(flow.id)}
+                      </code>
                     ) : null}
-                    {Array.isArray(log.operations_log) && log.operations_log.length > 0 ? (
-                      <p className="mt-2 text-xs text-slate-500">
-                        {log.operations_log.length} operation
-                        {log.operations_log.length === 1 ? '' : 's'}
-                      </p>
-                    ) : null}
+                  </Link>
+
+                  <div className="flex shrink-0 flex-wrap items-center gap-2">
+                    <Link to={`/settings/triggers/${flow.id}`} className="btn-primary text-sm">
+                      Edit
+                    </Link>
+                    <button
+                      type="button"
+                      className="btn-secondary text-sm"
+                      onClick={(e) => void handleToggleStatus(flow, e)}
+                    >
+                      {flow.status === 'active' ? 'Deactivate' : 'Activate'}
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-danger text-sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setDeleteTarget(flow);
+                      }}
+                    >
+                      Delete
+                    </button>
                   </div>
-                ))}
+                </div>
               </div>
-            )}
+            ))}
           </div>
-        </section>
-      </div>
+        )}
+      </section>
 
       <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="New Flow">
         <div className="space-y-4">

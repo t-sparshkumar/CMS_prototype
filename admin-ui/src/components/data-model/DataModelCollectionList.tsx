@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import Icon from '../Icon';
 import CollectionMaterialIcon from '../CollectionMaterialIcon';
-import { isSubCollection } from '../SubCollectionHighlight';
 import {
   addCollectionLabel,
   addFolderLabel,
@@ -427,7 +426,6 @@ export default function DataModelCollectionList({
       <ul>
         {visibleRows.map((row) => {
           const { collection: col, depth, hasChildren, isExpanded: rowExpanded } = row;
-          const isSub = isSubCollection(col);
           const isDragging = dragKey === col.collection;
           const displayName = getCollectionDisplayName(col);
           const color = col.color ?? 'var(--app-accent)';
@@ -441,7 +439,7 @@ export default function DataModelCollectionList({
           return (
             <li
               key={col.collection}
-              className={`dm-row group ${isSub ? 'is-nested' : ''} ${isDragging ? 'is-dragging' : ''}`}
+              className={`dm-row group ${isDragging ? 'is-dragging' : ''}`}
               style={{ paddingLeft: `${12 + depth * 20}px` }}
               onDragOver={(e) => {
                 if (canReorder) e.preventDefault();

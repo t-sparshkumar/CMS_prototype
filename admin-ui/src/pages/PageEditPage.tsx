@@ -5,6 +5,7 @@ import Icon from '../components/Icon';
 import PageSectionsBuilder, {
   PAGE_SECTION_COLLECTIONS,
   parsePageSections,
+  serializePageSectionsForSave,
 } from '../components/PageSectionsBuilder';
 import RelationPicker from '../components/RelationPicker';
 import {
@@ -15,6 +16,7 @@ import {
   type FieldMeta,
   type ItemRecord,
 } from '../lib/api';
+import { getApiErrorMessage } from '../lib/apiErrors';
 import { parseBoolean } from '../lib/booleanValue';
 
 const ALLOWED_SECTION_COLLECTIONS = [...PAGE_SECTION_COLLECTIONS];
@@ -26,6 +28,7 @@ export default function PageEditPage() {
   const isNew = location.pathname.endsWith('/new') || id === 'new';
 
   const [pageGroupField, setPageGroupField] = useState<FieldMeta | null>(null);
+  const [fields, setFields] = useState<FieldMeta[]>([]);
   const [formData, setFormData] = useState<ItemRecord>({
     active: true,
     status: 'draft',
@@ -38,8 +41,9 @@ export default function PageEditPage() {
   useEffect(() => {
     async function load() {
       try {
-        const fields = await fetchFields('pages');
-        const pgField = fields.find((f) => f.field === 'page_group');
+        const fieldList = await fetchFields('pages');
+        setFields(fieldList);
+        const pgField = fieldList.find((f) => f.field === 'page_group');
         if (pgField) {
           setPageGroupField(pgField);
         }
@@ -61,6 +65,21 @@ export default function PageEditPage() {
     void load();
   }, [id, isNew]);
 
+  function buildPageSavePayload(data: ItemRecord): ItemRecord {
+    const payload = Object.fromEntries(
+      Object.entries(data).filter(([key]) => {
+        const meta = fields.find((field) => field.field === key);
+        return meta && !meta.is_system && key !== 'id';
+      }),
+    ) as ItemRecord;
+
+    payload.active = parseBoolean(data.active, true);
+    payload.sections = serializePageSectionsForSave(data.sections);
+    delete payload.components;
+
+    return payload;
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!formData.title || !formData.slug) {
@@ -71,21 +90,24 @@ export default function PageEditPage() {
     setIsSaving(true);
     setError(null);
     try {
-      const payload = {
-        ...formData,
-        active: parseBoolean(formData.active, true),
-        sections: parsePageSections(formData.sections),
-      };
+      const payload = buildPageSavePayload(formData);
 
       if (isNew) {
         const created = await createItem('pages', payload);
-        navigate(`/pages/${String(created.id)}/edit`);
-      } else if (id) {
-        await updateItem('pages', id, payload);
-        navigate('/pages');
+        navigate(`/pages/${String(created.id)}/edit`, { replace: true });
+        return;
       }
-    } catch {
-      setError('Failed to save page');
+
+      if (!id) {
+        setError('Missing page id.');
+        return;
+      }
+
+      await updateItem('pages', id, payload);
+      navigate('/pages', { replace: true });
+    } catch (err) {
+      setError(getApiErrorMessage(err, 'Failed to save page'));
+    } finally {
       setIsSaving(false);
     }
   }
@@ -175,6 +197,7 @@ export default function PageEditPage() {
                 value={formData.sections}
                 onChange={(sections) => setField('sections', sections)}
                 allowedCollections={ALLOWED_SECTION_COLLECTIONS}
+                returnTo={isNew ? '/pages/new' : `/pages/${id}/edit`}
               />
             </section>
 
