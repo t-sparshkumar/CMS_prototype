@@ -86,7 +86,7 @@ Login → access_token (JSON) + refresh_token (httpOnly cookie)
        → Page refresh → POST /auth/refresh (cookie) → new access_token
 ```
 
-Production uses `SameSite=None; Secure` cookies so Vercel (admin) and Render (API) can share sessions cross-origin.
+Production uses `SameSite=None; Secure` cookies so Vercel (admin) and Railway (API) can share sessions cross-origin.
 
 ---
 
@@ -284,7 +284,7 @@ Five admin themes: `light`, `dark`, `midnight`, `ocean`, `sunset`. Theme choice 
 
 The admin **Asset Gallery** route is `/assets` (SPA page). File serving uses `/assets/:id` (API).
 
-In local dev, `vite.config.ts` proxies `/assets/*` to the backend **except** the exact `/assets` path (gallery page). In production, the admin is static on Vercel and talks to Render directly — no conflict.
+In local dev, `vite.config.ts` proxies `/assets/*` to the backend **except** the exact `/assets` path (gallery page). In production, the admin is static on Vercel and talks to Railway directly — no conflict.
 
 ### Directus schema import
 
@@ -334,9 +334,11 @@ CMS_PROTOTYPE/
 │   └── uploads/                 # Local file storage
 ├── scripts/
 │   └── e2e-smoke.mjs            # API smoke tests
-├── render.yaml                  # Render blueprint
+├── railway.toml                 # Railway deploy (repo root)
+├── nixpacks.toml                # Railway/Nixpacks build config
+├── render.yaml                  # Optional Render blueprint (alternative to Railway)
 ├── docker-compose.yml           # Local Postgres
-├── DEPLOYMENT.md                # Vercel + Render guide
+├── DEPLOYMENT.md                # Vercel + Railway guide
 └── package.json                 # Workspace root scripts
 ```
 
@@ -408,7 +410,7 @@ DATABASE_URL=postgresql://cms:cms@localhost:5432/cms
 | Script | Description |
 |--------|-------------|
 | `npm run build -w backend` | Compile TypeScript → `dist/` |
-| `npm run start:prod -w backend` | Migrate, seed, start (Render) |
+| `npm run start:prod -w backend` | Migrate, seed, start (Railway / production) |
 | `npm run test:directus-adapter -w backend` | Directus snapshot adapter tests |
 | `npm run schema:convert-directus -w backend` | Convert Directus snapshot JSON |
 
@@ -612,7 +614,7 @@ Example: `/assets/{id}?width=400&height=300&fit=cover&format=webp`
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PORT` | `8055` | HTTP port |
-| `NODE_ENV` | `development` | `production` on Render |
+| `NODE_ENV` | `development` | `production` on Railway |
 | `DB_CLIENT` | `sqlite3` | `sqlite3` or `pg` |
 | `DB_FILE` | `./data/cms.db` | SQLite path (dev) |
 | `DATABASE_URL` | — | Postgres connection string (prod) |
@@ -628,7 +630,7 @@ See `backend/.env.example` for all options.
 
 | Variable | Description |
 |----------|-------------|
-| `VITE_API_URL` | Backend URL, e.g. `https://cms-backend.onrender.com` (no trailing slash) |
+| `VITE_API_URL` | Backend URL, e.g. `https://cms-backend-production.up.railway.app` (no trailing slash) |
 
 See `admin-ui/.env.example`. **Do not set locally** — use the Vite proxy instead.
 
@@ -641,13 +643,13 @@ Full guide: **[DEPLOYMENT.md](./DEPLOYMENT.md)**
 | Part | Platform | Config |
 |------|----------|--------|
 | Admin UI | [Vercel](https://vercel.com) | Root: `admin-ui`, set `VITE_API_URL` |
-| Backend | [Render](https://render.com) | Root: `backend`, use `render.yaml` blueprint |
-| Database | [Neon](https://neon.tech) | Free PostgreSQL — paste `DATABASE_URL` into Render |
+| Backend | [Railway](https://railway.com) | Repo root, `npm run build -w backend` |
+| Database | [Neon](https://neon.tech) | Free PostgreSQL — paste `DATABASE_URL` into Railway |
 
 1. Create a Neon project and copy the connection string
-2. Deploy backend on Render (Blueprint) — set `DATABASE_URL` from Neon
-3. Deploy admin UI on Vercel — set `VITE_API_URL` to Render URL
-4. Set `ADMIN_UI_URL` on Render to your Vercel URL → redeploy backend
+2. Deploy backend on Railway — set `DATABASE_URL`, add volume at `/data`
+3. Deploy admin UI on Vercel — set `VITE_API_URL` to Railway URL
+4. Set `ADMIN_UI_URL` on Railway to your Vercel URL → redeploy backend
 5. Login: `admin@example.com` / `admin` — change password after first login
 
 ---
@@ -661,7 +663,7 @@ Vite is configured with `strictPort: true`. Stop the other process or change the
 ### Admin UI shows API errors / CORS
 
 - Local: ensure backend is running on `8055` and `VITE_API_URL` is **unset**
-- Production: `VITE_API_URL` on Vercel must match Render backend URL; `ADMIN_UI_URL` on Render must exactly match Vercel origin
+- Production: `VITE_API_URL` on Vercel must match Railway backend URL; `ADMIN_UI_URL` on Railway must exactly match Vercel origin
 
 ### `/assets` page shows "Cannot GET /assets"
 

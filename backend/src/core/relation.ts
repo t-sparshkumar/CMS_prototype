@@ -111,10 +111,11 @@ export function fieldCreateRequiresType(interfaceName: string | undefined): bool
 
 /**
  * Map schema_on_delete metadata to Knex onDelete clause.
+ * Knex/PostgreSQL expect spaced tokens (e.g. "SET NULL"), not underscores.
  */
 export function mapSchemaOnDelete(onDelete: SchemaOnDelete | null | undefined): string {
   const value = onDelete ?? 'SET NULL';
-  return value.replace(' ', '_');
+  return value.replace(/_/g, ' ');
 }
 
 /**

@@ -1,6 +1,7 @@
 {
   "name": "cms-root",
   "private": true,
+  "packageManager": "npm@10.9.2",
   "workspaces": [
     "backend",
     "admin-ui"

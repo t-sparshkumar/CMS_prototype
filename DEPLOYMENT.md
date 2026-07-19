@@ -1,93 +1,96 @@
-# Deployment Guide — Vercel (Admin UI) + Render (Backend) + Neon (Database)
+# Deployment Guide — Vercel (Admin UI) + Railway (Backend) + Neon (Database)
 
 | Part | Platform | What it runs |
 |------|----------|--------------|
 | **Admin UI** | [Vercel](https://vercel.com) | React/Vite static app |
-| **Backend API** | [Render](https://render.com) | Node.js Express API |
+| **Backend API** | [Railway](https://railway.com) | Node.js Express API |
 | **Database** | [Neon](https://neon.tech) | PostgreSQL (free tier) |
 
-File uploads stay on a Render **persistent disk** (`/var/data/uploads`). Schema and content live in Neon.
+File uploads stay on a Railway **volume** (`/data/uploads`). Schema and content live in Neon.
 
 ---
 
 ## Prerequisites
 
 1. Code pushed to **GitHub**
-2. Free accounts: [Neon](https://neon.tech), [Render](https://render.com), [Vercel](https://vercel.com)
+2. Free accounts: [Neon](https://neon.tech), [Railway](https://railway.com), [Vercel](https://vercel.com)
 
-You only paste **one external credential**: Neon’s `DATABASE_URL` into Render. Everything else is auto-generated or set from URLs.
+You only paste **one external credential**: Neon’s `DATABASE_URL` into Railway. Everything else is auto-generated or set from URLs.
 
 ---
 
 ## Step 1 — Create a Neon database
 
 1. Go to [console.neon.tech](https://console.neon.tech) → **New Project**
-2. Name it (e.g. `cms-prototype`) → pick a region close to your Render region
+2. Name it (e.g. `cms-prototype`) → pick a region close to your Railway region
 3. After creation, open **Dashboard** → **Connection details**
 4. Copy the **connection string** (PostgreSQL)
-   - Use the **pooled** connection string if Neon offers it (recommended for serverless/Render)
+   - Use the **pooled** connection string if Neon offers it (recommended)
    - Ensure it includes SSL, e.g.:
      ```
      postgresql://user:pass@ep-xxx.region.aws.neon.tech/neondb?sslmode=require
      ```
-5. Keep this tab open — you’ll paste it into Render in Step 2
+5. Keep this tab open — you’ll paste it into Railway in Step 2
 
 > Neon free tier includes one project with plenty of storage for a prototype. No credit card required for the free tier in most regions.
 
 ---
 
-## Step 2 — Deploy backend on Render
+## Step 2 — Deploy backend on Railway
 
-### Option A: Blueprint (recommended)
+### 2a — Create the service
 
-1. [Render Dashboard](https://dashboard.render.com) → **New** → **Blueprint**
-2. Connect your GitHub repo
-3. Render reads `render.yaml` and creates **cms-backend** with:
-   - `DB_CLIENT=pg`
-   - Persistent disk at `/var/data` (uploads only)
-   - `SECRET_KEY` auto-generated
-4. Before or right after apply, open **cms-backend** → **Environment** and set:
+1. Go to [railway.com](https://railway.com) → sign up with **GitHub**
+2. **New Project** → **Deploy from GitHub repo** → select your `CMS_PROTOTYPE` repo
+3. Railway creates a service — open it → **Settings**:
 
-   | Variable | Value |
-   |----------|-------|
-   | `DATABASE_URL` | Paste Neon connection string from Step 1 |
-   | `ADMIN_UI_URL` | Leave blank until Step 4 (Vercel URL) |
+   | Setting | Value |
+   |---------|--------|
+   | **Root Directory** | *(leave empty — use repo root)* |
+   | **Build Command** | `npm ci && npm run build -w backend` |
+   | **Start Command** | `npm run start:prod -w backend` |
+   | **Health Check Path** | `/server/health` |
 
-5. **Remove** these if present from an older SQLite deploy:
-   - `DB_FILE`
-   - Any `DB_CLIENT=sqlite3`
+   > `railway.toml` and `nixpacks.toml` at the repo root mirror these settings.
 
-6. Wait for deploy. First boot runs migrations + seeds (creates admin user).
+4. **Settings** → **Networking** → **Generate Domain**  
+   Copy your public URL, e.g. `https://cms-backend-production.up.railway.app` (no trailing slash).
 
-### Option B: Manual web service
+### 2b — Add a volume for uploads
 
-| Setting | Value |
-|---------|-------|
-| **Root Directory** | `backend` |
-| **Build Command** | `npm install --include=dev && npm run build` |
-| **Start Command** | `npm run start:prod` |
-| **Health Check Path** | `/server/health` |
+1. In the same service → **Volumes** → **Add Volume**
+2. **Mount path:** `/data`
+3. This keeps uploaded files across redeploys.
 
-**Disks** → Add disk: mount `/var/data`, 1 GB (uploads)
+### 2c — Environment variables
 
-**Environment:**
+Open **Variables** and add:
 
-```env
-NODE_ENV=production
-DB_CLIENT=pg
-DATABASE_URL=<Neon connection string with ?sslmode=require>
-SECRET_KEY=<long random string, or use Generate>
-ADMIN_UI_URL=https://your-app.vercel.app
-UPLOAD_DIR=/var/data/uploads
-```
+| Variable | Value |
+|----------|--------|
+| `NODE_ENV` | `production` |
+| `DB_CLIENT` | `pg` |
+| `DATABASE_URL` | Neon connection string from Step 1 |
+| `SECRET_KEY` | Long random string (Railway can generate one) |
+| `UPLOAD_DIR` | `/data/uploads` |
+| `ADMIN_UI_URL` | Leave blank until Step 4 (Vercel URL) |
 
-### Verify backend
+Railway sets `PORT` automatically — do not override it.
 
-```bash
-curl https://your-backend.onrender.com/server/health
-```
+### 2d — Deploy and verify
 
-Expected: `{"data":{"status":"ok","db":"connected"}}`
+1. Trigger a deploy (push to GitHub or **Deploy** in Railway)
+2. Wait for logs to show:
+   ```
+   Batch 1 run: 22 migrations
+   Ran 9 seed files
+   CMS backend listening on ...
+   ```
+3. Verify:
+   ```bash
+   curl https://YOUR-SERVICE.up.railway.app/server/health
+   ```
+   Expected: `{"data":{"status":"ok","db":"connected"}}`
 
 ---
 
@@ -107,7 +110,7 @@ Expected: `{"data":{"status":"ok","db":"connected"}}`
 
    | Name | Value |
    |------|-------|
-   | `VITE_API_URL` | `https://your-backend.onrender.com` (no trailing slash) |
+   | `VITE_API_URL` | `https://YOUR-SERVICE.up.railway.app` (no trailing slash) |
 
 4. Deploy → copy Vercel URL
 
@@ -115,8 +118,8 @@ Expected: `{"data":{"status":"ok","db":"connected"}}`
 
 ## Step 4 — Link frontend ↔ backend
 
-1. **Render** → **cms-backend** → **Environment** → set `ADMIN_UI_URL` to your Vercel URL (no trailing slash)
-2. **Manual Deploy** → redeploy backend (CORS + cookies)
+1. **Railway** → your backend service → **Variables** → set `ADMIN_UI_URL` to your Vercel URL (no trailing slash)
+2. Railway redeploys automatically when variables change
 3. Open Vercel URL → login:
 
    | Email | Password |
@@ -124,6 +127,19 @@ Expected: `{"data":{"status":"ok","db":"connected"}}`
    | `admin@example.com` | `admin` |
 
 Change the admin password after first login.
+
+---
+
+## What to share with your manager
+
+Send only the **Vercel URL** (not Railway or Neon):
+
+```
+CMS Prototype Demo
+URL:      https://your-app.vercel.app
+Email:    admin@example.com
+Password: admin
+```
 
 ---
 
@@ -135,27 +151,27 @@ Change the admin password after first login.
 |------|-------|
 | **Connection string** | From Neon dashboard → Connection details |
 | **SSL** | Append `?sslmode=require` if not already present |
-| **Pooled URL** | Prefer Neon’s pooler endpoint for Render |
+| **Pooled URL** | Prefer Neon’s pooler endpoint for Railway |
 
-### Backend (Render)
+### Backend (Railway)
 
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `NODE_ENV` | Yes | `production` |
 | `DB_CLIENT` | Yes | `pg` |
 | `DATABASE_URL` | Yes | Neon PostgreSQL URL |
-| `SECRET_KEY` | Yes | JWT secret (auto-generated in Blueprint) |
+| `SECRET_KEY` | Yes | JWT secret |
 | `ADMIN_UI_URL` | Yes | Full Vercel URL |
-| `UPLOAD_DIR` | Yes | `/var/data/uploads` |
-| `PORT` | Auto | Set by Render |
+| `UPLOAD_DIR` | Yes | `/data/uploads` |
+| `PORT` | Auto | Set by Railway |
 
 Do **not** set `DB_FILE` when using Neon.
 
 ### Admin UI (Vercel)
 
 | Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_API_URL` | Yes | Render backend URL |
+|------|----------|-------------|
+| `VITE_API_URL` | Yes | Railway backend URL |
 
 ---
 
@@ -199,18 +215,16 @@ See README for `npm run db:setup`.
 
 ### `DATABASE_URL is required in production when DB_CLIENT=pg`
 
-Set `DATABASE_URL` on Render to your Neon connection string and redeploy.
+Set `DATABASE_URL` on Railway to your Neon connection string and redeploy.
 
-### `ECONNREFUSED` or SSL errors during migrate
+### Migrations or seeds fail on deploy
 
-- Confirm `?sslmode=require` on the Neon URL
-- Use Neon’s **direct** or **pooled** string from the dashboard (don’t truncate the host)
-- Check Neon project is not suspended (free tier idle limits)
+Reset Neon (new project or **Reset database**), update `DATABASE_URL` if needed, redeploy Railway.
 
 ### Login fails on Vercel
 
 - `VITE_API_URL` set on Vercel and redeployed
-- `ADMIN_UI_URL` on Render exactly matches Vercel URL
+- `ADMIN_UI_URL` on Railway exactly matches Vercel URL (no trailing slash)
 - Redeploy backend after changing `ADMIN_UI_URL`
 
 ### CORS errors
@@ -219,24 +233,31 @@ Set `DATABASE_URL` on Render to your Neon connection string and redeploy.
 
 ### File uploads disappear after redeploy
 
-Ensure Render disk is mounted at `/var/data` and `UPLOAD_DIR=/var/data/uploads`.
+Ensure a Railway **volume** is mounted at `/data` and `UPLOAD_DIR=/data/uploads`.
 
-### Cold starts on Render
+### Slow first request
 
-First request after idle may take 30–60 seconds on starter tier.
+Railway free tier may sleep idle services — first load can take 15–30 seconds. Open the URL once before a demo.
 
 ### Reset Neon database
 
-In Neon SQL Editor: drop and recreate the database, or create a new branch, then update `DATABASE_URL` on Render and redeploy (migrations + seeds run on startup).
+In Neon SQL Editor: drop and recreate the database, or create a new branch, then update `DATABASE_URL` on Railway and redeploy.
 
 ---
 
 ## Quick checklist
 
+- [ ] Code pushed to GitHub
 - [ ] Neon project created, connection string copied
-- [ ] Render backend deployed with `DB_CLIENT=pg` + `DATABASE_URL`
-- [ ] Render disk mounted at `/var/data` for uploads
+- [ ] Railway backend deployed with `DB_CLIENT=pg` + `DATABASE_URL`
+- [ ] Railway volume mounted at `/data` for uploads
 - [ ] `/server/health` returns `db: connected`
-- [ ] Vercel deployed with `VITE_API_URL`
-- [ ] `ADMIN_UI_URL` set on Render, backend redeployed
+- [ ] Vercel deployed with `VITE_API_URL` → Railway URL
+- [ ] `ADMIN_UI_URL` set on Railway to Vercel URL
 - [ ] Login works with `admin@example.com` / `admin`
+
+---
+
+## Alternative: Render backend
+
+`render.yaml` in the repo still supports [Render](https://render.com) if you prefer it. Use `/var/data/uploads` instead of `/data/uploads` for `UPLOAD_DIR`.

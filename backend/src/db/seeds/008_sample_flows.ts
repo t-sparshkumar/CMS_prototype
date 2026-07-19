@@ -35,7 +35,7 @@ export async function seed(knex: Knex): Promise<void> {
       scope: ['pages.update'],
     }),
     accountability: 'all',
-    operation: opIds.checkTitle,
+    operation: null,
     date_created: now,
     date_updated: now,
     user_created: null,
@@ -162,4 +162,6 @@ module.exports = function(data) {
       date_updated: now,
     });
   }
+
+  await knex('cms_flows').where({ id: flowId }).update({ operation: opIds.checkTitle });
 }

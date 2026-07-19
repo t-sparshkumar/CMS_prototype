@@ -41,7 +41,7 @@ export function getEnv(): Env {
     throw new Error(
       'DATABASE_URL is required in production when DB_CLIENT=pg. ' +
         'Create a free database at https://neon.tech, copy the connection string ' +
-        '(append ?sslmode=require if needed), and set DATABASE_URL on Render.',
+        '(append ?sslmode=require if needed), and set DATABASE_URL on Railway.',
     );
   }
   cachedEnv = env;

@@ -1,0 +1,12 @@
+# Native modules (sharp, better-sqlite3) need build tooling on Railway.
+[phases.setup]
+nixPkgs = ["nodejs_20", "python3", "gcc", "vips"]
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run build -w backend"]
+
+[start]
+cmd = "npm run start:prod -w backend"

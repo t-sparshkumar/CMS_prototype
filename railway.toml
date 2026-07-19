@@ -1,0 +1,11 @@
+# Deploy from the repository root (leave Railway "Root Directory" empty).
+# package-lock.json lives here; backend is an npm workspace.
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm ci && npm run build -w backend"
+
+[deploy]
+startCommand = "npm run start:prod -w backend"
+healthcheckPath = "/server/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
