@@ -126,14 +126,15 @@ export default function PagesDashboardPage() {
         {error && <div className="alert-info">{error}</div>}
 
         <div className="table-shell">
-          <table className="w-full text-sm">
+          <div className="table-scroll">
+          <table className="w-full min-w-[720px] text-sm">
             <thead className="table-head">
               <tr>
                 <th className="table-th">Page</th>
-                <th className="table-th">Page Group</th>
+                <th className="table-th hidden md:table-cell">Page Group</th>
                 <th className="table-th">Slug</th>
-                <th className="table-th">Sections</th>
-                <th className="table-th">Active</th>
+                <th className="table-th hidden sm:table-cell">Sections</th>
+                <th className="table-th hidden lg:table-cell">Active</th>
                 <th className="table-th">Status</th>
                 <th className="table-th text-right w-24">Actions</th>
               </tr>
@@ -196,7 +197,7 @@ export default function PagesDashboardPage() {
                         <span className="font-semibold text-slate-900">{page.title}</span>
                       </div>
                     </td>
-                    <td className="table-td">
+                    <td className="table-td hidden md:table-cell">
                       {page.page_group_title === '—' ? (
                         <span className="text-slate-400">—</span>
                       ) : (
@@ -212,10 +213,10 @@ export default function PagesDashboardPage() {
                         <span className="text-slate-400">—</span>
                       )}
                     </td>
-                    <td className="table-td">
+                    <td className="table-td hidden sm:table-cell">
                       <span className="badge-blue">{page.section_count}</span>
                     </td>
-                    <td className="table-td">
+                    <td className="table-td hidden lg:table-cell">
                       <span className={page.active ? 'badge-green' : 'badge-gray'}>
                         {page.active ? 'Yes' : 'No'}
                       </span>
@@ -246,6 +247,7 @@ export default function PagesDashboardPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-3">

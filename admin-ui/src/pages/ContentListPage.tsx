@@ -368,7 +368,7 @@ export default function ContentListPage() {
                 setSearch(e.target.value);
                 setOffset(0);
               }}
-              className="input pl-9 w-56"
+              className="input pl-9 w-full min-w-[10rem] sm:w-56"
             />
           </div>
           <label className="flex items-center gap-2 text-sm font-medium text-slate-600 cursor-pointer">
@@ -426,7 +426,7 @@ export default function ContentListPage() {
                     </th>
                   ))}
                   {canReorder && <th className="table-th w-20">Order</th>}
-                  <th className="table-th w-32">ID</th>
+                  <th className="table-th w-32 hidden lg:table-cell">ID</th>
                   <th className="table-th-actions">Actions</th>
                 </tr>
               </thead>
@@ -495,7 +495,7 @@ export default function ContentListPage() {
                             </div>
                           </td>
                         )}
-                        <td className="table-td text-slate-400 text-xs font-mono truncate max-w-[120px]">
+                        <td className="table-td text-slate-400 text-xs font-mono truncate max-w-[120px] hidden lg:table-cell">
                           {collectionMeta?.display_template
                             ? formatDisplayTemplate(collectionMeta.display_template, item)
                             : itemId}

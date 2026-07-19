@@ -123,15 +123,16 @@ export default function HistoryPage() {
           </div>
         )}
 
-        <div className="card overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/60">
-                <th className="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">User</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Action</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Description</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Collection</th>
-                <th className="text-left px-5 py-3.5 font-semibold text-slate-500 text-xs uppercase tracking-wide">Date/Time</th>
+        <div className="table-shell">
+          <div className="table-scroll">
+          <table className="w-full min-w-[720px] text-sm">
+            <thead className="table-head">
+              <tr>
+                <th className="table-th">User</th>
+                <th className="table-th">Action</th>
+                <th className="table-th hidden md:table-cell">Description</th>
+                <th className="table-th hidden lg:table-cell">Collection</th>
+                <th className="table-th">Date/Time</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -175,8 +176,8 @@ export default function HistoryPage() {
                           {entry.action}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-slate-600">{entry.comment ?? '—'}</td>
-                      <td className="px-5 py-3.5">
+                      <td className="table-td hidden md:table-cell text-slate-600 max-w-xs truncate">{entry.comment ?? '—'}</td>
+                      <td className="table-td hidden lg:table-cell">
                         {entry.collection ? (
                           <code className="text-xs text-slate-500 bg-slate-100 rounded px-1.5 py-0.5">
                             {entry.collection}
@@ -185,7 +186,7 @@ export default function HistoryPage() {
                           <span className="text-slate-400">—</span>
                         )}
                       </td>
-                      <td className="px-5 py-3.5 text-slate-500 whitespace-nowrap">
+                      <td className="table-td text-slate-500 whitespace-nowrap">
                         {formatDate(entry.timestamp)}
                       </td>
                     </tr>
@@ -194,6 +195,7 @@ export default function HistoryPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
 
         {!isLoading && total > entries.length && (

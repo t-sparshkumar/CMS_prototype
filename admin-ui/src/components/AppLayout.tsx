@@ -120,6 +120,26 @@ export default function AppLayout({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+    const syncSidebar = () => setSidebarOpen(mediaQuery.matches);
+    syncSidebar();
+    mediaQuery.addEventListener('change', syncSidebar);
+    return () => mediaQuery.removeEventListener('change', syncSidebar);
+  }, []);
+
+  useEffect(() => {
+    if (window.matchMedia('(max-width: 1023px)').matches) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname]);
+
+  function closeSidebarOnMobile() {
+    if (window.matchMedia('(max-width: 1023px)').matches) {
+      setSidebarOpen(false);
+    }
+  }
+
   const resolvedBreadcrumbs = useMemo<BreadcrumbItem[]>(
     () => breadcrumbs ?? [{ label: 'Admin', to: '/' }, { label: title }],
     [breadcrumbs, title],
@@ -143,6 +163,7 @@ export default function AppLayout({
     return (
       <Link
         to={item.to}
+        onClick={closeSidebarOnMobile}
         className={`nav-item ${active ? 'nav-item-active' : 'nav-item-idle'}`}
       >
         <Icon name={item.icon} className="nav-item-icon" />
@@ -178,6 +199,7 @@ export default function AppLayout({
                 <Link
                   key={item.to}
                   to={item.to}
+                  onClick={closeSidebarOnMobile}
                   className={`nav-item nav-item-nested ${active ? 'nav-item-active' : 'nav-item-idle'}`}
                 >
                   <span className={`nav-bullet ${active ? 'nav-bullet-active' : ''}`} />
@@ -321,9 +343,17 @@ export default function AppLayout({
                   </button>
                 </div>
               )}
+              <button
+                type="button"
+                onClick={() => setUserMenuOpen((open) => !open)}
+                className="user-avatar sm:hidden"
+                aria-label="Open user menu"
+              >
+                {initials(user?.first_name, user?.last_name)}
+              </button>
             </div>
 
-            <span className="user-avatar" title={`${user?.first_name ?? ''} ${user?.last_name ?? ''}`}>
+            <span className="user-avatar hidden sm:flex" title={`${user?.first_name ?? ''} ${user?.last_name ?? ''}`}>
               {initials(user?.first_name, user?.last_name)}
             </span>
           </div>
@@ -331,12 +361,12 @@ export default function AppLayout({
 
         <div className="page-header">
           <Breadcrumbs items={resolvedBreadcrumbs} />
-          <div className="mt-3 flex items-start justify-between gap-4">
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <h1 className="page-title">{title}</h1>
               {subtitle && <p className="page-subtitle">{subtitle}</p>}
             </div>
-            {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+            {actions && <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}
           </div>
         </div>
 

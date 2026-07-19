@@ -146,12 +146,13 @@ export default function UsersPage() {
         </div>
 
         <div className="table-shell">
-          <table className="w-full text-sm">
+          <div className="table-scroll">
+          <table className="w-full min-w-[640px] text-sm">
             <thead className="table-head">
               <tr>
                 <th className="table-th">User</th>
-                <th className="table-th">Email</th>
-                <th className="table-th">Role</th>
+                <th className="table-th hidden md:table-cell">Email</th>
+                <th className="table-th hidden sm:table-cell">Role</th>
                 <th className="table-th">Status</th>
                 <th className="table-th text-right">Actions</th>
               </tr>
@@ -198,16 +199,19 @@ export default function UsersPage() {
                           >
                             {initials(user.first_name, user.last_name)}
                           </span>
-                          <span className="font-semibold text-slate-900">
-                            {user.first_name} {user.last_name}
-                            {user.id === currentUser?.id && (
-                              <span className="ml-2 text-xs font-medium text-slate-400">(you)</span>
-                            )}
-                          </span>
+                          <div className="min-w-0">
+                            <span className="font-semibold text-slate-900">
+                              {user.first_name} {user.last_name}
+                              {user.id === currentUser?.id && (
+                                <span className="ml-2 text-xs font-medium text-slate-400">(you)</span>
+                              )}
+                            </span>
+                            <p className="truncate text-xs text-slate-500 md:hidden">{user.email}</p>
+                          </div>
                         </div>
                       </td>
-                      <td className="table-td">{user.email}</td>
-                      <td className="table-td">
+                      <td className="table-td hidden md:table-cell">{user.email}</td>
+                      <td className="table-td hidden sm:table-cell">
                         <span className="badge-blue">{user.role_name ?? user.role}</span>
                       </td>
                       <td className="table-td">
@@ -243,6 +247,7 @@ export default function UsersPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

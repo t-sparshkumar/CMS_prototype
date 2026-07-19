@@ -1306,12 +1306,19 @@ body {
   color: var(--app-text-muted);
 }
 
+.dm-tab-nav {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.125rem;
+}
+
 .dm-tab-bar {
   display: inline-flex;
   gap: 0.125rem;
   padding: 0.25rem;
   border-radius: 0.5rem;
   background-color: var(--app-hover);
+  min-width: min-content;
 }
 
 .dm-tab-item {
@@ -2098,6 +2105,10 @@ body {
 
   .asset-gallery-toolbar-spacer {
     display: none;
+  }
+
+  .asset-gallery {
+    min-height: 24rem;
   }
 
   .asset-gallery-search {

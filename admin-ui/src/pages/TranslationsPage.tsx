@@ -169,7 +169,8 @@ export default function TranslationsPage() {
         {error && <div className="alert-error">{error}</div>}
 
         <div className="table-shell">
-          <table className="w-full text-sm">
+          <div className="table-scroll">
+          <table className="w-full min-w-[480px] text-sm">
             <thead className="table-head">
               <tr>
                 <th className="table-th w-28">Key</th>
@@ -281,6 +282,7 @@ export default function TranslationsPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

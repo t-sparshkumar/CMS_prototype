@@ -909,6 +909,7 @@ export default function AssetGalleryPage({ pickerMode, onSelect }: AssetGalleryP
     <AppLayout
       title="Asset Gallery"
       subtitle="Browse folders and files like Google Drive"
+      fullWidth
     >
       {driveContent}
       {modals}
