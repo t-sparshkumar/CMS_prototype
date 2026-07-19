@@ -1,91 +1,75 @@
-# Deployment Guide — Vercel (Admin UI) + Railway (Backend) + Supabase (Database)
+# Deploy: Neon (DB) + Railway (Backend) + Vercel (Admin UI)
 
-| Part | Platform | What it runs |
-|------|----------|--------------|
-| **Admin UI** | [Vercel](https://vercel.com) | React/Vite static app |
-| **Backend API** | [Railway](https://railway.com) | Node.js Express API |
-| **Database** | [Supabase](https://supabase.com) | PostgreSQL (free tier) |
+| Layer | Platform | You configure |
+|-------|----------|---------------|
+| Database | [Neon](https://neon.tech) | `DATABASE_URL` → Railway |
+| Backend | [Railway](https://railway.com) | Docker from repo `Dockerfile` |
+| Admin UI | [Vercel](https://vercel.com) | `VITE_API_URL` → Railway URL |
 
-File uploads stay on a Railway **volume** (`/data/uploads`). Schema and content live in Supabase Postgres.
-
----
-
-## Prerequisites
-
-1. Code pushed to **GitHub**
-2. Free accounts: [Supabase](https://supabase.com), [Railway](https://railway.com), [Vercel](https://vercel.com)
-
-You only paste **one external credential**: Supabase’s `DATABASE_URL` into Railway. Everything else is auto-generated or set from URLs.
+Uploads are stored on a Railway **volume** at `/data/uploads`. Schema + content live in Neon.
 
 ---
 
-## Step 1 — Create a Supabase database
+## Before you start
 
-1. Go to [supabase.com/dashboard](https://supabase.com/dashboard) → **New project**
-2. Name it (e.g. `cms-prototype`) → set a **database password** (save it)
-3. Pick a region close to your Railway region → **Create new project**
-4. When ready, open **Project Settings** → **Database**
-5. Under **Connection string**, choose **URI** and copy it
-   - For Railway (long-running Node server), use **Direct connection** or **Session pooler**
-   - Avoid **Transaction pooler** (port 6543) for migrations/seeds — it can break DDL
-6. Replace `[YOUR-PASSWORD]` in the URI with your database password  
-   URL-encode special characters in the password if needed
-7. Ensure SSL is enabled, e.g. append if missing:
+- [ ] Latest code on GitHub (`main` branch includes `Dockerfile`)
+- [ ] Vercel admin UI already deployed (you have the URL)
+- [ ] Neon + Railway accounts (free tier is fine)
+
+---
+
+## Step 1 — Neon database
+
+1. Go to [console.neon.tech](https://console.neon.tech) → **New Project**
+2. Name: `cms-prototype` → pick a region near Railway
+3. **Dashboard** → **Connect** → copy the **pooled** connection string
+4. Must include SSL, e.g.:
    ```
-   postgresql://postgres:YOUR_PASSWORD@db.xxxxx.supabase.co:5432/postgres?sslmode=require
+   postgresql://user:pass@ep-xxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
    ```
+5. Save this as `DATABASE_URL` — paste into Railway in Step 2
 
-Example (Session pooler — also fine for Railway):
-
-```
-postgresql://postgres.xxxxx:YOUR_PASSWORD@aws-0-ap-south-1.pooler.supabase.com:5432/postgres?sslmode=require
-```
-
-Keep this connection string — you’ll paste it into Railway as `DATABASE_URL` in Step 2.
-
-> Supabase free tier is enough for a prototype. You do **not** need Supabase Auth or Storage for this CMS — only the Postgres database.
+**If a previous deploy failed:** Neon → **Reset branch** / new project so migrations run on a clean DB.
 
 ---
 
-## Step 2 — Deploy backend (Railway or Render)
+## Step 2 — Railway backend (Docker)
 
-**Recommended: use the repo `Dockerfile`** — it fixes monorepo, Node 20, and native module (`sharp`) issues that break Nixpacks builds.
+### Create service
 
-### Railway (Docker)
+1. [railway.app/new](https://railway.app/new) → **GitHub Repo** → select this repo
+2. **Settings** → **Root Directory** → leave **blank** (repo root)
+3. **Settings** → **Builder** → must use **Dockerfile** (auto-detected from repo)
+4. **Delete/clear** any custom Build Command or Start Command in the UI (Dockerfile handles both)
 
-1. [railway.com](https://railway.com) → **New Project** → **Deploy from GitHub repo**
-2. **Settings** → **Root Directory** → leave **empty** (repo root)
-3. Railway auto-detects `Dockerfile` — **do not** override build/start commands manually
-4. **Variables**:
+### Volume (file uploads)
 
-   | Variable | Value |
-   |----------|--------|
-   | `NODE_ENV` | `production` |
-   | `DB_CLIENT` | `pg` |
-   | `DATABASE_URL` | Supabase URI from Step 1 |
-   | `SECRET_KEY` | long random string |
-   | `UPLOAD_DIR` | `/data/uploads` |
-   | `NIXPACKS_NODE_VERSION` | *(not needed with Docker)* |
+1. Service → **Volumes** → **Add Volume**
+2. Mount path: `/data`
 
-5. **Volumes** → mount `/data` (for uploads)
-6. **Networking** → **Generate Domain**
+### Environment variables
 
-### Render (Docker)
+Service → **Variables**:
 
-1. [Render Dashboard](https://dashboard.render.com) → **New** → **Blueprint**
-2. Connect GitHub repo — `render.yaml` uses `runtime: docker` and `./Dockerfile`
-3. Set `DATABASE_URL` (Supabase) when prompted
-4. Ensure disk is mounted at `/var/data`, `UPLOAD_DIR=/var/data/uploads`
+| Variable | Value |
+|----------|--------|
+| `NODE_ENV` | `production` |
+| `DB_CLIENT` | `pg` |
+| `DATABASE_URL` | Neon pooled string from Step 1 |
+| `SECRET_KEY` | Generate a long random string |
+| `UPLOAD_DIR` | `/data/uploads` |
+| `ADMIN_UI_URL` | Your **Vercel** URL, e.g. `https://your-app.vercel.app` (no trailing slash) |
 
-### Verify backend
+Do **not** set `DB_FILE`. Do **not** set `PORT` (Railway injects it).
 
-```bash
-curl https://YOUR-BACKEND-URL/server/health
-```
+### Domain
 
-Expected: `{"data":{"status":"ok","db":"connected"}}`
+1. **Settings** → **Networking** → **Generate Domain**
+2. Copy URL, e.g. `https://cms-backend-production.up.railway.app`
 
-Logs should show:
+### Deploy & verify
+
+Wait for deploy logs:
 
 ```
 ==> Running migrations...
@@ -94,74 +78,51 @@ Logs should show:
 CMS backend listening on ...
 ```
 
----
+Test:
 
-### Alternative: Railway Nixpacks (no Docker)
+```bash
+curl https://YOUR-RAILWAY-URL.up.railway.app/server/health
+```
 
-Only use this if Docker is unavailable. Pick **one** setup:
+Expected: `{"data":{"status":"ok","db":"connected"}}`
 
-#### Option A — Repo root
-
-| Setting | Value |
-|---------|--------|
-| **Root Directory** | *(empty)* |
-| **Build Command** | `npm ci && npm run build -w backend` |
-| **Start Command** | `npm run start:prod -w backend` |
-
-#### Option B — Backend folder
-
-| Setting | Value |
-|---------|--------|
-| **Root Directory** | `backend` |
-| **Build Command** | `npm install --include=dev && npm run build` |
-| **Start Command** | `npm run start:prod` |
-
-Set **`NIXPACKS_NODE_VERSION`** = `20`. **Do not** use `-w backend` with Option B.
+**Login after seeds:** `admin@example.com` / `admin`
 
 ---
 
-## Step 3 — Deploy admin UI on Vercel
+## Step 3 — Vercel admin UI (already live)
 
-1. [Vercel](https://vercel.com/new) → Import GitHub repo
-2. Configure:
+Update env + redeploy so the UI talks to Railway:
 
-   | Setting | Value |
-   |---------|-------|
-   | **Framework Preset** | Vite |
-   | **Root Directory** | `admin-ui` |
-   | **Build Command** | `npm run build` |
-   | **Output Directory** | `dist` |
-
-3. Environment variable:
+1. Vercel → your project → **Settings** → **Environment Variables**
+2. Set:
 
    | Name | Value |
-   |------|-------|
-   | `VITE_API_URL` | `https://YOUR-SERVICE.up.railway.app` (no trailing slash) |
+   |------|--------|
+   | `VITE_API_URL` | `https://YOUR-RAILWAY-URL.up.railway.app` (no trailing slash) |
 
-4. Deploy → copy Vercel URL
+3. **Deployments** → **Redeploy** (required — Vite bakes env at build time)
 
----
-
-## Step 4 — Link frontend ↔ backend
-
-1. **Railway** → your backend service → **Variables** → set `ADMIN_UI_URL` to your Vercel URL (no trailing slash)
-2. Railway redeploys automatically when variables change
-3. Open Vercel URL → login:
-
-   | Email | Password |
-   |-------|----------|
-   | `admin@example.com` | `admin` |
-
-Change the admin password after first login.
+4. Open your Vercel URL → login with `admin@example.com` / `admin`
 
 ---
 
-## What to share with your manager
+## Step 4 — Final link check
 
-Send only the **Vercel URL** (not Railway or Supabase):
+| Check | Expected |
+|-------|----------|
+| Railway `ADMIN_UI_URL` | Exact Vercel origin (https, no trailing `/`) |
+| Vercel `VITE_API_URL` | Exact Railway origin (https, no trailing `/`) |
+| Health endpoint | `db: connected` |
+| Login on Vercel | Works in incognito window |
+
+If login fails: fix URLs → redeploy **both** Railway and Vercel.
+
+---
+
+## Share with your manager
 
 ```
-CMS Prototype Demo
 URL:      https://your-app.vercel.app
 Email:    admin@example.com
 Password: admin
@@ -169,48 +130,56 @@ Password: admin
 
 ---
 
-## Environment variables reference
+## Troubleshooting
 
-### Supabase
+### Build fails on Railway
 
-| Item | Notes |
-|------|-------|
-| **Connection string** | Project Settings → Database → Connection string → URI |
-| **Direct vs pooler** | Use **Direct** or **Session pooler** for migrations; avoid Transaction pooler (6543) |
-| **SSL** | Append `?sslmode=require` if not in the URI |
-| **Password** | Replace `[YOUR-PASSWORD]`; URL-encode special characters |
+- Root Directory must be **empty** (not `backend`)
+- Use **Dockerfile** builder, not Nixpacks with `-w backend`
+- Push latest `main` from GitHub
 
-### Backend (Railway)
+### `No workspaces found`
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NODE_ENV` | Yes | `production` |
-| `DB_CLIENT` | Yes | `pg` |
-| `DATABASE_URL` | Yes | Supabase PostgreSQL URI |
-| `SECRET_KEY` | Yes | JWT secret |
-| `ADMIN_UI_URL` | Yes | Full Vercel URL |
-| `UPLOAD_DIR` | Yes | `/data/uploads` |
-| `PORT` | Auto | Set by Railway |
+You set Root Directory = `backend` but build uses `-w backend`. Clear Root Directory or use Docker.
 
-### Admin UI (Vercel)
+### Migrations / seeds fail
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_API_URL` | Yes | Railway backend URL |
+- Reset Neon database, redeploy Railway
+- Confirm `DATABASE_URL` has `?sslmode=require`
+- Use Neon **pooled** connection string
+
+### CORS / login fails
+
+- `ADMIN_UI_URL` on Railway must **exactly** match Vercel URL
+- Redeploy Railway after changing it
+
+### `DATABASE_URL is required`
+
+Set `DB_CLIENT=pg` and `DATABASE_URL` on Railway.
+
+### Slow first request
+
+Railway free tier sleeps when idle — open the URL once before a demo.
 
 ---
 
-## Local development with Supabase (optional)
+## Quick checklist
 
-Match production by pointing local `.env` at Supabase:
+- [ ] Neon project + pooled `DATABASE_URL`
+- [ ] Railway: empty root dir, Docker, volume at `/data`
+- [ ] Railway env vars set (including `ADMIN_UI_URL`)
+- [ ] `/server/health` → `db: connected`
+- [ ] Vercel `VITE_API_URL` → Railway URL + redeploy
+- [ ] Login works on Vercel
 
-```bash
-cp backend/.env.example backend/.env
-```
+---
+
+## Local dev (optional)
 
 ```env
+# backend/.env
 DB_CLIENT=pg
-DATABASE_URL=postgresql://postgres:...@db.xxxxx.supabase.co:5432/postgres?sslmode=require
+DATABASE_URL=postgresql://...@ep-xxx.neon.tech/neondb?sslmode=require
 SECRET_KEY=local-dev-secret
 ADMIN_UI_URL=http://localhost:5173
 ```
@@ -221,70 +190,4 @@ npm run dev:backend
 npm run dev:admin
 ```
 
----
-
-## SQLite alternative (local only)
-
-For offline local dev without Supabase:
-
-```env
-DB_CLIENT=sqlite3
-DB_FILE=./data/cms.db
-```
-
-See README for `npm run db:setup`.
-
----
-
-## Troubleshooting
-
-### `DATABASE_URL is required in production when DB_CLIENT=pg`
-
-Set `DATABASE_URL` on Railway to your Supabase URI and redeploy.
-
-### Migrations or seeds fail on deploy
-
-- Use **Direct** or **Session pooler** connection string, not Transaction pooler (6543)
-- Reset database: Supabase → **Database** → **Reset database** (or create a new project), update `DATABASE_URL`, redeploy Railway
-
-### `password authentication failed`
-
-- Password in URI must match the project database password
-- URL-encode `@`, `#`, `/`, etc. in passwords
-
-### Login fails on Vercel
-
-- `VITE_API_URL` set on Vercel and redeployed
-- `ADMIN_UI_URL` on Railway exactly matches Vercel URL (no trailing slash)
-
-### CORS errors
-
-`ADMIN_UI_URL` must match the exact origin (scheme + host, no trailing slash).
-
-### File uploads disappear after redeploy
-
-Ensure a Railway **volume** is mounted at `/data` and `UPLOAD_DIR=/data/uploads`.
-
-### Slow first request
-
-Railway free tier may sleep idle services — open the URL once before a demo.
-
----
-
-## Quick checklist
-
-- [ ] Code pushed to GitHub
-- [ ] Supabase project created, connection string copied (Direct or Session pooler)
-- [ ] Railway backend deployed with `DB_CLIENT=pg` + `DATABASE_URL`
-- [ ] Railway volume mounted at `/data` for uploads
-- [ ] `/server/health` returns `db: connected`
-- [ ] Vercel deployed with `VITE_API_URL` → Railway URL
-- [ ] `ADMIN_UI_URL` set on Railway to Vercel URL
-- [ ] Login works with `admin@example.com` / `admin`
-
----
-
-## Alternatives
-
-- **Neon** — swap Step 1 for [neon.tech](https://neon.tech); same `DATABASE_URL` + Railway setup
-- **Render backend** — see `render.yaml`; use `/var/data/uploads` for `UPLOAD_DIR`
+Do **not** set `VITE_API_URL` locally — Vite proxies to port 8055.

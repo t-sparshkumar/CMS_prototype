@@ -642,15 +642,17 @@ Full guide: **[DEPLOYMENT.md](./DEPLOYMENT.md)**
 
 | Part | Platform | Config |
 |------|----------|--------|
-| Admin UI | [Vercel](https://vercel.com) | Root: `admin-ui`, set `VITE_API_URL` |
-| Backend | [Railway](https://railway.com) | Repo root, `npm run build -w backend` |
-| Database | [Supabase](https://supabase.com) | Free PostgreSQL — paste `DATABASE_URL` into Railway |
+| Database | [Neon](https://neon.tech) | Pooled `DATABASE_URL` → Railway |
+| Backend | [Railway](https://railway.com) | Docker (`Dockerfile` at repo root) |
+| Admin UI | [Vercel](https://vercel.com) | Root: `admin-ui`, `VITE_API_URL` → Railway |
 
-1. Create a Supabase project and copy the Postgres connection string (Direct or Session pooler)
-2. Deploy backend on Railway — set `DATABASE_URL`, add volume at `/data`
-3. Deploy admin UI on Vercel — set `VITE_API_URL` to Railway URL
-4. Set `ADMIN_UI_URL` on Railway to your Vercel URL → redeploy backend
-5. Login: `admin@example.com` / `admin` — change password after first login
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for the full Neon → Railway → Vercel guide.
+
+1. Create Neon project → copy pooled connection string
+2. Deploy backend on Railway (Docker, empty root dir, volume at `/data`)
+3. Set `VITE_API_URL` on Vercel to Railway URL → redeploy Vercel
+4. Set `ADMIN_UI_URL` on Railway to Vercel URL → redeploy Railway
+5. Login: `admin@example.com` / `admin`
 
 ---
 

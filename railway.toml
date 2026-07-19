@@ -1,14 +1,9 @@
-# Deploy from the repository root (leave Railway "Root Directory" empty).
-# package-lock.json lives here; backend is an npm workspace.
+# Railway — Neon DB + Docker backend (repo root, no custom build/start commands).
 [build]
-builder = "NIXPACKS"
-buildCommand = "npm ci && npm run build -w backend"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "npm run start:prod -w backend"
 healthcheckPath = "/server/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
-
-[env]
-NIXPACKS_NODE_VERSION = "20"

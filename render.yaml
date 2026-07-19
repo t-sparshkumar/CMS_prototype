@@ -1,5 +1,5 @@
 # Backend on Render — Docker (recommended) or Nixpacks via rootDir backend.
-# Set DATABASE_URL from Supabase → Database → Connection string (Direct or Session pooler).
+# Set DATABASE_URL from Neon dashboard → Connection details (pooled URI).
 services:
   - type: web
     name: cms-backend

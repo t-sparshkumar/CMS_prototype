@@ -40,7 +40,7 @@ export function getEnv(): Env {
   if (usesPostgres && !env.DATABASE_URL && env.NODE_ENV === 'production') {
     throw new Error(
       'DATABASE_URL is required in production when DB_CLIENT=pg. ' +
-        'Create a free database at https://supabase.com, copy the Postgres connection string ' +
+        'Create a free database at https://neon.tech, copy the connection string ' +
         '(append ?sslmode=require if needed), and set DATABASE_URL on Railway.',
     );
   }
