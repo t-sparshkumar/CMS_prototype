@@ -1,0 +1,10 @@
+# Use when Railway "Root Directory" is set to `backend`.
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install --include=dev && npm run build"
+
+[deploy]
+startCommand = "npm run start:prod"
+healthcheckPath = "/server/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"

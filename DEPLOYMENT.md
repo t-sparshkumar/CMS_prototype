@@ -42,16 +42,31 @@ You only paste **one external credential**: Neon’s `DATABASE_URL` into Railway
 
 1. Go to [railway.com](https://railway.com) → sign up with **GitHub**
 2. **New Project** → **Deploy from GitHub repo** → select your `CMS_PROTOTYPE` repo
-3. Railway creates a service — open it → **Settings**:
+3. Railway creates a service — pick **one** of these setups:
 
-   | Setting | Value |
-   |---------|--------|
-   | **Root Directory** | *(leave empty — use repo root)* |
-   | **Build Command** | `npm ci && npm run build -w backend` |
-   | **Start Command** | `npm run start:prod -w backend` |
-   | **Health Check Path** | `/server/health` |
+#### Option A — Repo root (recommended)
 
-   > `railway.toml` and `nixpacks.toml` at the repo root mirror these settings.
+| Setting | Value |
+|---------|--------|
+| **Root Directory** | *(leave empty)* |
+| **Build Command** | `npm ci && npm run build -w backend` |
+| **Start Command** | `npm run start:prod -w backend` |
+| **Health Check Path** | `/server/health` |
+
+Uses `railway.toml` + `nixpacks.toml` at the repo root. Requires **Node 20** (set via `.node-version`).
+
+#### Option B — Backend folder
+
+| Setting | Value |
+|---------|--------|
+| **Root Directory** | `backend` |
+| **Build Command** | `npm install --include=dev && npm run build` |
+| **Start Command** | `npm run start:prod` |
+| **Health Check Path** | `/server/health` |
+
+Uses `backend/railway.toml` + `backend/nixpacks.toml`. **Do not** use `-w backend` with this option.
+
+> **Common mistake:** Root Directory = `backend` but build command uses `npm run build -w backend` → `No workspaces found` error.
 
 4. **Settings** → **Networking** → **Generate Domain**  
    Copy your public URL, e.g. `https://cms-backend-production.up.railway.app` (no trailing slash).

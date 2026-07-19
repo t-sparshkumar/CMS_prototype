@@ -1,0 +1,12 @@
+# Backend-only deploy (Railway Root Directory = `backend`).
+[phases.setup]
+nixPkgs = ["nodejs_20", "python3", "gcc", "vips"]
+
+[phases.install]
+cmds = ["npm install --include=dev"]
+
+[phases.build]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npm run start:prod"

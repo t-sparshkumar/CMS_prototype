@@ -9,3 +9,6 @@ startCommand = "npm run start:prod -w backend"
 healthcheckPath = "/server/health"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
+
+[env]
+NIXPACKS_NODE_VERSION = "20"
