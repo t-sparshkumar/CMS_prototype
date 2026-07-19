@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+**/dist
+.git
+.cursor
+docs
+admin-ui/src
+admin-ui/dist
+backend/data
+backend/uploads
+**/*.db
+.env
+.env.*
+*.log

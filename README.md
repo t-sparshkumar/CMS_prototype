@@ -644,9 +644,9 @@ Full guide: **[DEPLOYMENT.md](./DEPLOYMENT.md)**
 |------|----------|--------|
 | Admin UI | [Vercel](https://vercel.com) | Root: `admin-ui`, set `VITE_API_URL` |
 | Backend | [Railway](https://railway.com) | Repo root, `npm run build -w backend` |
-| Database | [Neon](https://neon.tech) | Free PostgreSQL — paste `DATABASE_URL` into Railway |
+| Database | [Supabase](https://supabase.com) | Free PostgreSQL — paste `DATABASE_URL` into Railway |
 
-1. Create a Neon project and copy the connection string
+1. Create a Supabase project and copy the Postgres connection string (Direct or Session pooler)
 2. Deploy backend on Railway — set `DATABASE_URL`, add volume at `/data`
 3. Deploy admin UI on Vercel — set `VITE_API_URL` to Railway URL
 4. Set `ADMIN_UI_URL` on Railway to your Vercel URL → redeploy backend

@@ -1,14 +1,11 @@
-# Backend on Render + PostgreSQL on Neon (free tier).
-# Set DATABASE_URL in Render from Neon dashboard after creating the database.
-# Persistent disk is only for file uploads (DB lives in Neon).
+# Backend on Render — Docker (recommended) or Nixpacks via rootDir backend.
+# Set DATABASE_URL from Supabase → Database → Connection string (Direct or Session pooler).
 services:
   - type: web
     name: cms-backend
-    runtime: node
-    rootDir: backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: starter
-    buildCommand: npm install --include=dev && npm run build
-    startCommand: npm run start:prod
     healthCheckPath: /server/health
     envVars:
       - key: NODE_ENV
