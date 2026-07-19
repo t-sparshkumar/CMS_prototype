@@ -24,6 +24,9 @@ import { success } from './core/response.js';
 import { destroyDb, getDb, initDb } from './db/knex.js';
 import { getSqliteDbPath } from './core/sqlite.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { repairWebsiteModule } from './services/website.service.js';
+import { refreshFlowSchedules } from './services/flows/cron-scheduler.js';
+import { runMigrationsAndSeeds } from './db/run-migrations.js';
 
 dotenv.config();
 
@@ -40,6 +43,11 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
+
+/** Liveness probe — responds as soon as HTTP server is up (Railway health check). */
+app.get('/server/live', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 app.get('/server/health', async (_req, res, next) => {
   try {
@@ -78,20 +86,26 @@ app.use('/graphql', graphqlYoga as unknown as RequestHandler);
 
 app.use(errorHandler);
 
-import { repairWebsiteModule } from './services/website.service.js';
-import { refreshFlowSchedules } from './services/flows/cron-scheduler.js';
-
 async function start(): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const server = app.listen(env.PORT, '0.0.0.0', () => {
+      console.log(`CMS backend listening on http://0.0.0.0:${env.PORT}`);
+      resolve();
+    });
+    server.on('error', reject);
+  });
+
+  if (process.env.NODE_ENV === 'production') {
+    runMigrationsAndSeeds();
+  }
+
   await initDb();
   const db = getDb();
   await db.raw('select 1');
   await ensureUploadDir();
   await repairWebsiteModule(db);
   await refreshFlowSchedules(db);
-
-  app.listen(env.PORT, () => {
-    console.log(`CMS backend listening on http://localhost:${env.PORT}`);
-  });
+  console.log('CMS backend ready');
 }
 
 start().catch((err: unknown) => {

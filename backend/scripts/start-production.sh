@@ -18,13 +18,5 @@ if [[ -z "${SECRET_KEY:-}" ]]; then
   exit 1
 fi
 
-export NODE_OPTIONS="--import tsx"
-
-echo "==> Running migrations..."
-npx knex migrate:latest --knexfile knexfile.ts
-
-echo "==> Running seeds..."
-npx knex seed:run --knexfile knexfile.ts
-
-echo "==> Starting API server..."
+echo "==> Starting API server (migrations run after listen)..."
 exec node dist/index.js
