@@ -18,5 +18,5 @@ if [[ -z "${SECRET_KEY:-}" ]]; then
   exit 1
 fi
 
-echo "==> Starting API server (migrations run after listen)..."
+echo "==> Starting API server..."
 exec node dist/index.js

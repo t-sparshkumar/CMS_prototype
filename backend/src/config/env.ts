@@ -16,7 +16,19 @@ const envSchema = z.object({
   UPLOAD_DIR: z.string().default('./uploads'),
   ACCESS_TOKEN_TTL: z.string().default('15m'),
   REFRESH_TOKEN_TTL: z.string().default('7d'),
-  ADMIN_UI_URL: z.string().url().default('http://localhost:5173'),
+  ADMIN_UI_URL: z.preprocess(
+    (value) => {
+      if (typeof value !== 'string' || value.trim() === '') {
+        return value;
+      }
+      const trimmed = value.trim();
+      if (!/^https?:\/\//i.test(trimmed)) {
+        return `https://${trimmed}`;
+      }
+      return trimmed;
+    },
+    z.string().url().default('http://localhost:5173'),
+  ),
 });
 
 export type Env = z.infer<typeof envSchema>;

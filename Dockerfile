@@ -24,4 +24,4 @@ ENV NODE_ENV=production
 
 EXPOSE 8055
 
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/index.js"]

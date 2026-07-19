@@ -5,6 +5,6 @@ buildCommand = "npm install --include=dev && npm run build"
 
 [deploy]
 startCommand = "npm run start:prod"
-healthcheckPath = "/server/health"
+healthcheckPath = "/server/live"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
