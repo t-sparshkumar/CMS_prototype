@@ -11,7 +11,7 @@ export interface ProjectSettings {
   theme: ThemeId;
 }
 
-const STORAGE_KEY = 'cms-project-settings-v5';
+const STORAGE_KEY = 'cms-project-settings-v6';
 
 const defaults: ProjectSettings = {
   projectName: 'Paytm',
@@ -25,15 +25,25 @@ function loadSettings(): ProjectSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      const legacy = localStorage.getItem('cms-project-settings-v4');
+      const legacy = localStorage.getItem('cms-project-settings-v5') ?? localStorage.getItem('cms-project-settings-v4');
       if (legacy) {
         const parsed = JSON.parse(legacy) as Partial<ProjectSettings>;
-        return { ...defaults, ...parsed, theme: normalizeThemeId(parsed.theme), adminLogoAssetId: parsed.adminLogoAssetId ?? null };
+        return {
+          ...defaults,
+          ...parsed,
+          theme: parsed.theme === 'light' ? DEFAULT_THEME : normalizeThemeId(parsed.theme),
+          adminLogoAssetId: parsed.adminLogoAssetId ?? null,
+        };
       }
       const older = localStorage.getItem('cms-project-settings-v3');
       if (older) {
         const parsed = JSON.parse(older) as Partial<ProjectSettings>;
-        return { ...defaults, ...parsed, theme: normalizeThemeId(parsed.theme), adminLogoAssetId: null };
+        return {
+          ...defaults,
+          ...parsed,
+          theme: parsed.theme === 'light' ? DEFAULT_THEME : normalizeThemeId(parsed.theme),
+          adminLogoAssetId: null,
+        };
       }
       return defaults;
     }

@@ -45,12 +45,12 @@ export const THEMES: ThemeDefinition[] = [
   },
 ];
 
-export const DEFAULT_THEME: ThemeId = 'light';
+export const DEFAULT_THEME: ThemeId = 'ocean';
 
 export function getTheme(id: string | undefined): ThemeDefinition {
   const found = THEMES.find((t) => t.id === id);
   if (found) return found;
-  return THEMES[0]!;
+  return THEMES.find((t) => t.id === DEFAULT_THEME) ?? THEMES[0]!;
 }
 
 export function normalizeThemeId(id: string | undefined): ThemeId {
