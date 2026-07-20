@@ -4,7 +4,7 @@
 |-------|----------|---------------|
 | Database | [Neon](https://neon.tech) | `DATABASE_URL` → Railway |
 | Backend | [Railway](https://railway.com) | Docker from repo `Dockerfile` |
-| Admin UI | [Vercel](https://vercel.com) | `VITE_API_URL` → Railway URL |
+| Admin UI | [Vercel](https://vercel.com) | `BACKEND_URL` → Railway (proxy); leave `VITE_API_URL` unset |
 
 Uploads are stored on a Railway **volume** at `/data/uploads`. Schema + content live in Neon.
 
@@ -90,20 +90,24 @@ Expected: `{"data":{"status":"ok","db":"connected"}}`
 
 ---
 
-## Step 3 — Vercel admin UI (already live)
+## Step 3 — Vercel admin UI
 
-Update env + redeploy so the UI talks to Railway:
+### Environment variables
 
 1. Vercel → your project → **Settings** → **Environment Variables**
 2. Set:
 
    | Name | Value |
    |------|--------|
-   | `VITE_API_URL` | `https://YOUR-RAILWAY-URL.up.railway.app` (no trailing slash) |
+   | `BACKEND_URL` | `https://YOUR-RAILWAY-URL.up.railway.app` (no trailing slash) |
 
-3. **Deployments** → **Redeploy** (required — Vite bakes env at build time)
+3. **Remove `VITE_API_URL`** if it exists — the Vercel proxy sends API calls same-origin (required for mobile Safari login).
 
-4. Open your Vercel URL → login with `admin@example.com` / `admin`
+4. **Deployments** → **Redeploy** (required — env is baked at build time for Vite; middleware reads `BACKEND_URL` at runtime).
+
+5. Open your Vercel URL → login with `admin@example.com` / `admin`
+
+**Why `BACKEND_URL` not `VITE_API_URL`?** Mobile Safari blocks third-party cookies. With `VITE_API_URL`, the browser talks to Railway directly (cross-origin). With `BACKEND_URL`, Vercel proxies `/auth`, `/api`, etc. so cookies work on all devices.
 
 ---
 
@@ -112,7 +116,8 @@ Update env + redeploy so the UI talks to Railway:
 | Check | Expected |
 |-------|----------|
 | Railway `ADMIN_UI_URL` | Exact Vercel origin (https, no trailing `/`) |
-| Vercel `VITE_API_URL` | Exact Railway origin (https, no trailing `/`) |
+| Vercel `BACKEND_URL` | Exact Railway origin (https, no trailing `/`) |
+| Vercel `VITE_API_URL` | **Unset** (use proxy mode) |
 | Health endpoint | `db: connected` |
 | Login on Vercel | Works in incognito window |
 
@@ -152,6 +157,8 @@ You set Root Directory = `backend` but build uses `-w backend`. Clear Root Direc
 
 - `ADMIN_UI_URL` on Railway must **exactly** match Vercel URL
 - Redeploy Railway after changing it
+- On mobile Safari: use `BACKEND_URL` proxy on Vercel and **remove** `VITE_API_URL`
+- Test desktop in **incognito** — if that fails too, URLs/env are misconfigured
 
 ### `DATABASE_URL is required`
 
@@ -169,7 +176,7 @@ Railway free tier sleeps when idle — open the URL once before a demo.
 - [ ] Railway: empty root dir, Docker, volume at `/data`
 - [ ] Railway env vars set (including `ADMIN_UI_URL`)
 - [ ] `/server/health` → `db: connected`
-- [ ] Vercel `VITE_API_URL` → Railway URL + redeploy
+- [ ] Vercel `BACKEND_URL` → Railway URL; `VITE_API_URL` unset + redeploy
 - [ ] Login works on Vercel
 
 ---

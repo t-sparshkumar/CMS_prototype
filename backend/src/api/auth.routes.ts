@@ -53,7 +53,12 @@ authRouter.post('/login', async (req: Request, res: Response, next: NextFunction
     }
 
     const db = getDb();
-    const { result, refreshToken } = await login(db, email, password, getSessionMeta(req));
+    const { result, refreshToken } = await login(
+      db,
+      email.trim().toLowerCase(),
+      password,
+      getSessionMeta(req),
+    );
     setRefreshCookie(res, refreshToken);
     res.json(success(result));
   } catch (err) {

@@ -1,4 +1,5 @@
 import { FormEvent, useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import BrandLogo from '../components/BrandLogo';
 import { useAuthStore } from '../stores/authStore';
@@ -18,9 +19,19 @@ export default function LoginPage() {
     e.preventDefault();
     setError(null);
     try {
-      await login(email, password);
+      await login(email.trim().toLowerCase(), password);
       navigate('/');
-    } catch {
+    } catch (err) {
+      if (axios.isAxiosError(err) && !err.response) {
+        setError('Cannot reach the API. Check BACKEND_URL on Vercel and ADMIN_UI_URL on Railway.');
+        return;
+      }
+      if (axios.isAxiosError(err)) {
+        const apiMessage = (err.response?.data as { errors?: Array<{ message?: string }> })?.errors?.[0]
+          ?.message;
+        setError(apiMessage ?? 'Invalid email or password');
+        return;
+      }
       setError('Invalid email or password');
     }
   }
