@@ -5,14 +5,17 @@ import BrandLogo from '../components/BrandLogo';
 import { useAuthStore } from '../stores/authStore';
 import { useSettingsStore } from '../stores/settingsStore';
 
+const DEMO_EMAIL = 'admin@example.com';
+const DEMO_PASSWORD = 'admin';
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const login = useAuthStore((s) => s.login);
   const isLoading = useAuthStore((s) => s.isLoading);
   const projectName = useSettingsStore((s) => s.projectName);
 
-  const [email, setEmail] = useState(import.meta.env.PROD ? '' : 'admin@example.com');
-  const [password, setPassword] = useState(import.meta.env.PROD ? '' : 'admin');
+  const [email, setEmail] = useState(DEMO_EMAIL);
+  const [password, setPassword] = useState(DEMO_PASSWORD);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: FormEvent) {
@@ -82,7 +85,9 @@ export default function LoginPage() {
                 </label>
                 <input
                   id="email"
+                  name="email"
                   type="email"
+                  autoComplete="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="input"
@@ -96,7 +101,9 @@ export default function LoginPage() {
                 </label>
                 <input
                   id="password"
+                  name="password"
                   type="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="input"
